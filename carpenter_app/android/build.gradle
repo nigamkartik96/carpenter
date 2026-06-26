@@ -1,0 +1,36 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+// Older plugin versions (e.g. geolocator_android 4.1.x, kept pinned via
+// dependency_overrides for AGP/Flutter-version compatibility -- see
+// pubspec.yaml) predate AGP 8's mandatory `namespace` declaration. Backfill
+// it from the plugin's own group id so AGP 8.1 doesn't fail with
+// "Namespace not specified" for those subprojects. Must be registered
+// before evaluationDependsOn forces eager evaluation below.
+subprojects {
+    afterEvaluate { proj ->
+        if (proj.plugins.hasPlugin("com.android.library")) {
+            proj.android {
+                if (namespace == null) {
+                    namespace proj.group
+                }
+            }
+        }
+    }
+}
+
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "620857085533",
+    "project_id": "carpenterhub-96958",
+    "storage_bucket": "carpenterhub-96958.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:620857085533:android:ed97926cb8319c82c347b4",
+        "android_client_info": {
+          "package_name": "com.carpenterhub.carpenter_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXTZchUs-s91F5f_oDvIYRaKHIODwfTxI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

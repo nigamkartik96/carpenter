@@ -1,0 +1,94 @@
+rules_version = '2';
+
+// First-cut security rules for CarpenterHub.
+// Trade-off: there's no admin custom-claim set up yet (would need a Cloud
+// Function or manual claim assignment), so for now ANY authenticated user
+// can read everything and write status/points fields. This is fine while
+// only you and your team have admin logins, but before opening this up
+// more broadly, add a custom claim (e.g. `admin: true`) to admin accounts
+// and tighten the `isAdmin()` check below to use it instead of `isSignedIn()`.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(carpenterId) {
+      return isSignedIn() && request.auth.uid == carpenterId;
+    }
+
+    // TODO: replace with request.auth.token.admin == true once custom
+    // claims are set up for admin accounts.
+    function isAdmin() {
+      return isSignedIn();
+    }
+
+    match /carpenters/{carpenterId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(carpenterId);
+      allow update: if isOwner(carpenterId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.carpenterId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /offers/{offerId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /gifts/{giftId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /giftRedemptions/{redemptionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.carpenterId == request.auth.uid;
+      allow update: if isAdmin();
+    }
+
+    match /leads/{leadId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.carpenterId == request.auth.uid;
+      allow update: if isAdmin();
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /pointsLedger/{entryId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Admin broadcast log (persisted notification-send history).
+    match /broadcasts/{broadcastId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Admin-editable points/redeem rules, shared by both apps.
+    match /config/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Atomic order-number counter. Carpenters bump this in a transaction
+    // when creating an order, so it needs to be writable by any signed-in
+    // user, not just admins.
+    match /counters/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+  }
+}

@@ -1,0 +1,51 @@
+# Local dev toolchain (Flutter SDK, Android SDK, JDKs, Node, Gradle cache) --
+# multi-GB, machine-specific, never belongs in version control.
+devtools/
+
+# Flutter / Dart build output and tooling caches (present inside each
+# Flutter project: carpenter_app/, admin_console/)
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.pub-cache/
+**/.pub/
+**/*.iml
+**/*.ipr
+**/*.iws
+**/.idea/
+
+# Android
+**/android/.gradle/
+**/android/captures/
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/key.properties
+**/*.jks
+**/*.keystore
+
+# iOS / macOS (not used yet, but harmless to exclude)
+**/ios/Flutter/.last_build_id
+**/ios/Pods/
+**/ios/.symlinks/
+
+# Web build output
+**/web/build/
+
+# Generated coverage
+**/coverage/
+
+# Claude Code local session state
+.claude/
+
+# Firebase CLI local deploy cache (machine-specific, regenerated on deploy)
+**/.firebase/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
