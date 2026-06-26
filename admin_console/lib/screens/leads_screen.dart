@@ -56,7 +56,19 @@ class LeadsScreen extends StatelessWidget {
                         DataCell(
                           leadTerminalStatuses.contains(l.status)
                               ? const Text('No further action', style: TextStyle(color: kMuted, fontSize: 12))
-                              : StatusDropdown(value: l.status, options: leadStatuses, onChanged: (v) => app.setLeadStatus(l, v)),
+                              : StatusDropdown(
+                                  value: l.status,
+                                  options: leadStatuses,
+                                  onChanged: (v) async {
+                                    try {
+                                      await app.setLeadStatus(l, v);
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not update lead: $e')));
+                                      }
+                                    }
+                                  },
+                                ),
                         ),
                       ]))
                   .toList(),
@@ -77,8 +89,23 @@ class _LeadPointsRuleForm extends StatefulWidget {
 }
 
 class _LeadPointsRuleFormState extends State<_LeadPointsRuleForm> {
+  // leadPointsQualified/Converted load asynchronously from Firestore, so
+  // this widget can build before they arrive. Initializing the controllers
+  // just once at first build risked showing a stale "0" and admins
+  // re-saving that over a real rule -- so keep them in sync until the
+  // admin actually starts typing.
   late final qualified = TextEditingController(text: '${widget.app.leadPointsQualified}');
   late final converted = TextEditingController(text: '${widget.app.leadPointsConverted}');
+  bool _edited = false;
+
+  @override
+  void didUpdateWidget(_LeadPointsRuleForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_edited) {
+      qualified.text = '${widget.app.leadPointsQualified}';
+      converted.text = '${widget.app.leadPointsConverted}';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,10 +116,27 @@ class _LeadPointsRuleFormState extends State<_LeadPointsRuleForm> {
         runSpacing: 10,
         children: [
           const Text('Award on:', style: TextStyle(fontSize: 13)),
-          SizedBox(width: 140, child: TextField(controller: qualified, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Qualified -> pts'))),
-          SizedBox(width: 140, child: TextField(controller: converted, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Converted -> pts'))),
+          SizedBox(
+            width: 140,
+            child: TextField(
+              controller: qualified,
+              keyboardType: TextInputType.number,
+              onChanged: (_) => _edited = true,
+              decoration: const InputDecoration(labelText: 'Qualified -> pts'),
+            ),
+          ),
+          SizedBox(
+            width: 140,
+            child: TextField(
+              controller: converted,
+              keyboardType: TextInputType.number,
+              onChanged: (_) => _edited = true,
+              decoration: const InputDecoration(labelText: 'Converted -> pts'),
+            ),
+          ),
           ElevatedButton(
             onPressed: () {
+              _edited = false;
               widget.app.setLeadPointsRule(
                 qualifiedPoints: int.tryParse(qualified.text) ?? 0,
                 convertedPoints: int.tryParse(converted.text) ?? 0,
