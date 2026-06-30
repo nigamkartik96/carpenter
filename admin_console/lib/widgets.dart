@@ -8,6 +8,35 @@ const kWarning = Color(0xFF854F0B);
 const kDanger = Color(0xFFA32D2D);
 const kMuted = Color(0xFF5F5E5A);
 
+/// Shared yes/no confirmation dialog so every destructive or
+/// hard-to-undo action (withdraw, status change, settings save, ...)
+/// looks and behaves the same. Returns true only if the admin confirmed.
+Future<bool> confirmDialog(
+  BuildContext context, {
+  required String title,
+  required String message,
+  String confirmLabel = 'Confirm',
+  String cancelLabel = 'Cancel',
+  bool danger = false,
+}) async {
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(cancelLabel)),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          style: danger ? TextButton.styleFrom(foregroundColor: kDanger) : null,
+          child: Text(confirmLabel),
+        ),
+      ],
+    ),
+  );
+  return result == true;
+}
+
 ThemeData buildAdminTheme() {
   return ThemeData(
     useMaterial3: true,
@@ -128,6 +157,38 @@ class Kpi extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Compact icon + label tile for "Quick links"-style navigation grids --
+/// unlike [Kpi], it carries no value/number, just a destination.
+class LinkTile extends StatelessWidget {
+  const LinkTile({super.key, required this.label, required this.icon, required this.onTap});
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 22, color: kPrimary),
+              const SizedBox(height: 8),
+              Text(label, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
             ],
           ),
         ),

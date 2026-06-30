@@ -253,9 +253,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 if (statusLocked)
                   StatusBadge(order.status)
                 else
-                  StatusDropdown(value: order.status, options: orderStatuses, onChanged: (v) {
+                  StatusDropdown(value: order.status, options: orderStatuses, onChanged: (v) async {
+                    final confirmed = await confirmDialog(context, title: 'Update order status?', message: 'Mark order ${order.orderNumber} as "$v"? This may credit points to the carpenter.');
+                    if (!confirmed) return;
                     app.setOrderStatus(order, v);
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Status updated to $v')));
+                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Status updated to $v')));
                   }),
               ],
             ),

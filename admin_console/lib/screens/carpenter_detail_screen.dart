@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models.dart';
@@ -60,14 +62,28 @@ class CarpenterDetailScreen extends StatelessWidget {
                           StatusDropdown(
                             value: c.tier,
                             options: carpenterTiers,
-                            onChanged: (v) {
+                            onChanged: (v) async {
+                              final confirmed = await confirmDialog(context, title: 'Change tier?', message: 'Move ${c.name} to the $v tier?');
+                              if (!confirmed) return;
                               app.setTier(c, v);
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${c.name} moved to $v tier')));
+                              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${c.name} moved to $v tier')));
                             },
                           ),
                           if (c.status == 'Pending') ...[
-                            ElevatedButton(onPressed: () => app.approve(c), child: const Text('Approve')),
-                            OutlinedButton(onPressed: () => app.reject(c), child: const Text('Reject')),
+                            ElevatedButton(
+                              onPressed: () async {
+                                final confirmed = await confirmDialog(context, title: 'Approve carpenter?', message: '${c.name} will be able to log in and start placing orders.');
+                                if (confirmed) app.approve(c);
+                              },
+                              child: const Text('Approve'),
+                            ),
+                            OutlinedButton(
+                              onPressed: () async {
+                                final confirmed = await confirmDialog(context, title: 'Reject this carpenter?', message: '${c.name} will not be able to log in. This cannot be undone from here.', confirmLabel: 'Reject', danger: true);
+                                if (confirmed) app.reject(c);
+                              },
+                              child: const Text('Reject'),
+                            ),
                           ],
                         ],
                       ),
@@ -80,22 +96,48 @@ class CarpenterDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           const SubHeading('Location'),
           const SizedBox(height: 8),
-          AppCard(
-            child: c.lat != null && c.lng != null
-                ? Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined, color: kPrimary),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text('Last seen: ${c.lastSeen}', style: const TextStyle(fontSize: 13))),
-                      TextButton.icon(
-                        onPressed: () => launchUrl(Uri.parse('https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}'), mode: LaunchMode.externalApplication),
-                        icon: const Icon(Icons.map_outlined, size: 16),
-                        label: const Text('Open map'),
-                      ),
-                    ],
-                  )
-                : const Text('No location reported yet', style: TextStyle(color: kMuted, fontSize: 13)),
-          ),
+          if (c.lat != null && c.lng != null) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: GestureDetector(
+                onTap: () => launchUrl(Uri.parse('https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}'), mode: LaunchMode.externalApplication),
+                child: AbsorbPointer(
+                  child: SizedBox(
+                    height: 220,
+                    child: FlutterMap(
+                      options: MapOptions(initialCenter: LatLng(c.lat!, c.lng!), initialZoom: 14),
+                      children: [
+                        TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'com.carpenterhub.admin_console'),
+                        MarkerLayer(markers: [
+                          Marker(
+                            point: LatLng(c.lat!, c.lng!),
+                            width: 32,
+                            height: 32,
+                            child: const Icon(Icons.location_on, color: kPrimaryDark, size: 32),
+                          ),
+                        ]),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            AppCard(
+              onTap: () => launchUrl(Uri.parse('https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}'), mode: LaunchMode.externalApplication),
+              child: Row(
+                children: [
+                  const Icon(Icons.location_on_outlined, color: kPrimary),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text('Last seen: ${c.lastSeen}', style: const TextStyle(fontSize: 13))),
+                  const Icon(Icons.open_in_new, size: 16, color: kMuted),
+                  const SizedBox(width: 6),
+                  const Text('Open map', style: TextStyle(fontSize: 12, color: kMuted)),
+                ],
+              ),
+            ),
+          ] else
+            const AppCard(child: Text('No location reported yet', style: TextStyle(color: kMuted, fontSize: 13))),
           const SizedBox(height: 16),
           SubHeading('Points: ${c.points}'),
           const SizedBox(height: 16),

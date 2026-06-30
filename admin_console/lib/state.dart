@@ -241,6 +241,7 @@ class AdminState extends ChangeNotifier {
               bannerUrl: d['bannerUrl'],
               pdfUrl: d['pdfUrl'],
               targetCarpenterIds: (d['targetCarpenterIds'] as List?)?.map((e) => '$e').toList(),
+              status: d['status'] ?? 'Live',
             );
           }));
         notifyListeners();
@@ -255,7 +256,7 @@ class AdminState extends ChangeNotifier {
           ..clear()
           ..addAll(snap.docs.map((doc) {
             final d = doc.data();
-            return AdminGift(id: doc.id, name: d['name'] ?? '', points: _int(d['points']), qty: _int(d['qty']), imageUrl: d['imageUrl']);
+            return AdminGift(id: doc.id, name: d['name'] ?? '', points: _int(d['points']), qty: _int(d['qty']), imageUrl: d['imageUrl'], description: d['description'] ?? '', status: d['status'] ?? 'Live');
           }));
         notifyListeners();
       } catch (e) {
@@ -395,8 +396,20 @@ class AdminState extends ChangeNotifier {
 
   Future<void> withdrawOffer(AdminOffer o) => _fb.withdrawOffer(o.id);
 
-  Future<void> addGift(String name, int points, int qty, {String? imageUrl}) {
-    return _fb.addGift(name: name, points: points, qty: qty, imageUrl: imageUrl);
+  AdminOffer? offerById(String id) {
+    final m = offers.where((o) => o.id == id);
+    return m.isEmpty ? null : m.first;
+  }
+
+  Future<void> addGift(String name, int points, int qty, {String? imageUrl, String description = ''}) {
+    return _fb.addGift(name: name, points: points, qty: qty, imageUrl: imageUrl, description: description);
+  }
+
+  Future<void> withdrawGift(AdminGift g) => _fb.withdrawGift(g.id);
+
+  AdminGift? giftById(String id) {
+    final m = gifts.where((g) => g.id == id);
+    return m.isEmpty ? null : m.first;
   }
 
   Future<void> setPointRule(int amount, int points, int minRedeem) async {

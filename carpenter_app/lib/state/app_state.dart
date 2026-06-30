@@ -316,10 +316,12 @@ class AppState extends ChangeNotifier {
     _subs.add(_fb.watchOffers().listen((snap) {
       try {
         final list = snap.docs.where((doc) {
+          final d = doc.data();
+          if ((d['status'] ?? 'Live') != 'Live') return false;
           // Offers targeted at specific carpenters (see admin's offer
           // form) only show for carpenters in that list; an absent or
           // empty list means "everyone".
-          final targets = (doc.data()['targetCarpenterIds'] as List?)?.map((e) => '$e');
+          final targets = (d['targetCarpenterIds'] as List?)?.map((e) => '$e');
           return targets == null || targets.isEmpty || targets.contains(uid);
         }).map((doc) {
           final d = doc.data();
@@ -374,7 +376,7 @@ class AppState extends ChangeNotifier {
       try {
         gifts
           ..clear()
-          ..addAll(snap.docs.map((doc) {
+          ..addAll(snap.docs.where((doc) => (doc.data()['status'] ?? 'Live') == 'Live').map((doc) {
             final d = doc.data();
             return Gift(
               id: doc.id,

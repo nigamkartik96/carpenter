@@ -32,22 +32,18 @@ class CarpentersScreen extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        ElevatedButton(onPressed: () => app.approve(c), child: const Text('Approve')),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final confirmed = await confirmDialog(context, title: 'Approve carpenter?', message: '${c.name} will be able to log in and start placing orders.');
+                            if (confirmed) app.approve(c);
+                          },
+                          child: const Text('Approve'),
+                        ),
                         const SizedBox(width: 8),
                         OutlinedButton(
                           onPressed: () async {
-                            final confirmed = await showDialog<bool>(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                title: const Text('Reject this carpenter?'),
-                                content: Text('${c.name} will not be able to log in. This cannot be undone from here.'),
-                                actions: [
-                                  TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                                  TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Reject')),
-                                ],
-                              ),
-                            );
-                            if (confirmed == true) app.reject(c);
+                            final confirmed = await confirmDialog(context, title: 'Reject this carpenter?', message: '${c.name} will not be able to log in. This cannot be undone from here.', confirmLabel: 'Reject', danger: true);
+                            if (confirmed) app.reject(c);
                           },
                           child: const Text('Reject'),
                         ),

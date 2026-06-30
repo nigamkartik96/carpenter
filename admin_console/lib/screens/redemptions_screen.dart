@@ -36,9 +36,11 @@ class RedemptionsScreen extends StatelessWidget {
                       DataCell(
                         r.status == 'Delivered'
                             ? const Text('No further action', style: TextStyle(color: kMuted, fontSize: 12))
-                            : StatusDropdown(value: r.status, options: redemptionStatuses, onChanged: (v) {
+                            : StatusDropdown(value: r.status, options: redemptionStatuses, onChanged: (v) async {
+                                final confirmed = await confirmDialog(context, title: 'Update redemption status?', message: 'Mark ${r.carpenterName}\'s redemption of "${r.giftName}" as "$v"?');
+                                if (!confirmed) return;
                                 app.setRedemptionStatus(r, v);
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${r.carpenterName}\'s redemption marked $v')));
+                                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${r.carpenterName}\'s redemption marked $v')));
                               }),
                       ),
                     ]))

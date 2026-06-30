@@ -16,6 +16,7 @@ import 'screens/gifts_screens.dart';
 import 'screens/redemptions_screen.dart';
 import 'screens/leads_screen.dart';
 import 'screens/notifications_screen.dart';
+import 'screens/settings_screen.dart';
 
 /// Every top-level sidebar destination, in the same order the sidebar
 /// renders them -- path, title, and icon together so AdminShell doesn't
@@ -30,6 +31,7 @@ const List<(String, String, IconData)> adminSections = [
   ('/redemptions', 'Redemptions', Icons.assignment_outlined),
   ('/leads', 'Leads', Icons.lightbulb_outline),
   ('/notifications', 'Notifications', Icons.notifications_outlined),
+  ('/settings', 'Settings', Icons.settings_outlined),
 ];
 
 GoRouter buildAdminRouter(AdminState app) {
@@ -72,11 +74,24 @@ GoRouter buildAdminRouter(AdminState app) {
               GoRoute(path: ':id', builder: (context, state) => OrderDetailScreen(orderId: state.pathParameters['id']!)),
             ],
           ),
-          GoRoute(path: '/offers', builder: (context, state) => const OffersScreen()),
-          GoRoute(path: '/gifts', builder: (context, state) => const GiftsScreen()),
+          GoRoute(
+            path: '/offers',
+            builder: (context, state) => const OffersScreen(),
+            routes: [
+              GoRoute(path: ':id', builder: (context, state) => OfferDetailScreen(offerId: state.pathParameters['id']!)),
+            ],
+          ),
+          GoRoute(
+            path: '/gifts',
+            builder: (context, state) => const GiftsScreen(),
+            routes: [
+              GoRoute(path: ':id', builder: (context, state) => GiftDetailScreen(giftId: state.pathParameters['id']!)),
+            ],
+          ),
           GoRoute(path: '/redemptions', builder: (context, state) => const RedemptionsScreen()),
           GoRoute(path: '/leads', builder: (context, state) => const LeadsScreen()),
           GoRoute(path: '/notifications', builder: (context, state) => const NotificationsScreen()),
+          GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),
         ],
       ),
     ],

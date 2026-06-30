@@ -17,8 +17,6 @@ class LeadsScreen extends StatelessWidget {
       children: [
         const Heading('Leads', subtitle: 'Customer leads submitted by carpenters'),
         const SizedBox(height: 16),
-        _LeadPointsRuleForm(app: app),
-        const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
           child: SingleChildScrollView(
@@ -59,6 +57,8 @@ class LeadsScreen extends StatelessWidget {
                                   value: l.status,
                                   options: leadStatuses,
                                   onChanged: (v) async {
+                                    final confirmed = await confirmDialog(context, title: 'Update lead status?', message: 'Move ${l.customer}\'s lead to "$v"?');
+                                    if (!confirmed) return;
                                     try {
                                       await app.setLeadStatus(l, v);
                                     } catch (e) {
@@ -79,73 +79,3 @@ class LeadsScreen extends StatelessWidget {
   }
 }
 
-class _LeadPointsRuleForm extends StatefulWidget {
-  const _LeadPointsRuleForm({required this.app});
-  final AdminState app;
-
-  @override
-  State<_LeadPointsRuleForm> createState() => _LeadPointsRuleFormState();
-}
-
-class _LeadPointsRuleFormState extends State<_LeadPointsRuleForm> {
-  // leadPointsQualified/Converted load asynchronously from Firestore, so
-  // this widget can build before they arrive. Initializing the controllers
-  // just once at first build risked showing a stale "0" and admins
-  // re-saving that over a real rule -- so keep them in sync until the
-  // admin actually starts typing.
-  late final qualified = TextEditingController(text: '${widget.app.leadPointsQualified}');
-  late final converted = TextEditingController(text: '${widget.app.leadPointsConverted}');
-  bool _edited = false;
-
-  @override
-  void didUpdateWidget(_LeadPointsRuleForm oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!_edited) {
-      qualified.text = '${widget.app.leadPointsQualified}';
-      converted.text = '${widget.app.leadPointsConverted}';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 10,
-        runSpacing: 10,
-        children: [
-          const Text('Award on:', style: TextStyle(fontSize: 13)),
-          SizedBox(
-            width: 140,
-            child: TextField(
-              controller: qualified,
-              keyboardType: TextInputType.number,
-              onChanged: (_) => _edited = true,
-              decoration: const InputDecoration(labelText: 'Qualified -> pts'),
-            ),
-          ),
-          SizedBox(
-            width: 140,
-            child: TextField(
-              controller: converted,
-              keyboardType: TextInputType.number,
-              onChanged: (_) => _edited = true,
-              decoration: const InputDecoration(labelText: 'Converted -> pts'),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _edited = false;
-              widget.app.setLeadPointsRule(
-                qualifiedPoints: int.tryParse(qualified.text) ?? 0,
-                convertedPoints: int.tryParse(converted.text) ?? 0,
-              );
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lead points rule saved')));
-            },
-            child: const Text('Save rule'),
-          ),
-        ],
-      ),
-    );
-  }
-}

@@ -4,17 +4,29 @@ import 'package:provider/provider.dart';
 import '../router.dart';
 import '../state.dart';
 import '../widgets.dart';
+import 'orders_screens.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  String statusFilter = 'All';
+  String dateFilter = 'all';
+  String sortBy = 'newest';
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AdminState>();
     final pending = app.carpenters.where((c) => c.status == 'Pending').length;
+    final recent = filterAndSortOrders(app.orders, dateFilter: dateFilter, statusFilter: statusFilter, sortBy: sortBy).take(10).toList();
+
     return ListView(
       children: [
-        const Heading('Dashboard', subtitle: 'Overview of the platform'),
+        const Heading('Dashboard'),
         const SizedBox(height: 20),
         LayoutBuilder(builder: (context, constraints) {
           // Below ~700px, 4 Expanded KPI cards in a Row squeeze too
@@ -47,9 +59,8 @@ class DashboardScreen extends StatelessWidget {
         const SubHeading('Quick links'),
         const SizedBox(height: 10),
         LayoutBuilder(builder: (context, constraints) {
-          final isNarrow = constraints.maxWidth < 700;
-          final perRow = isNarrow ? 2 : 4;
-          final spacing = 10.0;
+          final perRow = (constraints.maxWidth / 130).floor().clamp(3, 9);
+          const spacing = 10.0;
           final tileWidth = (constraints.maxWidth - spacing * (perRow - 1)) / perRow;
           return Wrap(
             spacing: spacing,
@@ -58,36 +69,48 @@ class DashboardScreen extends StatelessWidget {
               for (var i = 1; i < adminSections.length; i++)
                 SizedBox(
                   width: tileWidth,
-                  child: Kpi(label: adminSections[i].$2, value: 'Open', icon: adminSections[i].$3, onTap: () => context.go(adminSections[i].$1)),
+                  child: LinkTile(label: adminSections[i].$2, icon: adminSections[i].$3, onTap: () => context.go(adminSections[i].$1)),
                 ),
             ],
           );
         }),
         const SizedBox(height: 24),
-        const SubHeading('Recent orders'),
-        const SizedBox(height: 10),
-        Container(
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-            columns: const [
-              DataColumn(label: Text('Order')),
-              DataColumn(label: Text('Carpenter')),
-              DataColumn(label: Text('Amount')),
-              DataColumn(label: Text('Status')),
-            ],
-            rows: app.orders
-                .map((o) => DataRow(cells: [
-                      DataCell(Text(o.orderNumber)),
-                      DataCell(Text(o.carpenterName)),
-                      DataCell(Text('${o.amount}')),
-                      DataCell(StatusBadge(o.status)),
-                    ]))
-                .toList(),
-            ),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SubHeading('Recent orders'),
+            TextButton(onPressed: () => context.go('/orders'), child: const Text('View all', style: TextStyle(fontSize: 12))),
+          ],
         ),
+        const SizedBox(height: 8),
+        OrderFilterBar(
+          dateFilter: dateFilter,
+          statusFilter: statusFilter,
+          sortBy: sortBy,
+          onDateFilter: (v) => setState(() => dateFilter = v),
+          onStatusFilter: (v) => setState(() => statusFilter = v),
+          onSortBy: (v) => setState(() => sortBy = v),
+        ),
+        const SizedBox(height: 10),
+        if (recent.isEmpty) const Text('No orders match this filter', style: TextStyle(color: kMuted, fontSize: 13)),
+        ...recent.map((o) => AppCard(
+              onTap: () => context.push('/orders/${o.id}'),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${o.orderNumber} · ${o.carpenterName}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                        Text('₹${o.amount}', style: const TextStyle(color: kMuted, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                  StatusBadge(o.status),
+                ],
+              ),
+            )),
       ],
     );
   }

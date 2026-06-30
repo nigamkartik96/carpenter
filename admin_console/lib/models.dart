@@ -101,6 +101,7 @@ class AdminOffer {
     this.bannerUrl,
     this.pdfUrl,
     this.targetCarpenterIds,
+    this.status = 'Live',
   });
   final String id;
   final String title;
@@ -112,15 +113,18 @@ class AdminOffer {
   // null or empty = visible to every approved carpenter; otherwise only
   // to carpenters whose id is in this list.
   final List<String>? targetCarpenterIds;
+  final String status; // Live, Withdrawn
 }
 
 class AdminGift {
-  AdminGift({required this.id, required this.name, required this.points, required this.qty, this.imageUrl});
+  AdminGift({required this.id, required this.name, required this.points, required this.qty, this.imageUrl, this.description = '', this.status = 'Live'});
   final String id;
   final String name;
   final int points;
   int qty;
   final String? imageUrl;
+  final String description;
+  final String status; // Live, Withdrawn
 }
 
 class Redemption {

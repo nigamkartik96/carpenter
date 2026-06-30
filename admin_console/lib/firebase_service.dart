@@ -186,6 +186,7 @@ class AdminFirebaseService {
       'category': category,
       'validTill': validTill,
       'description': description.isEmpty ? title : description,
+      'status': 'Live',
       if (bannerUrl != null) 'bannerUrl': bannerUrl,
       if (pdfUrl != null) 'pdfUrl': pdfUrl,
       if (targetCarpenterIds != null && targetCarpenterIds.isNotEmpty) 'targetCarpenterIds': targetCarpenterIds,
@@ -212,21 +213,29 @@ class AdminFirebaseService {
     await batch.commit();
   }
 
-  /// Pulls an offer down (e.g. ran out of stock, or was a mistake) --
-  /// removing the doc means it stops showing in the app on the next
-  /// snapshot, without needing a soft-delete/"withdrawn" status field.
-  Future<void> withdrawOffer(String id) => db.collection('offers').doc(id).delete();
+  /// Soft delete: marks the offer Withdrawn instead of removing the doc,
+  /// so it still shows up in the admin's "Past offers" section and any
+  /// existing carpenter-app references (e.g. a notification deep link)
+  /// don't 404. The carpenter app's offer list filters out non-Live offers.
+  Future<void> withdrawOffer(String id) => db.collection('offers').doc(id).update({'status': 'Withdrawn'});
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchGifts() => db.collection('gifts').snapshots();
 
-  Future<void> addGift({required String name, required int points, required int qty, String? imageUrl}) {
+  Future<void> addGift({required String name, required int points, required int qty, String? imageUrl, String description = ''}) {
     return db.collection('gifts').add({
       'name': name,
+      'description': description,
+      'status': 'Live',
       'points': points,
       'qty': qty,
       if (imageUrl != null) 'imageUrl': imageUrl,
     });
   }
+
+  /// Soft delete, same reasoning as withdrawOffer -- a withdrawn gift
+  /// stops showing in the carpenter app's catalog but stays visible to
+  /// the admin (and any already-redeemed history keeps working).
+  Future<void> withdrawGift(String id) => db.collection('gifts').doc(id).update({'status': 'Withdrawn'});
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchRedemptions() => db
       .collection('giftRedemptions')

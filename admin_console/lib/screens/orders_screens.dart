@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../models.dart';
 import '../state.dart';
 import '../widgets.dart';
 
@@ -9,6 +10,100 @@ import '../widgets.dart';
 // throws a hard assertion error if its current value isn't in this list,
 // which crashes the whole screen.
 const orderStatuses = ['Submitted', 'Processing', 'Fulfilled', 'Delivered'];
+
+/// Shared so the Dashboard's "Recent orders" can reuse exactly the same
+/// filter/sort logic as the full Orders list.
+List<AdminOrder> filterAndSortOrders(
+  List<AdminOrder> orders, {
+  required String dateFilter,
+  required String statusFilter,
+  required String sortBy,
+  String search = '',
+}) {
+  final now = DateTime.now();
+  final startOfDay = DateTime(now.year, now.month, now.day);
+  final startOfWeek = startOfDay.subtract(Duration(days: now.weekday - 1));
+  final q = search.trim().toLowerCase();
+
+  var list = orders.where((o) {
+    if (statusFilter != 'All' && o.status != statusFilter) return false;
+    if (dateFilter == 'today' && (o.createdAt == null || o.createdAt!.isBefore(startOfDay))) return false;
+    if (dateFilter == 'week' && (o.createdAt == null || o.createdAt!.isBefore(startOfWeek))) return false;
+    if (q.isNotEmpty && !o.orderNumber.toLowerCase().contains(q) && !o.carpenterName.toLowerCase().contains(q)) return false;
+    return true;
+  }).toList();
+
+  switch (sortBy) {
+    case 'oldest':
+      list.sort((a, b) => (a.createdAt ?? DateTime(0)).compareTo(b.createdAt ?? DateTime(0)));
+      break;
+    case 'amountHigh':
+      list.sort((a, b) => b.amount.compareTo(a.amount));
+      break;
+    case 'amountLow':
+      list.sort((a, b) => a.amount.compareTo(b.amount));
+      break;
+    default: // newest
+      list.sort((a, b) => (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0)));
+  }
+  return list;
+}
+
+/// The filter-chip + sort-dropdown row, shared between the Orders list and
+/// the Dashboard's "Recent orders" section.
+class OrderFilterBar extends StatelessWidget {
+  const OrderFilterBar({
+    super.key,
+    required this.dateFilter,
+    required this.statusFilter,
+    required this.sortBy,
+    required this.onDateFilter,
+    required this.onStatusFilter,
+    required this.onSortBy,
+  });
+  final String dateFilter;
+  final String statusFilter;
+  final String sortBy;
+  final ValueChanged<String> onDateFilter;
+  final ValueChanged<String> onStatusFilter;
+  final ValueChanged<String> onSortBy;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget chip(String label, String value, String current, ValueChanged<String> onSelect) => FilterChip(
+          label: Text(label, style: const TextStyle(fontSize: 12)),
+          selected: current == value,
+          onSelected: (_) => onSelect(value),
+          visualDensity: VisualDensity.compact,
+        );
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        chip('All dates', 'all', dateFilter, onDateFilter),
+        chip('Past day', 'today', dateFilter, onDateFilter),
+        chip('Past week', 'week', dateFilter, onDateFilter),
+        const SizedBox(width: 4),
+        chip('All statuses', 'All', statusFilter, onStatusFilter),
+        for (final s in orderStatuses) chip(s, s, statusFilter, onStatusFilter),
+        const SizedBox(width: 8),
+        DropdownButton<String>(
+          value: sortBy,
+          underline: const SizedBox(),
+          items: const [
+            DropdownMenuItem(value: 'newest', child: Text('Newest first', style: TextStyle(fontSize: 13))),
+            DropdownMenuItem(value: 'oldest', child: Text('Oldest first', style: TextStyle(fontSize: 13))),
+            DropdownMenuItem(value: 'amountHigh', child: Text('Amount: high to low', style: TextStyle(fontSize: 13))),
+            DropdownMenuItem(value: 'amountLow', child: Text('Amount: low to high', style: TextStyle(fontSize: 13))),
+          ],
+          onChanged: (v) => onSortBy(v ?? 'newest'),
+        ),
+      ],
+    );
+  }
+}
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -20,18 +115,15 @@ class OrdersScreen extends StatefulWidget {
 class _OrdersScreenState extends State<OrdersScreen> {
   final search = TextEditingController();
   String statusFilter = 'All';
+  String dateFilter = 'all';
+  String sortBy = 'newest';
 
   void _open(BuildContext context, String orderId) => context.push('/orders/$orderId');
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AdminState>();
-    final q = search.text.trim().toLowerCase();
-    final visible = app.orders.where((o) {
-      if (statusFilter != 'All' && o.status != statusFilter) return false;
-      if (q.isEmpty) return true;
-      return o.orderNumber.toLowerCase().contains(q) || o.carpenterName.toLowerCase().contains(q);
-    }).toList();
+    final visible = filterAndSortOrders(app.orders, dateFilter: dateFilter, statusFilter: statusFilter, sortBy: sortBy, search: search.text);
 
     return ListView(
       children: [
@@ -43,27 +135,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
           child: Text('Earning rule: ${app.pointRuleAmount} spent = ${app.pointRulePoints} point(s)', style: const TextStyle(color: kMuted, fontSize: 12)),
         ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: search,
-                onChanged: (_) => setState(() {}),
-                decoration: const InputDecoration(prefixIcon: Icon(Icons.search, size: 18), hintText: 'Search by order number or carpenter', isDense: true),
-              ),
-            ),
-            const SizedBox(width: 10),
-            DropdownButton<String>(
-              value: statusFilter,
-              underline: const SizedBox(),
-              items: ['All', ...orderStatuses].map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontSize: 13)))).toList(),
-              onChanged: (v) => setState(() => statusFilter = v ?? 'All'),
-            ),
-          ],
+        TextField(
+          controller: search,
+          onChanged: (_) => setState(() {}),
+          decoration: const InputDecoration(prefixIcon: Icon(Icons.search, size: 18), hintText: 'Search by order number or carpenter', isDense: true),
         ),
-        const SizedBox(height: 8),
-        const Text('Tap a row, or the eye icon, to open the order', style: TextStyle(color: kMuted, fontSize: 12)),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
+        OrderFilterBar(
+          dateFilter: dateFilter,
+          statusFilter: statusFilter,
+          sortBy: sortBy,
+          onDateFilter: (v) => setState(() => dateFilter = v),
+          onStatusFilter: (v) => setState(() => statusFilter = v),
+          onSortBy: (v) => setState(() => sortBy = v),
+        ),
+        const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
           child: SingleChildScrollView(
@@ -96,50 +182,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 20),
-        const SubHeading('Points rules'),
-        const SizedBox(height: 10),
-        _PointsRuleForm(app: app),
       ],
-    );
-  }
-}
-
-class _PointsRuleForm extends StatefulWidget {
-  const _PointsRuleForm({required this.app});
-  final AdminState app;
-
-  @override
-  State<_PointsRuleForm> createState() => _PointsRuleFormState();
-}
-
-class _PointsRuleFormState extends State<_PointsRuleForm> {
-  late final amount = TextEditingController(text: '${widget.app.pointRuleAmount}');
-  late final points = TextEditingController(text: '${widget.app.pointRulePoints}');
-  late final minRedeem = TextEditingController(text: '${widget.app.minRedeemPoints}');
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 10,
-        runSpacing: 10,
-        children: [
-          SizedBox(width: 120, child: TextField(controller: points, decoration: const InputDecoration(labelText: 'Points'))),
-          const Text('per ₹'),
-          SizedBox(width: 120, child: TextField(controller: amount, decoration: const InputDecoration(labelText: 'Amount spent'))),
-          SizedBox(width: 160, child: TextField(controller: minRedeem, decoration: const InputDecoration(labelText: 'Min points to redeem'))),
-          ElevatedButton(
-            onPressed: () => widget.app.setPointRule(
-              int.tryParse(amount.text) ?? 100,
-              int.tryParse(points.text) ?? 1,
-              int.tryParse(minRedeem.text) ?? 500,
-            ),
-            child: const Text('Save rule'),
-          ),
-        ],
-      ),
     );
   }
 }
