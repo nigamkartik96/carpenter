@@ -92,7 +92,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           onSortBy: (v) => setState(() => sortBy = v),
         ),
         const SizedBox(height: 10),
-        if (recent.isEmpty) const Text('No orders match this filter', style: TextStyle(color: kMuted, fontSize: 13)),
+        if (recent.isEmpty) const EmptyState(icon: Icons.inventory_2_outlined, message: 'No orders match this filter'),
         ...recent.map((o) => AppCard(
               onTap: () => context.push('/orders/${o.id}'),
               child: Row(
@@ -103,7 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('${o.orderNumber} · ${o.carpenterName}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                        Text('₹${o.amount}', style: const TextStyle(color: kMuted, fontSize: 12)),
+                        orderAmountText(o, fontSize: 12),
                       ],
                     ),
                   ),

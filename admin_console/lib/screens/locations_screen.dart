@@ -60,15 +60,15 @@ class _LocationsScreenState extends State<LocationsScreen> {
           ),
         const SizedBox(height: 16),
         ClipRRect(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(kCardRadius),
           child: Container(
             height: 400,
-            decoration: BoxDecoration(border: Border.all(color: Colors.black12)),
+            decoration: const BoxDecoration(border: Border.fromBorderSide(kCardBorder)),
             child: withLocation.isEmpty
                 ? Container(
-                    color: Colors.grey.shade100,
+                    color: kBgApp,
                     alignment: Alignment.center,
-                    child: const Text('No carpenter locations reported yet', style: TextStyle(color: kMuted, fontSize: 13)),
+                    child: const Text('No carpenter locations reported yet', style: TextStyle(color: kTextSecondary, fontSize: 13)),
                   )
                 : FlutterMap(
                     mapController: mapController,
@@ -120,22 +120,24 @@ class _LocationsScreenState extends State<LocationsScreen> {
         const SizedBox(height: 16),
         const SubHeading('Active carpenters'),
         const SizedBox(height: 10),
-        Container(
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: const [
-                DataColumn(label: Text('Carpenter')),
-                DataColumn(label: Text('Area')),
-                DataColumn(label: Text('Last seen')),
-              ],
-              rows: active
-                  .map((c) => DataRow(cells: [DataCell(Text(c.name)), DataCell(Text(c.area)), DataCell(Text(c.lastSeen))]))
-                  .toList(),
+        if (active.isEmpty) const EmptyState(icon: Icons.people_outline, message: 'No approved carpenters yet'),
+        if (active.isNotEmpty)
+          Container(
+            decoration: BoxDecoration(color: kBgSurface, borderRadius: BorderRadius.circular(kCardRadius), border: Border.all(color: kBorderSubtle)),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Carpenter')),
+                  DataColumn(label: Text('Area')),
+                  DataColumn(label: Text('Last seen')),
+                ],
+                rows: active
+                    .map((c) => DataRow(cells: [DataCell(Text(c.name)), DataCell(Text(c.area)), DataCell(Text(c.lastSeen))]))
+                    .toList(),
+              ),
             ),
           ),
-        ),
       ],
     );
   }

@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../cloudinary_service.dart';
@@ -106,6 +107,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       body: ListView(
         padding: EdgeInsets.all(isMobile ? 12 : 24),
         children: [
+          BackLink(label: 'Back to Orders', onTap: () => context.go('/orders')),
+          const SizedBox(height: 8),
           AppCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -49,6 +49,20 @@ List<AdminOrder> filterAndSortOrders(
   return list;
 }
 
+/// Most orders show ₹0 until an admin enters line items on the order
+/// detail screen (price isn't known up front for photo/voice orders) --
+/// a bare "₹0" reads as broken data, so distinguish "genuinely not priced
+/// yet" from an actual zero-amount order.
+String orderAmountLabel(AdminOrder o) => (o.amount == 0 && o.items.isEmpty) ? 'Pending pricing' : '₹${o.amount}';
+
+Widget orderAmountText(AdminOrder o, {double fontSize = 13}) {
+  final pending = o.amount == 0 && o.items.isEmpty;
+  return Text(
+    orderAmountLabel(o),
+    style: TextStyle(fontSize: fontSize, color: pending ? kTextMuted : kTextPrimary, fontStyle: pending ? FontStyle.italic : FontStyle.normal),
+  );
+}
+
 /// The filter-chip + sort-dropdown row, shared between the Orders list and
 /// the Dashboard's "Recent orders" section.
 class OrderFilterBar extends StatelessWidget {
@@ -131,8 +145,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
-          child: Text('Earning rule: ${app.pointRuleAmount} spent = ${app.pointRulePoints} point(s)', style: const TextStyle(color: kMuted, fontSize: 12)),
+          decoration: BoxDecoration(color: kBgSurface, borderRadius: BorderRadius.circular(8), border: Border.all(color: kBorderSubtle)),
+          child: Text('Earning rule: ${app.pointRuleAmount} spent = ${app.pointRulePoints} point(s)', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
         ),
         const SizedBox(height: 16),
         TextField(
@@ -149,39 +163,50 @@ class _OrdersScreenState extends State<OrdersScreen> {
           onStatusFilter: (v) => setState(() => statusFilter = v),
           onSortBy: (v) => setState(() => sortBy = v),
         ),
-        const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-            showCheckboxColumn: false,
-            columns: const [
-              DataColumn(label: Text('Order')),
-              DataColumn(label: Text('Carpenter')),
-              DataColumn(label: Text('Amount')),
-              DataColumn(label: Text('Status')),
-              DataColumn(label: Text('')),
-            ],
-            rows: visible
-                .map((o) => DataRow(
-                      // Status changes happen on the order detail screen now --
-                      // a second "Quick update" dropdown here duplicated that
-                      // control and let an admin change status without first
-                      // reviewing/entering line items, bypassing the points logic.
-                      onSelectChanged: (_) => _open(context, o.id),
-                      cells: [
-                        DataCell(Text('${o.orderNumber} · ${o.products.isNotEmpty ? o.products.first : ''}')),
-                        DataCell(Text(o.carpenterName)),
-                        DataCell(Text('₹${o.amount}')),
-                        DataCell(StatusBadge(o.status)),
-                        DataCell(IconButton(icon: const Icon(Icons.visibility_outlined, size: 18), tooltip: 'View order', onPressed: () => _open(context, o.id))),
-                      ],
-                    ))
-                .toList(),
+        const SizedBox(height: 8),
+        Row(
+          children: const [
+            Icon(Icons.touch_app_outlined, size: 14, color: kTextMuted),
+            SizedBox(width: 6),
+            Text('Tap a row, or the eye icon, to open the order', style: TextStyle(color: kTextMuted, fontSize: 12)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (visible.isEmpty) const EmptyState(icon: Icons.inventory_2_outlined, message: 'No orders match this filter'),
+        if (visible.isNotEmpty)
+          Container(
+            decoration: BoxDecoration(color: kBgSurface, borderRadius: BorderRadius.circular(kCardRadius), border: Border.all(color: kBorderSubtle)),
+            clipBehavior: Clip.antiAlias,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+              showCheckboxColumn: false,
+              columns: const [
+                DataColumn(label: Text('Order')),
+                DataColumn(label: Text('Carpenter')),
+                DataColumn(label: Text('Amount')),
+                DataColumn(label: Text('Status')),
+                DataColumn(label: Text('')),
+              ],
+              rows: visible
+                  .map((o) => DataRow(
+                        // Status changes happen on the order detail screen now --
+                        // a second "Quick update" dropdown here duplicated that
+                        // control and let an admin change status without first
+                        // reviewing/entering line items, bypassing the points logic.
+                        onSelectChanged: (_) => _open(context, o.id),
+                        cells: [
+                          DataCell(Text('${o.orderNumber} · ${o.products.isNotEmpty ? o.products.first : ''}')),
+                          DataCell(Text(o.carpenterName)),
+                          DataCell(orderAmountText(o)),
+                          DataCell(StatusBadge(o.status)),
+                          DataCell(IconButton(icon: const Icon(Icons.visibility_outlined, size: 18), tooltip: 'View order', onPressed: () => _open(context, o.id))),
+                        ],
+                      ))
+                  .toList(),
+              ),
             ),
           ),
-        ),
       ],
     );
   }

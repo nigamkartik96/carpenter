@@ -17,8 +17,10 @@ class LeadsScreen extends StatelessWidget {
       children: [
         const Heading('Leads', subtitle: 'Customer leads submitted by carpenters'),
         const SizedBox(height: 16),
+        if (app.leads.isEmpty) const EmptyState(icon: Icons.lightbulb_outline, message: 'No leads submitted yet'),
+        if (app.leads.isNotEmpty)
         Container(
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), border: Border.all(color: kBorderSubtle)),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
@@ -51,23 +53,22 @@ class LeadsScreen extends StatelessWidget {
                         DataCell(Text(l.pointsAwarded > 0 ? '+${l.pointsAwarded}' : '-')),
                         DataCell(StatusBadge(l.status)),
                         DataCell(
-                          leadTerminalStatuses.contains(l.status)
-                              ? const Text('No further action', style: TextStyle(color: kMuted, fontSize: 12))
-                              : StatusDropdown(
-                                  value: l.status,
-                                  options: leadStatuses,
-                                  onChanged: (v) async {
-                                    final confirmed = await confirmDialog(context, title: 'Update lead status?', message: 'Move ${l.customer}\'s lead to "$v"?');
-                                    if (!confirmed) return;
-                                    try {
-                                      await app.setLeadStatus(l, v);
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not update lead: $e')));
-                                      }
-                                    }
-                                  },
-                                ),
+                          StatusDropdown(
+                            value: l.status,
+                            options: leadStatuses,
+                            enabled: !leadTerminalStatuses.contains(l.status),
+                            onChanged: (v) async {
+                              final confirmed = await confirmDialog(context, title: 'Update lead status?', message: 'Move ${l.customer}\'s lead to "$v"?');
+                              if (!confirmed) return;
+                              try {
+                                await app.setLeadStatus(l, v);
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not update lead: $e')));
+                                }
+                              }
+                            },
+                          ),
                         ),
                       ]))
                   .toList(),

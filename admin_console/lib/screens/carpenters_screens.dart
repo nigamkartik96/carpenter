@@ -23,11 +23,17 @@ class CarpentersScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
                       children: [
-                        Text('${c.name} · ${c.shop}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                        Text(c.mobile, style: const TextStyle(color: kMuted, fontSize: 12)),
+                        Avatar(photoUrl: c.photoUrl, name: c.name, radius: 18),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('${c.name} · ${c.shop}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                            Text(c.mobile, style: const TextStyle(color: kMuted, fontSize: 12)),
+                          ],
+                        ),
                       ],
                     ),
                     Row(
@@ -56,6 +62,7 @@ class CarpentersScreen extends StatelessWidget {
         ],
         const SubHeading('All carpenters'),
         const SizedBox(height: 10),
+        if (app.carpenters.isEmpty) const EmptyState(icon: Icons.people_outline, message: 'No carpenters yet'),
         LayoutBuilder(builder: (context, constraints) {
           final perRow = (constraints.maxWidth / 200).floor().clamp(2, 6);
           final spacing = 12.0;
@@ -67,7 +74,7 @@ class CarpentersScreen extends StatelessWidget {
               for (final c in app.carpenters)
                 SizedBox(
                   width: tileWidth,
-                  child: _CarpenterTile(carpenter: c, onTap: () => context.push('/carpenters/${c.id}')),
+                  child: _CarpenterTile(carpenter: c, orderCount: app.ordersFor(c.id).length, onTap: () => context.push('/carpenters/${c.id}')),
                 ),
             ],
           );
@@ -78,39 +85,33 @@ class CarpentersScreen extends StatelessWidget {
 }
 
 class _CarpenterTile extends StatelessWidget {
-  const _CarpenterTile({required this.carpenter, required this.onTap});
+  const _CarpenterTile({required this.carpenter, required this.orderCount, required this.onTap});
   final Carpenter carpenter;
+  final int orderCount;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(10),
+      color: kBgSurface,
+      borderRadius: BorderRadius.circular(kCardRadius),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Padding(
+        borderRadius: BorderRadius.circular(kCardRadius),
+        child: Container(
           padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(kCardRadius), border: Border.all(color: kBorderSubtle)),
           child: Column(
             children: [
-              CircleAvatar(
-                radius: 32,
-                backgroundColor: kPrimary.withOpacity(0.12),
-                backgroundImage: carpenter.photoUrl != null ? NetworkImage(carpenter.photoUrl!) : null,
-                child: carpenter.photoUrl == null
-                    ? Text(
-                        carpenter.name.isNotEmpty ? carpenter.name[0].toUpperCase() : '?',
-                        style: const TextStyle(color: kPrimary, fontWeight: FontWeight.w700, fontSize: 20),
-                      )
-                    : null,
-              ),
+              Avatar(photoUrl: carpenter.photoUrl, name: carpenter.name, radius: 32),
               const SizedBox(height: 10),
               Text(carpenter.name, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
               const SizedBox(height: 2),
               Text(carpenter.shop, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: const TextStyle(color: kMuted, fontSize: 12)),
               const SizedBox(height: 8),
-              StatusBadge(carpenter.status),
+              Wrap(alignment: WrapAlignment.center, spacing: 6, runSpacing: 6, children: [StatusBadge(carpenter.status), AudienceBadge(carpenter.tier)]),
+              const SizedBox(height: 8),
+              Text('$orderCount order${orderCount == 1 ? '' : 's'} · ${carpenter.lastSeen}', textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kTextMuted, fontSize: 11)),
             ],
           ),
         ),

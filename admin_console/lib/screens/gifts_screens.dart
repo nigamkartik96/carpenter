@@ -7,6 +7,8 @@ import '../models.dart';
 import '../state.dart';
 import '../widgets.dart';
 
+const _lowStockThreshold = 5;
+
 class GiftsScreen extends StatelessWidget {
   const GiftsScreen({super.key});
 
@@ -44,8 +46,23 @@ class GiftsScreen extends StatelessWidget {
                       : const Icon(Icons.card_giftcard, color: kPrimary, size: 22),
                   const SizedBox(height: 6),
                   Text(g.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                  Text('${g.points} pts · ${g.qty} in stock', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMuted, fontSize: 12)),
-                  if (g.status == 'Withdrawn') ...[const SizedBox(height: 4), const StatusBadge('Withdrawn')],
+                  Text(
+                    '${g.points} pts · ${g.qty} in stock',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: g.qty == 0 ? kStatusClosed : (g.qty < _lowStockThreshold ? kStatusAttention : kTextSecondary),
+                      fontWeight: g.qty < _lowStockThreshold ? FontWeight.w600 : FontWeight.normal,
+                      fontSize: 12,
+                    ),
+                  ),
+                  if (g.status == 'Withdrawn') ...[const SizedBox(height: 4), const StatusBadge('Withdrawn')] else if (g.qty == 0) ...[
+                    const SizedBox(height: 4),
+                    const Text('Out of stock', style: TextStyle(color: kStatusClosed, fontSize: 11, fontWeight: FontWeight.w600)),
+                  ] else if (g.qty < _lowStockThreshold) ...[
+                    const SizedBox(height: 4),
+                    const Text('Low stock', style: TextStyle(color: kStatusAttention, fontSize: 11, fontWeight: FontWeight.w600)),
+                  ],
                 ],
               ),
             );
@@ -66,7 +83,7 @@ class GiftsScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        if (live.isEmpty) const Text('No gifts in the catalog yet', style: TextStyle(color: kMuted, fontSize: 13)),
+        if (live.isEmpty) const EmptyState(icon: Icons.card_giftcard_outlined, message: 'No gifts in the catalog yet'),
         grid(live),
         if (past.isNotEmpty) ...[
           const SizedBox(height: 20),
@@ -93,6 +110,8 @@ class GiftDetailScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          BackLink(label: 'Back to Gift catalog', onTap: () => context.go('/gifts')),
+          const SizedBox(height: 8),
           if (g.imageUrl != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
@@ -146,6 +165,7 @@ class _NewGiftDialogState extends State<_NewGiftDialog> {
   final qty = TextEditingController();
   bool uploading = false;
   bool saving = false;
+  bool submitted = false;
   String? imageUrl;
 
   Future<void> _pickAndUpload() async {
@@ -239,15 +259,35 @@ class _NewGiftDialogState extends State<_NewGiftDialog> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        TextField(controller: name, decoration: const InputDecoration(labelText: 'Gift name')),
+                        LabeledField(
+                          label: 'Gift name',
+                          error: submitted && name.text.trim().isEmpty ? 'Gift name is required' : null,
+                          child: TextField(controller: name, onChanged: (_) => setState(() {}), decoration: const InputDecoration(hintText: 'e.g. Steel measuring tape')),
+                        ),
                         const SizedBox(height: 10),
-                        TextField(controller: description, decoration: const InputDecoration(labelText: 'Description (optional)'), maxLines: 2),
+                        LabeledField(
+                          label: 'Description (optional)',
+                          child: TextField(controller: description, maxLines: 2, decoration: const InputDecoration(hintText: 'Shown on the gift detail page')),
+                        ),
                         const SizedBox(height: 10),
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(child: TextField(controller: points, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Points required'))),
+                            Expanded(
+                              child: LabeledField(
+                                label: 'Points required',
+                                error: submitted && (int.tryParse(points.text) ?? 0) <= 0 ? 'Enter a positive number' : null,
+                                child: TextField(controller: points, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: '0')),
+                              ),
+                            ),
                             const SizedBox(width: 8),
-                            Expanded(child: TextField(controller: qty, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Stock quantity'))),
+                            Expanded(
+                              child: LabeledField(
+                                label: 'Stock quantity',
+                                error: submitted && (int.tryParse(qty.text) ?? -1) < 0 ? 'Enter a valid quantity' : null,
+                                child: TextField(controller: qty, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: '0')),
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -261,9 +301,12 @@ class _NewGiftDialogState extends State<_NewGiftDialog> {
                     TextButton(onPressed: _close, child: const Text('Cancel')),
                     const SizedBox(width: 8),
                     ElevatedButton(
-                      onPressed: (name.text.isEmpty || saving)
+                      onPressed: saving
                           ? null
                           : () async {
+                              setState(() => submitted = true);
+                              final valid = name.text.trim().isNotEmpty && (int.tryParse(points.text) ?? 0) > 0 && (int.tryParse(qty.text) ?? -1) >= 0;
+                              if (!valid) return;
                               setState(() => saving = true);
                               try {
                                 await app.addGift(name.text, int.tryParse(points.text) ?? 0, int.tryParse(qty.text) ?? 0, imageUrl: imageUrl, description: description.text.trim());

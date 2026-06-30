@@ -61,12 +61,12 @@ class OffersScreen extends StatelessWidget {
         const SizedBox(height: 16),
         const SubHeading('Today'),
         const SizedBox(height: 8),
-        if (today.isEmpty) const Text('No live offers', style: TextStyle(color: kMuted, fontSize: 13)),
+        if (today.isEmpty) const EmptyState(icon: Icons.local_offer_outlined, message: 'No live offers'),
         ...today.map(tile),
         const SizedBox(height: 12),
         const SubHeading('Weekly'),
         const SizedBox(height: 8),
-        if (weekly.isEmpty) const Text('No live offers', style: TextStyle(color: kMuted, fontSize: 13)),
+        if (weekly.isEmpty) const EmptyState(icon: Icons.local_offer_outlined, message: 'No live offers'),
         ...weekly.map(tile),
         if (other.isNotEmpty) ...[
           const SizedBox(height: 12),
@@ -99,6 +99,8 @@ class OfferDetailScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          BackLink(label: 'Back to Offers', onTap: () => context.go('/offers')),
+          const SizedBox(height: 8),
           if (o.bannerUrl != null)
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
@@ -167,6 +169,7 @@ class _NewOfferDialogState extends State<_NewOfferDialog> {
   DateTime otherDate = DateTime.now().add(const Duration(days: 1));
   bool uploading = false;
   bool saving = false;
+  bool submitted = false;
   String? bannerUrl;
   String? pdfUrl;
 
@@ -309,9 +312,16 @@ class _NewOfferDialogState extends State<_NewOfferDialog> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        TextField(controller: title, decoration: const InputDecoration(labelText: 'Title')),
+                        LabeledField(
+                          label: 'Title',
+                          error: submitted && title.text.trim().isEmpty ? 'Title is required' : null,
+                          child: TextField(controller: title, onChanged: (_) => setState(() {}), decoration: const InputDecoration(hintText: 'e.g. आज का ऑफ़र')),
+                        ),
                         const SizedBox(height: 10),
-                        TextField(controller: description, decoration: const InputDecoration(labelText: 'Description (optional)'), maxLines: 2),
+                        LabeledField(
+                          label: 'Description (optional)',
+                          child: TextField(controller: description, maxLines: 2, decoration: const InputDecoration(hintText: 'Shown on the offer detail page')),
+                        ),
                         const SizedBox(height: 10),
                         OutlinedButton.icon(
                           onPressed: uploading ? null : () => _pickAndUpload(isPdf: true),
@@ -374,9 +384,11 @@ class _NewOfferDialogState extends State<_NewOfferDialog> {
                     TextButton(onPressed: _close, child: const Text('Cancel')),
                     const SizedBox(width: 8),
                     ElevatedButton(
-                      onPressed: (title.text.isEmpty || saving)
+                      onPressed: saving
                           ? null
                           : () async {
+                              setState(() => submitted = true);
+                              if (title.text.trim().isEmpty) return;
                               setState(() => saving = true);
                               try {
                                 await app.addOffer(

@@ -32,16 +32,13 @@ class CarpenterDetailScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          BackLink(label: 'Back to Carpenters', onTap: () => context.go('/carpenters')),
+          const SizedBox(height: 8),
           AppCard(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 36,
-                  backgroundColor: kPrimary.withOpacity(0.12),
-                  backgroundImage: c.photoUrl != null ? NetworkImage(c.photoUrl!) : null,
-                  child: c.photoUrl == null ? Text(c.name.isNotEmpty ? c.name[0].toUpperCase() : '?', style: const TextStyle(color: kPrimary, fontWeight: FontWeight.w700, fontSize: 24)) : null,
-                ),
+                Avatar(photoUrl: c.photoUrl, name: c.name, radius: 36),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -94,6 +91,20 @@ class CarpenterDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+          // One compact stat row instead of four near-identical sparse
+          // blocks -- sections below only expand if they have content.
+          Row(
+            children: [
+              Expanded(child: _MiniStat(icon: Icons.workspace_premium_outlined, label: 'Points', value: '${c.points}')),
+              const SizedBox(width: 10),
+              Expanded(child: _MiniStat(icon: Icons.inventory_2_outlined, label: 'Orders', value: '${orders.length}')),
+              const SizedBox(width: 10),
+              Expanded(child: _MiniStat(icon: Icons.card_giftcard_outlined, label: 'Redemptions', value: '${redemptions.length}')),
+              const SizedBox(width: 10),
+              Expanded(child: _MiniStat(icon: Icons.lightbulb_outline, label: 'Leads', value: '${leads.length}')),
+            ],
+          ),
+          const SizedBox(height: 16),
           const SubHeading('Location'),
           const SizedBox(height: 8),
           if (c.lat != null && c.lng != null) ...[
@@ -137,49 +148,73 @@ class CarpenterDetailScreen extends StatelessWidget {
               ),
             ),
           ] else
-            const AppCard(child: Text('No location reported yet', style: TextStyle(color: kMuted, fontSize: 13))),
-          const SizedBox(height: 16),
-          SubHeading('Points: ${c.points}'),
-          const SizedBox(height: 16),
-          SubHeading('Orders (${orders.length})'),
-          const SizedBox(height: 8),
-          if (orders.isEmpty) const Text('No orders yet', style: TextStyle(color: kMuted, fontSize: 13)),
-          ...orders.map((o) => AppCard(
-                onTap: () => context.push('/orders/${o.id}'),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(child: Text('${o.orderNumber} · ₹${o.amount}', style: const TextStyle(fontSize: 13))),
-                    StatusBadge(o.status),
-                  ],
-                ),
-              )),
-          const SizedBox(height: 16),
-          SubHeading('Gift redemptions (${redemptions.length})'),
-          const SizedBox(height: 8),
-          if (redemptions.isEmpty) const Text('No redemptions yet', style: TextStyle(color: kMuted, fontSize: 13)),
-          ...redemptions.map((r) => AppCard(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(child: Text('${r.giftName} · ${r.points} pts', style: const TextStyle(fontSize: 13))),
-                    StatusBadge(r.status),
-                  ],
-                ),
-              )),
-          const SizedBox(height: 16),
-          SubHeading('Leads (${leads.length})'),
-          const SizedBox(height: 8),
-          if (leads.isEmpty) const Text('No leads submitted yet', style: TextStyle(color: kMuted, fontSize: 13)),
-          ...leads.map((l) => AppCard(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(child: Text('${l.customer} · ${l.phone}', style: const TextStyle(fontSize: 13))),
-                    StatusBadge(l.status),
-                  ],
-                ),
-              )),
+            const EmptyState(icon: Icons.location_off_outlined, message: 'No location reported yet'),
+          if (orders.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            SubHeading('Orders (${orders.length})'),
+            const SizedBox(height: 8),
+            ...orders.map((o) => AppCard(
+                  onTap: () => context.push('/orders/${o.id}'),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(child: Text('${o.orderNumber} · ₹${o.amount}', style: const TextStyle(fontSize: 13))),
+                      StatusBadge(o.status),
+                    ],
+                  ),
+                )),
+          ],
+          if (redemptions.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            SubHeading('Gift redemptions (${redemptions.length})'),
+            const SizedBox(height: 8),
+            ...redemptions.map((r) => AppCard(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(child: Text('${r.giftName} · ${r.points} pts', style: const TextStyle(fontSize: 13))),
+                      StatusBadge(r.status),
+                    ],
+                  ),
+                )),
+          ],
+          if (leads.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            SubHeading('Leads (${leads.length})'),
+            const SizedBox(height: 8),
+            ...leads.map((l) => AppCard(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(child: Text('${l.customer} · ${l.phone}', style: const TextStyle(fontSize: 13))),
+                      StatusBadge(l.status),
+                    ],
+                  ),
+                )),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniStat extends StatelessWidget {
+  const _MiniStat({required this.icon, required this.label, required this.value});
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(color: kBgSurface, borderRadius: BorderRadius.circular(kCardRadius), border: Border.all(color: kBorderSubtle)),
+      child: Column(
+        children: [
+          Icon(icon, size: 18, color: kAccentPrimary),
+          const SizedBox(height: 6),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+          Text(label, style: const TextStyle(color: kTextMuted, fontSize: 11)),
         ],
       ),
     );

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'router.dart';
 import 'state.dart';
+import 'widgets.dart';
 
 /// Persistent sidebar/app-bar chrome around whichever section is
 /// currently routed -- [child] is supplied by go_router's ShellRoute, and
@@ -21,6 +22,32 @@ class AdminShell extends StatelessWidget {
   }
 
   Widget _sidebarContent(BuildContext context, AdminState app, int index) {
+    // Grouped into Dashboard (standalone) / Operations (day-to-day field
+    // work) / Engagement (carpenter-facing programs) / Settings
+    // (standalone, bottom) -- purely a visual grouping, indices and
+    // routes are untouched.
+    const operations = [1, 2, 3]; // Carpenters, Locations, Orders
+    const engagement = [4, 5, 6, 7, 8]; // Offers, Gifts, Redemptions, Leads, Notifications
+
+    Widget groupLabel(String text) => Padding(
+          padding: const EdgeInsets.fromLTRB(18, 16, 18, 6),
+          child: Text(text.toUpperCase(), style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.6)),
+        );
+
+    Widget item(int i) => _SidebarItem(
+          icon: adminSections[i].$3,
+          label: adminSections[i].$2,
+          selected: i == index,
+          onTap: () {
+            context.go(adminSections[i].$1);
+            // On mobile this sidebar lives inside a Drawer -- close it
+            // after navigating, otherwise the drawer stays open over
+            // the newly selected page. Safe no-op on the desktop
+            // layout, where there's no drawer route to pop.
+            Navigator.maybePop(context);
+          },
+        );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -34,26 +61,14 @@ class AdminShell extends StatelessWidget {
             ],
           ),
         ),
-        ...List.generate(adminSections.length, (i) {
-          final selected = i == index;
-          return Material(
-            color: selected ? Colors.white.withOpacity(0.08) : Colors.transparent,
-            child: ListTile(
-              onTap: () {
-                context.go(adminSections[i].$1);
-                // On mobile this sidebar lives inside a Drawer -- close it
-                // after navigating, otherwise the drawer stays open over
-                // the newly selected page. Safe no-op on the desktop
-                // layout, where there's no drawer route to pop.
-                Navigator.maybePop(context);
-              },
-              leading: Icon(adminSections[i].$3, color: Colors.white70, size: 18),
-              title: Text(adminSections[i].$2, style: const TextStyle(color: Colors.white, fontSize: 13)),
-              dense: true,
-            ),
-          );
-        }),
+        item(0),
+        groupLabel('Operations'),
+        for (final i in operations) item(i),
+        groupLabel('Engagement'),
+        for (final i in engagement) item(i),
         const Spacer(),
+        const Divider(color: Colors.white12, height: 1),
+        item(9), // Settings
         if (app.adminEmail != null)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
@@ -111,12 +126,12 @@ class AdminShell extends StatelessWidget {
       if (isMobile) {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: const Color(0xFF1F1A16),
+            backgroundColor: kBgSidebar,
             title: Text(title, style: const TextStyle(color: Colors.white)),
             iconTheme: const IconThemeData(color: Colors.white),
           ),
           drawer: Drawer(
-            backgroundColor: const Color(0xFF1F1A16),
+            backgroundColor: kBgSidebar,
             child: SafeArea(child: _sidebarContent(context, app, index)),
           ),
           body: body,
@@ -128,7 +143,7 @@ class AdminShell extends StatelessWidget {
           children: [
             Container(
               width: 220,
-              color: const Color(0xFF1F1A16),
+              color: kBgSidebar,
               child: _sidebarContent(context, app, index),
             ),
             Expanded(child: body),
@@ -136,5 +151,49 @@ class AdminShell extends StatelessWidget {
         ),
       );
     });
+  }
+}
+
+/// A single sidebar nav row with a distinct selected state (filled
+/// background + left accent bar + bold text, not just a faint tint) and a
+/// hover state on desktop.
+class _SidebarItem extends StatefulWidget {
+  const _SidebarItem({required this.icon, required this.label, required this.selected, required this.onTap});
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  State<_SidebarItem> createState() => _SidebarItemState();
+}
+
+class _SidebarItemState extends State<_SidebarItem> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = widget.selected ? Colors.white.withOpacity(0.12) : (_hovering ? Colors.white.withOpacity(0.06) : Colors.transparent);
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: Material(
+        color: bg,
+        child: InkWell(
+          onTap: widget.onTap,
+          child: Container(
+            decoration: BoxDecoration(border: Border(left: BorderSide(color: widget.selected ? kAccentPrimary : Colors.transparent, width: 3))),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 11),
+            child: Row(
+              children: [
+                Icon(widget.icon, color: widget.selected ? Colors.white : Colors.white70, size: 18),
+                const SizedBox(width: 12),
+                Text(widget.label, style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: widget.selected ? FontWeight.w700 : FontWeight.w400)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
