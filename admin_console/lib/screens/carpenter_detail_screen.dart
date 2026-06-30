@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models.dart';
 import '../state.dart';
 import '../widgets.dart';
+import 'orders_screens.dart' show orderAmountLabel;
 
 /// Full profile for one carpenter: contact info, last known location, and
 /// every related record (orders, gift redemptions, leads) so an admin
@@ -158,7 +159,20 @@ class CarpenterDetailScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(child: Text('${o.orderNumber} · ₹${o.amount}', style: const TextStyle(fontSize: 13))),
+                      Expanded(
+                        child: Text.rich(
+                          TextSpan(
+                            style: const TextStyle(fontSize: 13, color: kTextPrimary),
+                            children: [
+                              TextSpan(text: '${o.orderNumber} · '),
+                              TextSpan(
+                                text: orderAmountLabel(o),
+                                style: TextStyle(color: o.amount == 0 && o.items.isEmpty ? kTextMuted : kTextPrimary, fontStyle: o.amount == 0 && o.items.isEmpty ? FontStyle.italic : FontStyle.normal),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       StatusBadge(o.status),
                     ],
                   ),

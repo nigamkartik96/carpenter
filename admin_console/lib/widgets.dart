@@ -123,12 +123,16 @@ ThemeData buildAdminTheme() {
 /// status color.
 Color statusColor(String status) {
   switch (status) {
-    case 'Fulfilled':
     case 'Approved':
     case 'Delivered':
     case 'Converted':
     case 'Live':
       return kStatusSuccess;
+    // Fulfilled is "ready, awaiting final delivery" -- distinct from both
+    // Processing (in progress) and Delivered (done), so it gets its own
+    // color rather than reusing the success green.
+    case 'Fulfilled':
+      return kStatusAttention;
     case 'Processing':
     case 'Contacted':
     case 'On store':
@@ -149,6 +153,12 @@ Color statusColor(String status) {
       return kStatusNeutral;
   }
 }
+
+/// Whether [status] is in the low-emphasis "neutral/pending" category --
+/// used by StatusBadge to render those as a light pill instead of a solid
+/// dark one, since a solid neutral-gray badge reads as "near-black" next
+/// to the more saturated info/success/attention colors.
+bool _isNeutralStatus(String status) => statusColor(status) == kStatusNeutral;
 
 class Heading extends StatelessWidget {
   const Heading(this.text, {super.key, this.subtitle});
@@ -209,7 +219,12 @@ class BackLink extends StatelessWidget {
 
 /// Solid-background pill with white text -- guarantees AA contrast
 /// regardless of which status color is picked, unlike the previous
-/// low-contrast pastel-background + colored-text treatment.
+/// low-contrast pastel-background + colored-text treatment. The neutral
+/// category (Submitted/Pending/New) is the exception: a solid dark-gray
+/// pill there reads as "near-black" next to the more saturated colors on
+/// other statuses, so it gets a light-gray pill with dark text instead --
+/// still meets contrast, just doesn't carry the same visual weight as an
+/// active/colored status.
 class StatusBadge extends StatelessWidget {
   const StatusBadge(this.label, {super.key});
   final String label;
@@ -217,10 +232,17 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = statusColor(label);
+    final neutral = _isNeutralStatus(label);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(20)),
-      child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+      decoration: BoxDecoration(color: neutral ? const Color(0xFFE7E5E1) : c, borderRadius: BorderRadius.circular(20)),
+      child: Text(
+        label,
+        maxLines: 1,
+        softWrap: false,
+        overflow: TextOverflow.visible,
+        style: TextStyle(color: neutral ? kTextSecondary : Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+      ),
     );
   }
 }
@@ -476,12 +498,20 @@ class StatusDropdown extends StatelessWidget {
     // different app version wrote) by including it as an extra option
     // instead of crashing.
     final safeOptions = options.contains(value) ? options : [value, ...options];
+    // Same pill/box silhouette either way -- so the Update column never
+    // changes shape row-to-row -- but the disabled state doesn't repeat
+    // the status word (already shown in the adjacent Status column,
+    // which made it read as a broken/empty dropdown) and uses a flat
+    // fill instead of a border, so it visibly recedes next to the real
+    // controls above/below it.
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
+      height: 36,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: enabled ? kBgSurface : const Color(0xFFF0EEE9),
+        color: enabled ? kBgSurface : const Color(0xFFEFEDE9),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: kBorderSubtle),
+        border: enabled ? Border.all(color: kBorderSubtle) : null,
       ),
       child: enabled
           ? DropdownButton<String>(
@@ -492,12 +522,12 @@ class StatusDropdown extends StatelessWidget {
                 if (v != null) onChanged(v);
               },
             )
-          : Row(
+          : const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(value, style: const TextStyle(fontSize: 13, color: kTextMuted)),
-                const SizedBox(width: 4),
-                const Icon(Icons.lock_outline, size: 14, color: kTextMuted),
+                Icon(Icons.lock_outline, size: 13, color: kTextMuted),
+                SizedBox(width: 5),
+                Text('Locked', style: TextStyle(fontSize: 12, color: kTextMuted)),
               ],
             ),
     );

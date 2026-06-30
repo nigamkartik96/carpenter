@@ -145,6 +145,243 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     }
   }
 
+  Widget _headerCard(AdminOrder order, BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(order.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+          const SizedBox(height: 4),
+          Text('${order.type} order', style: const TextStyle(color: kMuted, fontSize: 12)),
+          if (order.detail.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(order.detail, style: const TextStyle(fontSize: 13)),
+          ],
+          // Photo orders show the image here; voice/manual orders simply
+          // have nothing in its place -- no empty placeholder gap.
+          if (order.imageUrl != null) ...[
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () => _showImageLightbox(context, order.imageUrl!),
+              child: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(order.imageUrl!, height: 160, fit: BoxFit.cover, width: double.infinity)),
+            ),
+          ],
+          if (order.audioUrl != null) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(Icons.mic_none, size: 18, color: kPrimary),
+                const SizedBox(width: 8),
+                const Expanded(child: Text('Voice note', style: TextStyle(fontSize: 13))),
+                OutlinedButton.icon(
+                  onPressed: () => launchUrl(Uri.parse(order.audioUrl!), mode: LaunchMode.externalApplication),
+                  icon: const Icon(Icons.play_arrow, size: 16),
+                  label: const Text('Play'),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _lineItemsCard(AdminOrder order, AdminState app, bool itemsLocked) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SubHeading('Line items'),
+        const SizedBox(height: 4),
+        Text(
+          itemsLocked
+              ? 'This order is ${order.status} -- points were already credited against this total, so line items are locked.'
+              : 'Enter the products and prices from the physical invoice -- the total below feeds point crediting.',
+          style: TextStyle(color: itemsLocked ? kWarning : kTextSecondary, fontSize: 12),
+        ),
+        const SizedBox(height: 10),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  Expanded(flex: 3, child: Text('Product', style: TextStyle(color: kMuted, fontSize: 12))),
+                  Expanded(child: Text('Qty', style: TextStyle(color: kMuted, fontSize: 12))),
+                  Expanded(flex: 2, child: Text('Unit cost (Rs)', style: TextStyle(color: kMuted, fontSize: 12))),
+                  SizedBox(width: 36),
+                ],
+              ),
+              const SizedBox(height: 6),
+              ...List.generate(rows!.length, (i) {
+                final r = rows![i];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    children: [
+                      Expanded(flex: 3, child: TextField(controller: r.name, enabled: !itemsLocked, onChanged: (_) => setState(() {}))),
+                      const SizedBox(width: 8),
+                      Expanded(child: TextField(controller: r.qty, enabled: !itemsLocked, keyboardType: TextInputType.number, onChanged: (_) => setState(() {}))),
+                      const SizedBox(width: 8),
+                      Expanded(flex: 2, child: TextField(controller: r.unitCost, enabled: !itemsLocked, keyboardType: TextInputType.number, onChanged: (_) => setState(() {}))),
+                      SizedBox(
+                        width: 36,
+                        child: IconButton(
+                          icon: const Icon(Icons.close, size: 16),
+                          onPressed: (!itemsLocked && rows!.length > 1) ? () => setState(() => rows!.removeAt(i)) : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: itemsLocked ? null : () => setState(() => rows!.add(_ItemRow())),
+                icon: const Icon(Icons.add, size: 16),
+                label: const Text('Add line'),
+              ),
+              const Divider(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Total amount', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+                  Text('Rs $_computedTotal', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: kPrimaryDark)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'At ${app.pointRuleAmount} = ${app.pointRulePoints} pt(s), this order earns ${app.pointRuleAmount > 0 ? (_computedTotal ~/ app.pointRuleAmount) * app.pointRulePoints : 0} points once marked Fulfilled.',
+                style: const TextStyle(color: kTextSecondary, fontSize: 12),
+              ),
+              if (fulfilledGateErrors.isNotEmpty && order.items.isEmpty) ...[
+                const SizedBox(height: 10),
+                const Text('At least one item must be added before fulfilling this order.', style: TextStyle(color: kStatusClosed, fontSize: 12, fontWeight: FontWeight.w600)),
+              ],
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: (itemsLocked || savingItems) ? null : () => _saveItems(app, order),
+                child: Text(savingItems ? 'Saving...' : 'Save items'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _invoiceCard(AdminOrder order, AdminState app) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SubHeading('Invoice'),
+        const SizedBox(height: 10),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  if (order.invoiceUrl != null) ...[
+                    const Icon(Icons.file_present_outlined, color: kPrimary),
+                    const SizedBox(width: 8),
+                    const Expanded(child: Text('Invoice uploaded', style: TextStyle(fontSize: 13))),
+                    TextButton(
+                      onPressed: () => launchUrl(Uri.parse(order.invoiceUrl!), mode: LaunchMode.externalApplication),
+                      child: const Text('View'),
+                    ),
+                    const SizedBox(width: 8),
+                  ] else
+                    const Expanded(child: Text('No invoice uploaded yet', style: TextStyle(color: kMuted, fontSize: 13))),
+                  OutlinedButton.icon(
+                    onPressed: uploadingInvoice ? null : () => _uploadInvoice(app, order),
+                    icon: uploadingInvoice
+                        ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.upload_file, size: 16),
+                    label: Text(order.invoiceUrl != null ? 'Replace' : 'Upload invoice'),
+                  ),
+                ],
+              ),
+              if (fulfilledGateErrors.isNotEmpty && order.invoiceUrl == null) ...[
+                const SizedBox(height: 8),
+                const Text('Please upload an invoice before marking this order as Fulfilled.', style: TextStyle(color: kStatusClosed, fontSize: 12, fontWeight: FontWeight.w600)),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// The stepper + advance/save/discard action panel. This is the single
+  /// most frequent action on the page, so it's surfaced without scrolling
+  /// on both layouts -- pinned in the sticky right column on desktop
+  /// (Part A), and moved to the very top on mobile (collapsed layout).
+  Widget _statusPanel(BuildContext context, AdminState app, AdminOrder order, bool isMobile, {bool sticky = false}) {
+    final effectiveStatus = pendingStatus ?? order.status;
+    final hasPendingChange = pendingStatus != null && pendingStatus != order.status;
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SubHeading('Status'),
+        const SizedBox(height: 14),
+        OrderStatusStepper(effectiveStatus: effectiveStatus, isMobile: isMobile || sticky),
+        const SizedBox(height: 16),
+        _StatusActions(
+          order: order,
+          pendingStatus: pendingStatus,
+          onStage: (s) => setState(() {
+            pendingStatus = s;
+            fulfilledGateErrors = [];
+          }),
+          onDiscard: () => setState(() {
+            pendingStatus = null;
+            fulfilledGateErrors = [];
+          }),
+        ),
+        if (hasPendingChange) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(color: kAccentPrimary.withOpacity(0.06), borderRadius: BorderRadius.circular(8)),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline, size: 16, color: kAccentPrimary),
+                const SizedBox(width: 8),
+                Expanded(child: Text('Staged change: $pendingStatus -- not saved yet.', style: const TextStyle(fontSize: 12, color: kAccentPrimaryDark))),
+              ],
+            ),
+          ),
+        ],
+        const SizedBox(height: 14),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ElevatedButton(
+              onPressed: hasPendingChange ? () => _saveStatus(context, app, order) : null,
+              child: const Text('Save changes'),
+            ),
+            if (hasPendingChange)
+              TextButton(
+                onPressed: () => setState(() {
+                  pendingStatus = null;
+                  fulfilledGateErrors = [];
+                }),
+                child: const Text('Discard'),
+              ),
+          ],
+        ),
+      ],
+    );
+    return sticky
+        ? Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(color: kBgSurface, borderRadius: BorderRadius.circular(kCardRadius), border: Border.all(color: kBorderSubtle)),
+            child: content,
+          )
+        : AppCard(child: content);
+  }
+
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AdminState>();
@@ -155,229 +392,85 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     }
     _initRowsIfNeeded(order);
 
-    final isMobile = MediaQuery.of(context).size.width < 700;
+    final width = MediaQuery.of(context).size.width;
+    final isMobile = width < 700;
+    final isTwoColumn = width >= 1024;
     // Once an order is Fulfilled or Delivered, its price has already been
     // used to credit points -- editing line items after that would let the
     // total silently drift from what was actually charged. Delivered is
     // also fully terminal: status can't move at all from there.
     final itemsLocked = order.status == 'Fulfilled' || order.status == 'Delivered';
-    final effectiveStatus = pendingStatus ?? order.status;
-    final hasPendingChange = pendingStatus != null && pendingStatus != order.status;
+
+    final backLink = BackLink(label: 'Back to Orders', onTap: () => context.go('/orders'));
+
+    Widget body;
+    if (isTwoColumn) {
+      // Right column isn't itself scrollable -- it sits outside the left
+      // column's SingleChildScrollView, so as the admin scrolls through
+      // line items it stays pinned in place (the desktop-CSS-"sticky"
+      // equivalent for a Flutter Row layout).
+      body = Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            backLink,
+            const SizedBox(height: 12),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 6,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _headerCard(order, context),
+                          const SizedBox(height: 16),
+                          _lineItemsCard(order, app, itemsLocked),
+                          const SizedBox(height: 16),
+                          _invoiceCard(order, app),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    flex: 4,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.only(top: 24),
+                      child: _statusPanel(context, app, order, isMobile, sticky: true),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Single column: status moves to the top so it's visible without
+      // scrolling regardless of screen size (Part A, mobile case).
+      body = ListView(
+        padding: EdgeInsets.all(isMobile ? 12 : 24),
+        children: [
+          backLink,
+          const SizedBox(height: 8),
+          _statusPanel(context, app, order, isMobile),
+          const SizedBox(height: 16),
+          _headerCard(order, context),
+          const SizedBox(height: 16),
+          _lineItemsCard(order, app, itemsLocked),
+          const SizedBox(height: 16),
+          _invoiceCard(order, app),
+        ],
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(order.orderNumber), automaticallyImplyLeading: false),
-      body: ListView(
-        padding: EdgeInsets.all(isMobile ? 12 : 24),
-        children: [
-          BackLink(label: 'Back to Orders', onTap: () => context.go('/orders')),
-          const SizedBox(height: 8),
-          AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(order.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                const SizedBox(height: 4),
-                Text('${order.type} order', style: const TextStyle(color: kMuted, fontSize: 12)),
-                if (order.detail.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Text(order.detail, style: const TextStyle(fontSize: 13)),
-                ],
-                if (order.imageUrl != null) ...[
-                  const SizedBox(height: 10),
-                  GestureDetector(
-                    onTap: () => _showImageLightbox(context, order.imageUrl!),
-                    child: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(order.imageUrl!, height: 160, fit: BoxFit.cover)),
-                  ),
-                ],
-                if (order.audioUrl != null) ...[
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Icon(Icons.mic_none, size: 18, color: kPrimary),
-                      const SizedBox(width: 8),
-                      const Expanded(child: Text('Voice note', style: TextStyle(fontSize: 13))),
-                      OutlinedButton.icon(
-                        onPressed: () => launchUrl(Uri.parse(order.audioUrl!), mode: LaunchMode.externalApplication),
-                        icon: const Icon(Icons.play_arrow, size: 16),
-                        label: const Text('Play'),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          const SubHeading('Line items'),
-          const SizedBox(height: 4),
-          Text(
-            itemsLocked
-                ? 'This order is ${order.status} -- points were already credited against this total, so line items are locked.'
-                : 'Enter the products and prices from the physical invoice -- the total below feeds point crediting.',
-            style: TextStyle(color: itemsLocked ? kWarning : kTextSecondary, fontSize: 12),
-          ),
-          const SizedBox(height: 10),
-          AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: const [
-                    Expanded(flex: 3, child: Text('Product', style: TextStyle(color: kMuted, fontSize: 12))),
-                    Expanded(child: Text('Qty', style: TextStyle(color: kMuted, fontSize: 12))),
-                    Expanded(flex: 2, child: Text('Unit cost (Rs)', style: TextStyle(color: kMuted, fontSize: 12))),
-                    SizedBox(width: 36),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                ...List.generate(rows!.length, (i) {
-                  final r = rows![i];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      children: [
-                        Expanded(flex: 3, child: TextField(controller: r.name, enabled: !itemsLocked, onChanged: (_) => setState(() {}))),
-                        const SizedBox(width: 8),
-                        Expanded(child: TextField(controller: r.qty, enabled: !itemsLocked, keyboardType: TextInputType.number, onChanged: (_) => setState(() {}))),
-                        const SizedBox(width: 8),
-                        Expanded(flex: 2, child: TextField(controller: r.unitCost, enabled: !itemsLocked, keyboardType: TextInputType.number, onChanged: (_) => setState(() {}))),
-                        SizedBox(
-                          width: 36,
-                          child: IconButton(
-                            icon: const Icon(Icons.close, size: 16),
-                            onPressed: (!itemsLocked && rows!.length > 1) ? () => setState(() => rows!.removeAt(i)) : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: itemsLocked ? null : () => setState(() => rows!.add(_ItemRow())),
-                  icon: const Icon(Icons.add, size: 16),
-                  label: const Text('Add line'),
-                ),
-                const Divider(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Total amount', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
-                    Text('Rs $_computedTotal', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: kPrimaryDark)),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'At ${app.pointRuleAmount} = ${app.pointRulePoints} pt(s), this order earns ${app.pointRuleAmount > 0 ? (_computedTotal ~/ app.pointRuleAmount) * app.pointRulePoints : 0} points once marked Fulfilled.',
-                  style: const TextStyle(color: kTextSecondary, fontSize: 12),
-                ),
-                if (fulfilledGateErrors.isNotEmpty && order.items.isEmpty) ...[
-                  const SizedBox(height: 10),
-                  Text('At least one item must be added before fulfilling this order.', style: const TextStyle(color: kStatusClosed, fontSize: 12, fontWeight: FontWeight.w600)),
-                ],
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: (itemsLocked || savingItems) ? null : () => _saveItems(app, order),
-                  child: Text(savingItems ? 'Saving...' : 'Save items'),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          const SubHeading('Invoice'),
-          const SizedBox(height: 10),
-          AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    if (order.invoiceUrl != null) ...[
-                      const Icon(Icons.file_present_outlined, color: kPrimary),
-                      const SizedBox(width: 8),
-                      const Expanded(child: Text('Invoice uploaded', style: TextStyle(fontSize: 13))),
-                      TextButton(
-                        onPressed: () => launchUrl(Uri.parse(order.invoiceUrl!), mode: LaunchMode.externalApplication),
-                        child: const Text('View'),
-                      ),
-                      const SizedBox(width: 8),
-                    ] else
-                      const Expanded(child: Text('No invoice uploaded yet', style: TextStyle(color: kMuted, fontSize: 13))),
-                    OutlinedButton.icon(
-                      onPressed: uploadingInvoice ? null : () => _uploadInvoice(app, order),
-                      icon: uploadingInvoice
-                          ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.upload_file, size: 16),
-                      label: Text(order.invoiceUrl != null ? 'Replace' : 'Upload invoice'),
-                    ),
-                  ],
-                ),
-                if (fulfilledGateErrors.isNotEmpty && order.invoiceUrl == null) ...[
-                  const SizedBox(height: 8),
-                  const Text('Please upload an invoice before marking this order as Fulfilled.', style: TextStyle(color: kStatusClosed, fontSize: 12, fontWeight: FontWeight.w600)),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          const SubHeading('Status'),
-          const SizedBox(height: 10),
-          AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                OrderStatusStepper(effectiveStatus: effectiveStatus, isMobile: isMobile),
-                const SizedBox(height: 16),
-                _StatusActions(
-                  order: order,
-                  pendingStatus: pendingStatus,
-                  onStage: (s) => setState(() {
-                    pendingStatus = s;
-                    fulfilledGateErrors = [];
-                  }),
-                  onDiscard: () => setState(() {
-                    pendingStatus = null;
-                    fulfilledGateErrors = [];
-                  }),
-                ),
-                if (hasPendingChange) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: kAccentPrimary.withOpacity(0.06), borderRadius: BorderRadius.circular(8)),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.info_outline, size: 16, color: kAccentPrimary),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text('Staged change: $pendingStatus -- not saved yet.', style: const TextStyle(fontSize: 12, color: kAccentPrimaryDark))),
-                      ],
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    ElevatedButton(
-                      onPressed: hasPendingChange ? () => _saveStatus(context, app, order) : null,
-                      child: const Text('Save changes'),
-                    ),
-                    if (hasPendingChange) ...[
-                      const SizedBox(width: 8),
-                      TextButton(
-                        onPressed: () => setState(() {
-                          pendingStatus = null;
-                          fulfilledGateErrors = [];
-                        }),
-                        child: const Text('Discard'),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      body: body,
     );
   }
 }
