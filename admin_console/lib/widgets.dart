@@ -63,13 +63,19 @@ Future<bool> confirmDialog(
 }) async {
   final result = await showDialog<bool>(
     context: context,
-    builder: (_) => AlertDialog(
+    // Use the dialog's own builder context (not the outer `context`
+    // parameter) for the pop calls below. showDialog pushes onto the
+    // root Navigator, but go_router's ShellRoute gives routed pages
+    // their own nested Navigator -- popping with the outer context
+    // resolved to that nested one instead, closing the underlying page
+    // rather than the dialog.
+    builder: (dialogContext) => AlertDialog(
       title: Text(title),
       content: Text(message),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(cancelLabel)),
+        TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: Text(cancelLabel)),
         TextButton(
-          onPressed: () => Navigator.pop(context, true),
+          onPressed: () => Navigator.pop(dialogContext, true),
           style: danger ? TextButton.styleFrom(foregroundColor: kStatusClosed) : null,
           child: Text(confirmLabel),
         ),
