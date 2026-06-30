@@ -95,7 +95,7 @@ class OfferDetailScreen extends StatelessWidget {
     final o = app.offerById(offerId);
     if (o == null) return const Scaffold(body: Center(child: Text('Offer not found')));
     return Scaffold(
-      appBar: AppBar(title: Text(o.title)),
+      appBar: AppBar(title: Text(o.title), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

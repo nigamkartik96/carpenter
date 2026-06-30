@@ -28,7 +28,7 @@ class CarpenterDetailScreen extends StatelessWidget {
     final leads = app.leadsFor(carpenterId);
 
     return Scaffold(
-      appBar: AppBar(title: Text(c.name)),
+      appBar: AppBar(title: Text(c.name), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

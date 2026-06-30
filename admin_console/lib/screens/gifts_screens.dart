@@ -106,7 +106,7 @@ class GiftDetailScreen extends StatelessWidget {
     final g = app.giftById(giftId);
     if (g == null) return const Scaffold(body: Center(child: Text('Gift not found')));
     return Scaffold(
-      appBar: AppBar(title: Text(g.name)),
+      appBar: AppBar(title: Text(g.name), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
