@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../widgets.dart';
-import 'order_detail_screen.dart';
 
 // Must match every status string the carpenter app actually writes
 // ('Submitted' is the initial status on order creation) -- DropdownButton
@@ -21,7 +21,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   final search = TextEditingController();
   String statusFilter = 'All';
 
-  void _open(BuildContext context, String orderId) => Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDetailScreen(orderId: orderId)));
+  void _open(BuildContext context, String orderId) => context.push('/orders/$orderId');
 
   @override
   Widget build(BuildContext context) {

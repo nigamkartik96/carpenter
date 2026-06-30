@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../models.dart';
 import '../state.dart';
 import '../widgets.dart';
-import 'carpenter_detail_screen.dart';
 
 class CarpentersScreen extends StatelessWidget {
   const CarpentersScreen({super.key});
@@ -71,7 +71,7 @@ class CarpentersScreen extends StatelessWidget {
               for (final c in app.carpenters)
                 SizedBox(
                   width: tileWidth,
-                  child: _CarpenterTile(carpenter: c, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CarpenterDetailScreen(carpenterId: c.id)))),
+                  child: _CarpenterTile(carpenter: c, onTap: () => context.push('/carpenters/${c.id}')),
                 ),
             ],
           );

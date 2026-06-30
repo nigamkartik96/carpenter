@@ -55,7 +55,6 @@ class AdminState extends ChangeNotifier {
   String? loginError;
   String? lastError;
   bool busy = false;
-  int screenIndex = 0;
 
   String? get adminEmail => _fb.auth.currentUser?.email;
 
@@ -66,11 +65,6 @@ class AdminState extends ChangeNotifier {
 
   void _reportError(String where, Object e) {
     lastError = '$where: $e';
-    notifyListeners();
-  }
-
-  void goToScreen(int index) {
-    screenIndex = index;
     notifyListeners();
   }
 
@@ -90,12 +84,19 @@ class AdminState extends ChangeNotifier {
 
   final List<StreamSubscription> _subs = [];
 
+  // Set once tryResumeSession finishes, so the router knows whether to
+  // wait (splash) or commit to redirecting to /login vs the dashboard.
+  bool sessionChecked = false;
+
   Future<bool> tryResumeSession() async {
-    if (!_fb.hasSession) return false;
-    loggedIn = true;
-    _startListening();
+    final resumed = _fb.hasSession;
+    if (resumed) {
+      loggedIn = true;
+      _startListening();
+    }
+    sessionChecked = true;
     notifyListeners();
-    return true;
+    return resumed;
   }
 
   Future<void> login(String email, String password) async {

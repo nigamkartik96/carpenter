@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models.dart';
 import '../state.dart';
 import '../widgets.dart';
-import 'order_detail_screen.dart';
 
 /// Full profile for one carpenter: contact info, last known location, and
 /// every related record (orders, gift redemptions, leads) so an admin
@@ -103,7 +103,7 @@ class CarpenterDetailScreen extends StatelessWidget {
           const SizedBox(height: 8),
           if (orders.isEmpty) const Text('No orders yet', style: TextStyle(color: kMuted, fontSize: 13)),
           ...orders.map((o) => AppCard(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDetailScreen(orderId: o.id))),
+                onTap: () => context.push('/orders/${o.id}'),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

@@ -1,31 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'router.dart';
 import 'state.dart';
-import 'widgets.dart';
-import 'screens/dashboard_screen.dart';
-import 'screens/carpenters_screens.dart';
-import 'screens/locations_screen.dart';
-import 'screens/orders_screens.dart';
-import 'screens/offers_screens.dart';
-import 'screens/gifts_screens.dart';
-import 'screens/redemptions_screen.dart';
-import 'screens/leads_screen.dart';
-import 'screens/notifications_screen.dart';
 
+/// Persistent sidebar/app-bar chrome around whichever section is
+/// currently routed -- [child] is supplied by go_router's ShellRoute, and
+/// [location] is the current URL path so the sidebar can highlight the
+/// active item and detail routes (e.g. /orders/abc123) still show
+/// "Orders" as selected.
 class AdminShell extends StatelessWidget {
-  const AdminShell({super.key});
+  const AdminShell({super.key, required this.child, required this.location});
+  final Widget child;
+  final String location;
 
-  static const items = [
-    ('Dashboard', Icons.dashboard_outlined),
-    ('Carpenters', Icons.people_outline),
-    ('Locations', Icons.map_outlined),
-    ('Orders', Icons.inventory_2_outlined),
-    ('Offers', Icons.local_offer_outlined),
-    ('Gift catalog', Icons.card_giftcard_outlined),
-    ('Redemptions', Icons.assignment_outlined),
-    ('Leads', Icons.lightbulb_outline),
-    ('Notifications', Icons.notifications_outlined),
-  ];
+  int get _selectedIndex {
+    final i = adminSections.indexWhere((s) => s.$1 != '/' && location.startsWith(s.$1));
+    if (i != -1) return i;
+    return location == '/' ? 0 : -1;
+  }
 
   Widget _sidebarContent(BuildContext context, AdminState app, int index) {
     return Column(
@@ -41,21 +34,21 @@ class AdminShell extends StatelessWidget {
             ],
           ),
         ),
-        ...List.generate(items.length, (i) {
+        ...List.generate(adminSections.length, (i) {
           final selected = i == index;
           return Material(
             color: selected ? Colors.white.withOpacity(0.08) : Colors.transparent,
             child: ListTile(
               onTap: () {
-                app.goToScreen(i);
+                context.go(adminSections[i].$1);
                 // On mobile this sidebar lives inside a Drawer -- close it
                 // after navigating, otherwise the drawer stays open over
                 // the newly selected page. Safe no-op on the desktop
                 // layout, where there's no drawer route to pop.
                 Navigator.maybePop(context);
               },
-              leading: Icon(items[i].$2, color: Colors.white70, size: 18),
-              title: Text(items[i].$1, style: const TextStyle(color: Colors.white, fontSize: 13)),
+              leading: Icon(adminSections[i].$3, color: Colors.white70, size: 18),
+              title: Text(adminSections[i].$2, style: const TextStyle(color: Colors.white, fontSize: 13)),
               dense: true,
             ),
           );
@@ -83,18 +76,8 @@ class AdminShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AdminState>();
-    final index = app.screenIndex;
-    final pages = const [
-      DashboardScreen(),
-      CarpentersScreen(),
-      LocationsScreen(),
-      OrdersScreen(),
-      OffersScreen(),
-      GiftsScreen(),
-      RedemptionsScreen(),
-      LeadsScreen(),
-      NotificationsScreen(),
-    ];
+    final index = _selectedIndex;
+    final title = index >= 0 ? adminSections[index].$2 : 'CarpenterHub Admin';
 
     return LayoutBuilder(builder: (context, constraints) {
       final isMobile = constraints.maxWidth < 800;
@@ -119,7 +102,7 @@ class AdminShell extends StatelessWidget {
           Expanded(
             child: Padding(
               padding: EdgeInsets.all(contentPadding),
-              child: pages[index],
+              child: child,
             ),
           ),
         ],
@@ -129,7 +112,7 @@ class AdminShell extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: const Color(0xFF1F1A16),
-            title: Text(items[index].$1, style: const TextStyle(color: Colors.white)),
+            title: Text(title, style: const TextStyle(color: Colors.white)),
             iconTheme: const IconThemeData(color: Colors.white),
           ),
           drawer: Drawer(

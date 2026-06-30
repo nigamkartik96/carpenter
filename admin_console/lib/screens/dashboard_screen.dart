@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../shell.dart';
+import '../router.dart';
 import '../state.dart';
 import '../widgets.dart';
 
@@ -21,10 +22,10 @@ class DashboardScreen extends StatelessWidget {
           final isNarrow = constraints.maxWidth < 700;
           final cardWidth = isNarrow ? (constraints.maxWidth - 12) / 2 : double.infinity;
           final cards = [
-            Kpi(label: 'Approved carpenters', value: '${app.carpenters.where((c) => c.status == 'Approved').length}', icon: Icons.people_outline, onTap: () => app.goToScreen(1)),
-            Kpi(label: 'Pending approvals', value: '$pending', icon: Icons.person_search_outlined, onTap: () => app.goToScreen(1)),
-            Kpi(label: 'Total orders', value: '${app.orders.length}', icon: Icons.inventory_2_outlined, onTap: () => app.goToScreen(3)),
-            Kpi(label: 'Gift redemptions', value: '${app.redemptions.length}', icon: Icons.card_giftcard_outlined, onTap: () => app.goToScreen(6)),
+            Kpi(label: 'Approved carpenters', value: '${app.carpenters.where((c) => c.status == 'Approved').length}', icon: Icons.people_outline, onTap: () => context.go('/carpenters')),
+            Kpi(label: 'Pending approvals', value: '$pending', icon: Icons.person_search_outlined, onTap: () => context.go('/carpenters')),
+            Kpi(label: 'Total orders', value: '${app.orders.length}', icon: Icons.inventory_2_outlined, onTap: () => context.go('/orders')),
+            Kpi(label: 'Gift redemptions', value: '${app.redemptions.length}', icon: Icons.card_giftcard_outlined, onTap: () => context.go('/redemptions')),
           ];
           if (!isNarrow) {
             return Row(
@@ -54,10 +55,10 @@ class DashboardScreen extends StatelessWidget {
             spacing: spacing,
             runSpacing: spacing,
             children: [
-              for (var i = 1; i < AdminShell.items.length; i++)
+              for (var i = 1; i < adminSections.length; i++)
                 SizedBox(
                   width: tileWidth,
-                  child: Kpi(label: AdminShell.items[i].$1, value: 'Open', icon: AdminShell.items[i].$2, onTap: () => app.goToScreen(i)),
+                  child: Kpi(label: adminSections[i].$2, value: 'Open', icon: adminSections[i].$3, onTap: () => context.go(adminSections[i].$1)),
                 ),
             ],
           );

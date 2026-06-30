@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -40,6 +42,11 @@ dependencies:
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.1
   cloud_firestore: ^5.4.4
+
+  # URL-based routing so the browser's Back/Forward buttons and direct/
+  # bookmarked links work -- previously the sidebar just flipped an
+  # in-memory index with no navigation entry at all.
+  go_router: ^14.6.2
 
   # File uploads (gift images, offer banners/PDFs) go to Cloudinary
   # (free tier, no card) instead of Firebase Storage (Blaze-only now).
