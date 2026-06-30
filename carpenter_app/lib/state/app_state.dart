@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/strings.dart';
 import '../models/models.dart';
+import '../services/background_location.dart';
 import '../services/firebase_service.dart';
 
 String initialsOf(String name) {
@@ -210,6 +211,7 @@ class AppState extends ChangeNotifier {
     _subs.clear();
     _locationTimer?.cancel();
     _locationTimer = null;
+    cancelBackgroundLocation().catchError((_) {});
     await _fb.logout();
     uid = null;
     carpenterName = '';
@@ -264,6 +266,10 @@ class AppState extends ChangeNotifier {
     _locationTimer?.cancel();
     reportLocationOnce();
     _locationTimer = Timer.periodic(const Duration(minutes: 5), (_) => reportLocationOnce());
+    // Best-effort: if this fails (e.g. background location permission not
+    // yet granted on Android 10+), foreground reporting above still works
+    // whenever the carpenter has the app open.
+    scheduleBackgroundLocation().catchError((_) {});
   }
 
   Future<void> _startListening() async {
@@ -309,7 +315,13 @@ class AppState extends ChangeNotifier {
 
     _subs.add(_fb.watchOffers().listen((snap) {
       try {
-        final list = snap.docs.map((doc) {
+        final list = snap.docs.where((doc) {
+          // Offers targeted at specific carpenters (see admin's offer
+          // form) only show for carpenters in that list; an absent or
+          // empty list means "everyone".
+          final targets = (doc.data()['targetCarpenterIds'] as List?)?.map((e) => '$e');
+          return targets == null || targets.isEmpty || targets.contains(uid);
+        }).map((doc) {
           final d = doc.data();
           return Offer(
             id: doc.id,

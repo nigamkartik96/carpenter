@@ -167,6 +167,7 @@ class AdminState extends ChangeNotifier {
               lastSeen: _fmtLastSeen(d['lastSeen']),
               lat: location != null ? _double(location['lat']) : null,
               lng: location != null ? _double(location['lng']) : null,
+              photoUrl: d['photoUrl'],
             );
           }));
         notifyListeners();
@@ -215,6 +216,7 @@ class AdminState extends ChangeNotifier {
               invoiceUrl: d['invoiceUrl'],
               audioUrl: d['audioUrl'],
               items: rawItems is List ? rawItems.map((m) => OrderItem.fromMap(Map<String, dynamic>.from(m as Map))).toList() : const [],
+              createdAt: d['createdAt'] is Timestamp ? (d['createdAt'] as Timestamp).toDate() : null,
             );
           }));
         notifyListeners();
@@ -237,6 +239,7 @@ class AdminState extends ChangeNotifier {
               validTill: d['validTill'] ?? '',
               bannerUrl: d['bannerUrl'],
               pdfUrl: d['pdfUrl'],
+              targetCarpenterIds: (d['targetCarpenterIds'] as List?)?.map((e) => '$e').toList(),
             );
           }));
         notifyListeners();
@@ -314,6 +317,18 @@ class AdminState extends ChangeNotifier {
     return c.isEmpty ? carpenterId : c.first.name;
   }
 
+  List<AdminOrder> ordersFor(String carpenterId) => orders.where((o) => o.carpenterId == carpenterId).toList();
+  List<Redemption> redemptionsFor(String carpenterId) => redemptions.where((r) => r.carpenterId == carpenterId).toList();
+  List<AdminLead> leadsFor(String carpenterId) => leads.where((l) => l.carpenterId == carpenterId).toList();
+
+  int totalOrderAmount(String carpenterId) => ordersFor(carpenterId).fold(0, (sum, o) => sum + o.amount);
+
+  DateTime? lastOrderDate(String carpenterId) {
+    final dates = ordersFor(carpenterId).map((o) => o.createdAt).whereType<DateTime>();
+    if (dates.isEmpty) return null;
+    return dates.reduce((a, b) => a.isAfter(b) ? a : b);
+  }
+
   Future<void> approve(Carpenter c) => _fb.approveCarpenter(c.id);
   Future<void> reject(Carpenter c) => _fb.rejectCarpenter(c.id);
   Future<void> setTier(Carpenter c, String tier) => _fb.setCarpenterTier(c.id, tier);
@@ -365,8 +380,16 @@ class AdminState extends ChangeNotifier {
     await _fb.saveLeadPointsRule(qualifiedPoints: qualifiedPoints, convertedPoints: convertedPoints);
   }
 
-  Future<void> addOffer(String title, String category, String validTill, {String description = '', String? bannerUrl, String? pdfUrl}) {
-    return _fb.addOffer(title: title, category: category, validTill: validTill, description: description, bannerUrl: bannerUrl, pdfUrl: pdfUrl);
+  Future<void> addOffer(String title, String category, String validTill, {String description = '', String? bannerUrl, String? pdfUrl, List<String>? targetCarpenterIds}) {
+    return _fb.addOffer(
+      title: title,
+      category: category,
+      validTill: validTill,
+      description: description,
+      bannerUrl: bannerUrl,
+      pdfUrl: pdfUrl,
+      targetCarpenterIds: targetCarpenterIds,
+    );
   }
 
   Future<void> withdrawOffer(AdminOffer o) => _fb.withdrawOffer(o.id);

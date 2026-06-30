@@ -1,8 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:workmanager/workmanager.dart';
 
 import 'firebase_options.dart';
+import 'services/background_location.dart';
 import 'state/app_state.dart';
 import 'theme.dart';
 import 'screens/onboarding_screens.dart';
@@ -14,6 +17,7 @@ import 'screens/profile_screens.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Workmanager().initialize(backgroundLocationCallbackDispatcher, isInDebugMode: kDebugMode);
   runApp(const CarpenterHubApp());
 }
 

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models.dart';
 import '../state.dart';
 import '../widgets.dart';
+import 'carpenter_detail_screen.dart';
 
 class CarpentersScreen extends StatelessWidget {
   const CarpentersScreen({super.key});
@@ -13,11 +14,10 @@ class CarpentersScreen extends StatelessWidget {
     final pending = app.carpenters.where((c) => c.status == 'Pending').toList();
     return ListView(
       children: [
-        const Text('Carpenters', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-        const Text('Approve new sign-ups and manage existing carpenters', style: TextStyle(color: kMuted, fontSize: 13)),
+        const Heading('Carpenters', subtitle: 'Approve new sign-ups and manage existing carpenters'),
         const SizedBox(height: 20),
         if (pending.isNotEmpty) ...[
-          const Text('Pending approval', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          const SubHeading('Pending approval'),
           const SizedBox(height: 8),
           ...pending.map((c) => AppCard(
                 child: Row(
@@ -58,38 +58,67 @@ class CarpentersScreen extends StatelessWidget {
               )),
           const SizedBox(height: 20),
         ],
-        const Text('All carpenters', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+        const SubHeading('All carpenters'),
         const SizedBox(height: 10),
-        Container(
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-            columns: const [
-              DataColumn(label: Text('Name')),
-              DataColumn(label: Text('Shop')),
-              DataColumn(label: Text('Mobile')),
-              DataColumn(label: Text('Status')),
-              DataColumn(label: Text('Points')),
-              DataColumn(label: Text('Tier')),
+        LayoutBuilder(builder: (context, constraints) {
+          final perRow = (constraints.maxWidth / 200).floor().clamp(2, 6);
+          final spacing = 12.0;
+          final tileWidth = (constraints.maxWidth - spacing * (perRow - 1)) / perRow;
+          return Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
+            children: [
+              for (final c in app.carpenters)
+                SizedBox(
+                  width: tileWidth,
+                  child: _CarpenterTile(carpenter: c, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CarpenterDetailScreen(carpenterId: c.id)))),
+                ),
             ],
-            rows: app.carpenters
-                .map((c) => DataRow(cells: [
-                      DataCell(Text(c.name)),
-                      DataCell(Text(c.shop)),
-                      DataCell(Text(c.mobile)),
-                      DataCell(StatusBadge(c.status)),
-                      DataCell(Text('${c.points}')),
-                      DataCell(StatusDropdown(value: c.tier, options: carpenterTiers, onChanged: (v) {
-                        app.setTier(c, v);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${c.name} moved to $v tier')));
-                      })),
-                    ]))
-                .toList(),
-            ),
+          );
+        }),
+      ],
+    );
+  }
+}
+
+class _CarpenterTile extends StatelessWidget {
+  const _CarpenterTile({required this.carpenter, required this.onTap});
+  final Carpenter carpenter;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 32,
+                backgroundColor: kPrimary.withOpacity(0.12),
+                backgroundImage: carpenter.photoUrl != null ? NetworkImage(carpenter.photoUrl!) : null,
+                child: carpenter.photoUrl == null
+                    ? Text(
+                        carpenter.name.isNotEmpty ? carpenter.name[0].toUpperCase() : '?',
+                        style: const TextStyle(color: kPrimary, fontWeight: FontWeight.w700, fontSize: 20),
+                      )
+                    : null,
+              ),
+              const SizedBox(height: 10),
+              Text(carpenter.name, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+              const SizedBox(height: 2),
+              Text(carpenter.shop, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: const TextStyle(color: kMuted, fontSize: 12)),
+              const SizedBox(height: 8),
+              StatusBadge(carpenter.status),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

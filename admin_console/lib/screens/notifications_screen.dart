@@ -22,8 +22,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final app = context.watch<AdminState>();
     return ListView(
       children: [
-        const Text('Notification center', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-        const Text('Broadcast updates to carpenters', style: TextStyle(color: kMuted, fontSize: 13)),
+        const Heading('Notification center', subtitle: 'Broadcast updates to carpenters'),
         const SizedBox(height: 16),
         AppCard(
           child: Column(
@@ -66,7 +65,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        const Text('Recently sent', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+        const SubHeading('Recently sent'),
         const SizedBox(height: 8),
         if (app.broadcasts.isEmpty) const Text('No notifications sent yet', style: TextStyle(color: kMuted, fontSize: 13)),
         ...app.broadcasts.map((b) => AppCard(

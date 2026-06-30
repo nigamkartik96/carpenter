@@ -15,8 +15,7 @@ class LeadsScreen extends StatelessWidget {
     final app = context.watch<AdminState>();
     return ListView(
       children: [
-        const Text('Leads', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-        const Text('Customer leads submitted by carpenters', style: TextStyle(color: kMuted, fontSize: 13)),
+        const Heading('Leads', subtitle: 'Customer leads submitted by carpenters'),
         const SizedBox(height: 16),
         _LeadPointsRuleForm(app: app),
         const SizedBox(height: 16),

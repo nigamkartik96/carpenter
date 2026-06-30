@@ -40,7 +40,7 @@ class _GiftsScreenState extends State<GiftsScreen> {
     final app = context.watch<AdminState>();
     return ListView(
       children: [
-        const Text('Gift catalog', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+        const Heading('Gift catalog'),
         const Text('Manage redeemable gifts and stock', style: TextStyle(color: kMuted, fontSize: 13)),
         const SizedBox(height: 12),
         ElevatedButton(

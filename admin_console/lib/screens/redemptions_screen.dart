@@ -13,8 +13,7 @@ class RedemptionsScreen extends StatelessWidget {
     final app = context.watch<AdminState>();
     return ListView(
       children: [
-        const Text('Redemption queue', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-        const Text('Move cash and gift redemption requests through fulfilment', style: TextStyle(color: kMuted, fontSize: 13)),
+        const Heading('Redemption queue', subtitle: 'Move cash and gift redemption requests through fulfilment'),
         const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),

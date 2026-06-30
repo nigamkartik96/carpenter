@@ -56,9 +56,16 @@ dependencies:
 
   # Reports the carpenter's location while the app is open (foreground
   # tracking), for the admin Locations map (PRD section: field-visit
-  # tracking). True always-on background tracking is a separate, larger
-  # build needing a persistent foreground service.
+  # tracking).
   geolocator: ^13.0.1
+
+  # Periodic background location reporting (~hourly) even when the app is
+  # fully closed -- runs via Android's WorkManager in a separate isolate
+  # (see lib/services/background_location.dart). Real-world cadence is
+  # best-effort: Android batches/delays WorkManager jobs for battery, and
+  # some OEMs (Samsung, Xiaomi, etc.) are more aggressive about killing
+  # background work than stock Android.
+  workmanager: ^0.9.0+3
 
   # Real in-app voice-note recording/playback, and persisted local
   # settings (language, font scale). Needs Flutter 3.27+/modern AGP --

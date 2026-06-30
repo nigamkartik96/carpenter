@@ -54,6 +54,36 @@ Color statusColor(String status) {
   }
 }
 
+class Heading extends StatelessWidget {
+  const Heading(this.text, {super.key, this.subtitle});
+  final String text;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(text, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+        if (subtitle != null) ...[
+          const SizedBox(height: 2),
+          Text(subtitle!, style: const TextStyle(color: kMuted, fontSize: 13)),
+        ],
+      ],
+    );
+  }
+}
+
+class SubHeading extends StatelessWidget {
+  const SubHeading(this.text, {super.key});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(text, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14));
+  }
+}
+
 class StatusBadge extends StatelessWidget {
   const StatusBadge(this.label, {super.key});
   final String label;

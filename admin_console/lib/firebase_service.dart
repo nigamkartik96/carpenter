@@ -179,6 +179,7 @@ class AdminFirebaseService {
     String description = '',
     String? bannerUrl,
     String? pdfUrl,
+    List<String>? targetCarpenterIds,
   }) async {
     final offerRef = await db.collection('offers').add({
       'title': title,
@@ -187,13 +188,19 @@ class AdminFirebaseService {
       'description': description.isEmpty ? title : description,
       if (bannerUrl != null) 'bannerUrl': bannerUrl,
       if (pdfUrl != null) 'pdfUrl': pdfUrl,
+      if (targetCarpenterIds != null && targetCarpenterIds.isNotEmpty) 'targetCarpenterIds': targetCarpenterIds,
       'createdAt': FieldValue.serverTimestamp(),
     });
-    final carpenters = await db.collection('carpenters').where('status', isEqualTo: 'Approved').get();
+    // Targeted offers only notify the selected carpenters, regardless of
+    // their approval status (an offer picked for a specific carpenter is
+    // an explicit admin choice); untargeted offers go to everyone approved.
+    final recipientIds = targetCarpenterIds != null && targetCarpenterIds.isNotEmpty
+        ? targetCarpenterIds
+        : (await db.collection('carpenters').where('status', isEqualTo: 'Approved').get()).docs.map((d) => d.id).toList();
     final batch = db.batch();
-    for (final c in carpenters.docs) {
+    for (final id in recipientIds) {
       batch.set(db.collection('notifications').doc(), {
-        'carpenterId': c.id,
+        'carpenterId': id,
         'title': 'New offer',
         'body': '$title is now live!',
         'type': 'offer',

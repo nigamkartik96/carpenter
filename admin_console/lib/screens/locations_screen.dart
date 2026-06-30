@@ -39,8 +39,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
 
     return ListView(
       children: [
-        const Text('Live locations', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-        const Text('Last known position of active carpenters, reported while they have the app open', style: TextStyle(color: kMuted, fontSize: 13)),
+        const Heading('Live locations', subtitle: 'Last known position of active carpenters, reported while they have the app open'),
         const SizedBox(height: 12),
         if (withoutLocation.isNotEmpty)
           Container(
@@ -119,7 +118,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        const Text('Active carpenters', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+        const SubHeading('Active carpenters'),
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),

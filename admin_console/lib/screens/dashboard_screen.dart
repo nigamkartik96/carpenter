@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../shell.dart';
 import '../state.dart';
 import '../widgets.dart';
 
@@ -12,8 +13,7 @@ class DashboardScreen extends StatelessWidget {
     final pending = app.carpenters.where((c) => c.status == 'Pending').length;
     return ListView(
       children: [
-        const Text('Dashboard', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-        const Text('Overview of the platform', style: TextStyle(color: kMuted, fontSize: 13)),
+        const Heading('Dashboard', subtitle: 'Overview of the platform'),
         const SizedBox(height: 20),
         LayoutBuilder(builder: (context, constraints) {
           // Below ~700px, 4 Expanded KPI cards in a Row squeeze too
@@ -43,7 +43,27 @@ class DashboardScreen extends StatelessWidget {
           );
         }),
         const SizedBox(height: 24),
-        const Text('Recent orders', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        const SubHeading('Quick links'),
+        const SizedBox(height: 10),
+        LayoutBuilder(builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 700;
+          final perRow = isNarrow ? 2 : 4;
+          final spacing = 10.0;
+          final tileWidth = (constraints.maxWidth - spacing * (perRow - 1)) / perRow;
+          return Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
+            children: [
+              for (var i = 1; i < AdminShell.items.length; i++)
+                SizedBox(
+                  width: tileWidth,
+                  child: Kpi(label: AdminShell.items[i].$1, value: 'Open', icon: AdminShell.items[i].$2, onTap: () => app.goToScreen(i)),
+                ),
+            ],
+          );
+        }),
+        const SizedBox(height: 24),
+        const SubHeading('Recent orders'),
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),

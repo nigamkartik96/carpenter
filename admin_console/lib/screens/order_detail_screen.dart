@@ -145,7 +145,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text('Line items', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SubHeading('Line items'),
           Text(
             itemsLocked
                 ? 'This order is ${order.status} -- points were already credited against this total, so line items are locked.'
@@ -198,7 +198,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Total amount', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const Text('Total amount', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
                     Text('Rs $_computedTotal', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: kPrimaryDark)),
                   ],
                 ),
@@ -216,7 +216,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text('Invoice', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SubHeading('Invoice'),
           const SizedBox(height: 10),
           AppCard(
             child: Row(
@@ -243,7 +243,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text('Status', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const SubHeading('Status'),
           const SizedBox(height: 10),
           AppCard(
             child: Row(

@@ -13,6 +13,7 @@ class Carpenter {
     this.tier = 'Bronze',
     this.lat,
     this.lng,
+    this.photoUrl,
   });
 
   final String id;
@@ -29,6 +30,7 @@ class Carpenter {
   // once after accepting location sharing.
   final double? lat;
   final double? lng;
+  final String? photoUrl;
 }
 
 class Broadcast {
@@ -69,6 +71,7 @@ class AdminOrder {
     this.imageUrl,
     this.audioUrl,
     this.type = 'Manual',
+    this.createdAt,
     String? orderNumber,
   }) : orderNumber = orderNumber ?? id;
 
@@ -85,6 +88,7 @@ class AdminOrder {
   final String? imageUrl;
   final String? audioUrl; // voice-note recording, for 'Voice' type orders
   final String type; // Manual, Photo, Voice
+  final DateTime? createdAt;
 }
 
 class AdminOffer {
@@ -96,6 +100,7 @@ class AdminOffer {
     this.description = '',
     this.bannerUrl,
     this.pdfUrl,
+    this.targetCarpenterIds,
   });
   final String id;
   final String title;
@@ -104,6 +109,9 @@ class AdminOffer {
   final String validTill;
   final String? bannerUrl;
   final String? pdfUrl;
+  // null or empty = visible to every approved carpenter; otherwise only
+  // to carpenters whose id is in this list.
+  final List<String>? targetCarpenterIds;
 }
 
 class AdminGift {
