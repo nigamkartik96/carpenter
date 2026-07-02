@@ -39,6 +39,15 @@ devtools/
 # Claude Code local session state
 .claude/
 
+# ...except the graphify skill/hooks, which are meant to be shared so the
+# knowledge graph works for every contributor, not just this machine.
+!carpenter_app/.claude/
+!admin_console/.claude/
+
+# graphify's per-file AST cache -- disposable, regenerated locally, would
+# just add per-file churn to every commit.
+**/graphify-out/cache/
+
 # Firebase CLI local deploy cache (machine-specific, regenerated on deploy)
 **/.firebase/
 
