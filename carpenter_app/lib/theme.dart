@@ -94,6 +94,7 @@ Color statusColor(String status) {
       return kSuccess;
     case 'Processing':
     case 'Contacted':
+    case 'Qualified':
     case 'On store':
     case 'In store':
       return kWarning;
@@ -104,9 +105,44 @@ Color statusColor(String status) {
       return kInfo;
     case 'Cancelled':
     case 'Rejected':
+    case 'Closed':
       return kDanger;
     default:
       return kMuted;
+  }
+}
+
+/// Icon shown alongside every status word so status is never conveyed by
+/// color or text alone (target users may not read the word, or may not
+/// distinguish the colors reliably).
+IconData statusIcon(String status) {
+  switch (status) {
+    case 'Submitted':
+    case 'Pending':
+    case 'Ordered':
+      return Icons.schedule;
+    case 'Processing':
+    case 'Contacted':
+    case 'On store':
+    case 'In store':
+      return Icons.settings_outlined;
+    case 'Fulfilled':
+    case 'Approved':
+      return Icons.inventory_2_outlined;
+    case 'Delivered':
+      return Icons.check_circle;
+    case 'New':
+      return Icons.auto_awesome;
+    case 'Qualified':
+      return Icons.thumb_up_outlined;
+    case 'Converted':
+      return Icons.check_circle;
+    case 'Closed':
+    case 'Cancelled':
+    case 'Rejected':
+      return Icons.cancel_outlined;
+    default:
+      return Icons.circle_outlined;
   }
 }
 
@@ -124,7 +160,14 @@ class StatusBadge extends StatelessWidget {
         color: c.withOpacity(0.18),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(app.tr(label), style: TextStyle(color: c, fontSize: 11, fontWeight: FontWeight.w600, fontFamily: 'monospace')),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(statusIcon(label), color: c, size: 13),
+          const SizedBox(width: 4),
+          Text(app.tr(label), style: TextStyle(color: c, fontSize: 11, fontWeight: FontWeight.w600, fontFamily: 'monospace')),
+        ],
+      ),
     );
   }
 }

@@ -79,6 +79,12 @@ class AppState extends ChangeNotifier {
 
   String tr(String key) => locale.tr(key);
   String trf(String key, Object n) => locale.trf(key, n);
+
+  /// Translates points-ledger/notification text that was written verbatim
+  /// as English by whichever backend generated the event -- see
+  /// [translateDynamicText] for why this can't just be another [tr] key.
+  String trDyn(String text) => translateDynamicText(locale, text);
+
   String get initials => initialsOf(carpenterName);
 
   double fontScale = 1.0;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
+import '../widgets/speaker_button.dart';
 import 'order_screens.dart';
 import 'rewards_screens.dart';
 import 'profile_screens.dart';
@@ -98,6 +99,11 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ),
             ),
+            SpeakerButton(
+              text: app.tr(
+                'This is your home screen. You can see your points here. To place a new order, press the "Create order" button below.',
+              ),
+            ),
             Stack(
               clipBehavior: Clip.none,
               children: [
@@ -141,7 +147,15 @@ class DashboardScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(app.tr('Your points'), style: const TextStyle(fontSize: 11, color: Colors.white70, fontFamily: 'monospace')),
-                        Text('${app.points}', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text('${app.points}', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
+                            const SizedBox(width: 6),
+                            Text(app.tr('pts'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white70)),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -187,8 +201,8 @@ class DashboardScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(app.tr('Latest update'), style: const TextStyle(fontSize: 10, color: kMuted, fontFamily: 'monospace')),
-                        Text(app.notifications.first.title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: kText), maxLines: 1, overflow: TextOverflow.ellipsis),
-                        Text(app.notifications.first.body, style: const TextStyle(fontSize: 11, color: kMuted), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(app.trDyn(app.notifications.first.title), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: kText), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(app.trDyn(app.notifications.first.body), style: const TextStyle(fontSize: 11, color: kMuted), maxLines: 1, overflow: TextOverflow.ellipsis),
                       ],
                     ),
                   ),
@@ -280,8 +294,11 @@ class DashboardScreen extends StatelessWidget {
           crossAxisCount: 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
+          // Extra spacing vs. other grids in the app -- these are the primary
+          // navigation actions on the screen users land on most, and matter
+          // more for users unfamiliar with precise touchscreen interaction.
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
           childAspectRatio: 1.15 / app.fontScale,
           children: [
             ActionTile(icon: Icons.local_offer_outlined, title: app.tr('Offers'), subtitle: app.tr('Today & weekly'), color: const Color(0xFFFF8C42), onTap: () => Navigator.pushNamed(context, '/offers')),

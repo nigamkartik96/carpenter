@@ -8,8 +8,11 @@ import 'package:record/record.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/models.dart';
 import '../services/cloudinary_service.dart';
+import '../services/tts_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
+import '../widgets/mic_button.dart';
+import '../widgets/speaker_button.dart';
 
 class OffersScreen extends StatelessWidget {
   const OffersScreen({super.key});
@@ -36,7 +39,7 @@ class OffersScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(o.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                    Text('Valid till ${o.validTill}', style: TextStyle(color: kMuted, fontSize: 12)),
+                    Text(app.trf('Valid till {n}', o.validTill), style: TextStyle(color: kMuted, fontSize: 12)),
                   ],
                 ),
               ),
@@ -93,7 +96,7 @@ class OfferDetailsScreen extends StatelessWidget {
               Text(offer.description, style: const TextStyle(color: kMuted, fontSize: 13, height: 1.5)),
               const SizedBox(height: 10),
             ],
-            Text('Valid till ${offer.validTill}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+            Text(app.trf('Valid till {n}', offer.validTill), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
             const SizedBox(height: 20),
             if (offer.pdfUrl != null)
               Padding(
@@ -101,7 +104,7 @@ class OfferDetailsScreen extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () => launchUrl(Uri.parse(offer.pdfUrl!), mode: LaunchMode.externalApplication),
                   icon: const Icon(Icons.picture_as_pdf_outlined, size: 16),
-                  label: const Text('View PDF'),
+                  label: Text(app.tr('View PDF')),
                 ),
               ),
             ElevatedButton(
@@ -140,7 +143,16 @@ class CreateOrderScreen extends StatelessWidget {
           ),
         );
     return Scaffold(
-      appBar: AppBar(title: Text(app.tr('Create order'))),
+      appBar: AppBar(
+        title: Text(app.tr('Create order')),
+        actions: [
+          SpeakerButton(
+            text: app.tr(
+              'There are three ways to place an order: take a photo, write it yourself, or describe it by voice. Press whichever feels easiest.',
+            ),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -179,7 +191,7 @@ class _UploadOrderScreenState extends State<UploadOrderScreen> {
       final url = await CloudinaryService.instance.uploadBytes(bytes, picked.name);
       setState(() => imageUrl = url);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.read<AppState>().tr('Upload failed')}: $e')));
     } finally {
       if (mounted) setState(() => uploading = false);
     }
@@ -236,7 +248,7 @@ class _UploadOrderScreenState extends State<UploadOrderScreen> {
               ],
             ),
             const SizedBox(height: 14),
-            TextField(controller: remarks, decoration: InputDecoration(labelText: app.tr('Remarks'), hintText: 'e.g. Deliver before Friday')),
+            TextField(controller: remarks, decoration: InputDecoration(labelText: app.tr('Remarks'), hintText: 'e.g. Deliver before Friday', suffixIcon: MicButton(controller: remarks))),
             const SizedBox(height: 18),
             ElevatedButton(
               onPressed: () => _submitPhotoOrder(context, app),
@@ -267,7 +279,7 @@ class ManualOrderScreen extends StatefulWidget {
 }
 
 class _ManualOrderRow {
-  _ManualOrderRow() : product = TextEditingController(), qty = TextEditingController();
+  _ManualOrderRow() : product = TextEditingController(), qty = TextEditingController(text: '1');
   final TextEditingController product;
   final TextEditingController qty;
 }
@@ -282,6 +294,8 @@ class _ManualOrderScreenState extends State<ManualOrderScreen> {
         if (rows.length > 1) rows.removeAt(i);
       });
 
+  void _setQty(TextEditingController c, int v) => setState(() => c.text = '${v.clamp(1, 9999)}');
+
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
@@ -292,9 +306,7 @@ class _ManualOrderScreenState extends State<ManualOrderScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [Expanded(flex: 2, child: Text(app.tr('Product'), style: TextStyle(color: kMuted, fontSize: 12))), Expanded(child: Text(app.tr('Qty'), style: TextStyle(color: kMuted, fontSize: 12)))]),
-            const SizedBox(height: 6),
-            ...List.generate(rows.length, (i) => _editableRow(rows[i], i)),
+            ...List.generate(rows.length, (i) => _editableRow(app, rows[i], i)),
             const SizedBox(height: 6),
             OutlinedButton.icon(onPressed: _addRow, icon: const Icon(Icons.add), label: Text(app.tr('Add product'))),
             const SizedBox(height: 18),
@@ -308,26 +320,60 @@ class _ManualOrderScreenState extends State<ManualOrderScreen> {
     );
   }
 
-  Widget _editableRow(_ManualOrderRow row, int i) => Padding(
+  Widget _editableRow(AppState app, _ManualOrderRow row, int i) => Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               flex: 2,
               child: TextField(
                 controller: row.product,
-                decoration: const InputDecoration(hintText: 'e.g. Marine plywood 18mm'),
+                decoration: InputDecoration(
+                  labelText: app.tr('Product'),
+                  hintText: 'e.g. Marine plywood 18mm',
+                  suffixIcon: MicButton(controller: row.product),
+                ),
               ),
             ),
             const SizedBox(width: 8),
-            Expanded(
-              child: TextField(
-                controller: row.qty,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(hintText: 'Qty'),
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 4),
+                  child: Text(app.tr('Qty'), style: TextStyle(color: kMuted, fontSize: 12)),
+                ),
+                Container(
+                  height: 48,
+                  decoration: BoxDecoration(border: Border.all(color: kBorder), borderRadius: BorderRadius.circular(12)),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () => _setQty(row.qty, (int.tryParse(row.qty.text) ?? 1) - 1),
+                        icon: const Icon(Icons.remove, size: 18),
+                        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                      ),
+                      SizedBox(
+                        width: 28,
+                        child: Text(row.qty.text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                      ),
+                      IconButton(
+                        onPressed: () => _setQty(row.qty, (int.tryParse(row.qty.text) ?? 1) + 1),
+                        icon: const Icon(Icons.add, size: 18),
+                        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            IconButton(onPressed: () => _removeRow(i), icon: const Icon(Icons.close, size: 18)),
+            IconButton(
+              onPressed: () => _removeRow(i),
+              icon: const Icon(Icons.close, size: 18),
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+            ),
           ],
         ),
       );
@@ -338,7 +384,7 @@ class _ManualOrderScreenState extends State<ManualOrderScreen> {
         .map((r) => '${r.product.text.trim()} x${r.qty.text.trim().isEmpty ? '1' : r.qty.text.trim()}')
         .join(', ');
     if (items.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Add at least one product')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(app.tr('Add at least one product'))));
       return;
     }
     setState(() => submitting = true);
@@ -376,7 +422,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen> {
   Future<void> _start() async {
     try {
       if (!await _recorder.hasPermission()) {
-        setState(() => error = 'Microphone permission denied');
+        setState(() => error = context.read<AppState>().tr('Microphone permission denied'));
         return;
       }
       final dir = await getTemporaryDirectory();
@@ -391,7 +437,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen> {
     } catch (e) {
       // A real mic/codec failure shouldn't crash the screen -- surface it
       // as an inline error instead.
-      setState(() => error = 'Could not start recording: $e');
+      setState(() => error = '${context.read<AppState>().tr('Could not start recording')}: $e');
     }
   }
 
@@ -406,7 +452,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen> {
     } catch (e) {
       setState(() {
         recording = false;
-        error = 'Recording failed: $e';
+        error = '${context.read<AppState>().tr('Recording failed')}: $e';
       });
     }
   }
@@ -418,7 +464,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen> {
       final url = await CloudinaryService.instance.uploadBytes(bytes, 'voice_order.m4a', resourceType: 'raw');
       setState(() => audioUrl = url);
     } catch (e) {
-      setState(() => error = 'Upload failed: $e');
+      setState(() => error = '${context.read<AppState>().tr('Upload failed')}: $e');
     } finally {
       if (mounted) setState(() => uploading = false);
     }
@@ -482,7 +528,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen> {
                 ),
             ],
             const SizedBox(height: 14),
-            TextField(controller: remarks, decoration: InputDecoration(labelText: app.tr('Remarks (optional)'))),
+            TextField(controller: remarks, decoration: InputDecoration(labelText: app.tr('Remarks (optional)'), suffixIcon: MicButton(controller: remarks))),
             const SizedBox(height: 18),
             ElevatedButton(
               onPressed: (!hasRecording || uploading || submitting || audioUrl == null)
@@ -520,13 +566,30 @@ Future<void> _submit(BuildContext context, AppState app, String type, String det
     }
   } catch (e) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not submit order: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${app.tr('Could not submit order')}: $e')));
     }
   }
 }
 
-class OrderSuccessScreen extends StatelessWidget {
+class OrderSuccessScreen extends StatefulWidget {
   const OrderSuccessScreen({super.key});
+
+  @override
+  State<OrderSuccessScreen> createState() => _OrderSuccessScreenState();
+}
+
+class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Non-text confirmation that the submission actually succeeded, not
+    // just a toast a non-reading user might miss. Fires once on arrival;
+    // the speaker icon below lets them replay it on demand.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final app = context.read<AppState>();
+      TtsService.instance.speak(app.tr('Your order has been submitted. You will earn points once it is reviewed.'), isHindi: app.locale.isHindi);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -539,7 +602,13 @@ class OrderSuccessScreen extends StatelessWidget {
           children: [
             Container(width: 80, height: 80, decoration: BoxDecoration(color: kSuccess.withOpacity(0.12), shape: BoxShape.circle), child: Icon(Icons.check, color: kSuccess, size: 40)),
             const SizedBox(height: 18),
-            Text(app.tr('Order submitted'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(child: Text(app.tr('Order submitted'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600))),
+                SpeakerButton(text: app.tr('Your order has been submitted. You will earn points once it is reviewed.')),
+              ],
+            ),
             const SizedBox(height: 8),
             Text(app.tr('Order is now pending review. You will earn points once approved.'), textAlign: TextAlign.center, style: TextStyle(color: kMuted, fontSize: 13)),
             const SizedBox(height: 20),
@@ -547,6 +616,48 @@ class OrderSuccessScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Order codes ("OD-0016", or a raw Firestore ID) are unreadable and
+/// unmemorable to a non-literate user -- show the order's own photo next
+/// to its code instead so it can be recognized on sight. Orders with no
+/// photo (voice/manual entry) fall back to an icon naming how the order
+/// was created, so "no photo" still reads as informative, not broken.
+class OrderThumbnail extends StatelessWidget {
+  const OrderThumbnail({super.key, required this.order, this.size = 44});
+  final CarpenterOrder order;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    if (order.imageUrl != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          order.imageUrl!,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _fallbackIcon(),
+        ),
+      );
+    }
+    return _fallbackIcon();
+  }
+
+  Widget _fallbackIcon() {
+    final icon = switch (order.type) {
+      'Voice' => Icons.mic_none,
+      'Manual' => Icons.list_alt_outlined,
+      _ => Icons.inventory_2_outlined,
+    };
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: kCard2, borderRadius: BorderRadius.circular(8), border: Border.all(color: kBorder)),
+      child: Icon(icon, color: kMuted, size: size * 0.5),
     );
   }
 }
@@ -581,6 +692,8 @@ class OrderHistoryScreen extends StatelessWidget {
           onTap: () => Navigator.pushNamed(context, '/orderDetails', arguments: o.id),
           child: Row(
             children: [
+              OrderThumbnail(order: o),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -685,7 +798,7 @@ class OrderDetailsScreen extends StatelessWidget {
           final done = i <= idx;
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Row(children: [Icon(done ? Icons.check_circle : Icons.circle_outlined, size: 18, color: done ? kPrimary : kMuted), const SizedBox(width: 8), Text(app.tr(steps[i]), style: TextStyle(fontSize: 13, color: done ? kText : kMuted))]),
+            child: Row(children: [Icon(statusIcon(steps[i]), size: 18, color: done ? kPrimary : kMuted), const SizedBox(width: 8), Text(app.tr(steps[i]), style: TextStyle(fontSize: 13, color: done ? kText : kMuted))]),
           );
         }),
       ];
@@ -693,12 +806,27 @@ class OrderDetailsScreen extends StatelessWidget {
       children = [
         Padding(
           padding: const EdgeInsets.only(top: 40),
-          child: Text('Could not display this order: $e', style: const TextStyle(color: kDanger, fontSize: 13)),
+          child: Text('${app.tr('Could not display this order')}: $e', style: const TextStyle(color: kDanger, fontSize: 13)),
         ),
       ];
     }
     return Scaffold(
-      appBar: AppBar(title: Text(o.orderNumber)),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            OrderThumbnail(order: o, size: 32),
+            const SizedBox(width: 10),
+            Flexible(child: Text(o.orderNumber, overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+        actions: [
+          SpeakerButton(
+            text: app.tr(
+              "This screen shows your order's full details and status. You can recognize your order by the photo or icon at the top.",
+            ),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: children,
@@ -774,7 +902,7 @@ class _VoiceNotePlayerState extends State<_VoiceNotePlayer> {
     } catch (e) {
       setState(() {
         playing = false;
-        error = 'Could not play recording: $e';
+        error = '${context.read<AppState>().tr('Could not play recording')}: $e';
       });
     }
   }

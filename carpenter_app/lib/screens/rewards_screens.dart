@@ -2,8 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../models/models.dart';
+import '../services/contact_picker.dart';
+import '../services/tts_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
+import '../widgets/mic_button.dart';
+import '../widgets/speaker_button.dart';
+import 'order_screens.dart' show OrderThumbnail;
+
+/// Ledger entries reference an order only via free text like "Order
+/// #abc123" -- cross-reference the order ID back into [app.orders] so the
+/// activity log can show the order's own photo instead of an unreadable
+/// code (Section 3.1).
+CarpenterOrder? _orderForLedgerEntry(AppState app, String desc) {
+  final match = RegExp(r'^Order #(\S+?)(?: \(price corrected\))?$').firstMatch(desc);
+  if (match == null) return null;
+  final id = match.group(1)!;
+  for (final o in app.orders) {
+    if (o.id == id) return o;
+  }
+  return null;
+}
 
 class PointsScreen extends StatelessWidget {
   const PointsScreen({super.key});
@@ -12,7 +31,16 @@ class PointsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
     return Scaffold(
-      appBar: AppBar(title: Text(app.tr('Points'))),
+      appBar: AppBar(
+        title: Text(app.tr('Points')),
+        actions: [
+          SpeakerButton(
+            text: app.tr(
+              'This screen shows all your points and their history. To turn points into cash or a reward, press the buttons below.',
+            ),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -24,7 +52,7 @@ class PointsScreen extends StatelessWidget {
             ),
             child: Column(
               children: [
-                const Text('Current balance', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                Text(app.tr('Current balance'), style: const TextStyle(color: Colors.white70, fontSize: 12)),
                 Text('${app.points} pts', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white)),
               ],
             ),
@@ -33,17 +61,22 @@ class PointsScreen extends StatelessWidget {
           Text(app.tr('Points activity'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
           const SizedBox(height: 8),
           if (app.ledger.isEmpty) Text(app.tr('No activity yet'), style: TextStyle(color: kMuted, fontSize: 12)),
-          ...app.ledger.map(
-            (l) => Padding(
+          ...app.ledger.map((l) {
+            final linkedOrder = _orderForLedgerEntry(app, l.desc);
+            return Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (linkedOrder != null) ...[
+                    OrderThumbnail(order: linkedOrder, size: 36),
+                    const SizedBox(width: 10),
+                  ],
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(l.desc, style: const TextStyle(fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
+                        Text(app.trDyn(l.desc), style: const TextStyle(fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
                         Text(l.date, style: TextStyle(color: kMuted, fontSize: 11)),
                       ],
                     ),
@@ -52,8 +85,8 @@ class PointsScreen extends StatelessWidget {
                   Text('${l.points >= 0 ? '+' : ''}${l.points}', style: TextStyle(fontWeight: FontWeight.w600, color: l.points >= 0 ? kSuccess : kDanger)),
                 ],
               ),
-            ),
-          ),
+            );
+          }),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -124,11 +157,20 @@ class _RedeemCashScreenState extends State<RedeemCashScreen> {
                   ? null
                   : () async {
                       final amount = int.tryParse(controller.text) ?? 0;
+                      final confirmationText = app.trf('Redeem {n} points for cash? This cannot be undone.', amount);
+                      // Financial action with real consequences if misunderstood --
+                      // restate the exact amount audibly, not just in the dialog text.
+                      TtsService.instance.speak(confirmationText, isHindi: app.locale.isHindi);
                       final confirmed = await showDialog<bool>(
                         context: context,
                         builder: (_) => AlertDialog(
-                          title: Text(app.tr('Confirm redemption')),
-                          content: Text(app.trf('Redeem {n} points for cash? This cannot be undone.', amount)),
+                          title: Row(
+                            children: [
+                              Expanded(child: Text(app.tr('Confirm redemption'))),
+                              SpeakerButton(text: confirmationText),
+                            ],
+                          ),
+                          content: Text(confirmationText),
                           actions: [
                             TextButton(onPressed: () => Navigator.pop(context, false), child: Text(app.tr('Cancel'))),
                             TextButton(onPressed: () => Navigator.pop(context, true), child: Text(app.tr('Confirm'))),
@@ -170,9 +212,9 @@ class RedeemCashDoneScreen extends StatelessWidget {
           children: [
             Container(width: 80, height: 80, decoration: BoxDecoration(color: kSuccess.withOpacity(0.12), shape: BoxShape.circle), child: Icon(Icons.check, color: kSuccess, size: 40)),
             const SizedBox(height: 18),
-            Text('$amount on the way', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            Text(app.trf('₹{n} on the way', amount), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
-            Text('$amount points redeemed. Credited within 24 hrs.', style: TextStyle(color: kMuted, fontSize: 13)),
+            Text(app.trf('{n} points redeemed. Credited within 24 hrs.', amount), style: TextStyle(color: kMuted, fontSize: 13)),
             const SizedBox(height: 20),
             ElevatedButton(onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (r) => false), child: Text(app.tr('Back to dashboard'))),
           ],
@@ -208,7 +250,7 @@ class GiftStoreScreen extends StatelessWidget {
             final outOfStock = g.qty <= 0;
             final notEnoughPoints = app.points < g.points;
             final ok = !outOfStock && !notEnoughPoints;
-            final lockedLabel = outOfStock ? app.tr('Out of stock') : (notEnoughPoints ? app.tr('Need ${g.points - app.points} more pts') : app.tr('Locked'));
+            final lockedLabel = outOfStock ? app.tr('Out of stock') : (notEnoughPoints ? app.trf('Need {n} more pts', g.points - app.points) : app.tr('Locked'));
             return SectionCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,11 +276,18 @@ class GiftStoreScreen extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: ok
                           ? () async {
+                              final confirmationText = '${app.tr('Are you sure you want to redeem this gift?')} (${g.name}, ${g.points} ${app.tr('pts')})';
+                              TtsService.instance.speak(confirmationText, isHindi: app.locale.isHindi);
                               final confirmed = await showDialog<bool>(
                                 context: context,
                                 builder: (_) => AlertDialog(
-                                  title: Text(app.tr('Confirm redemption?')),
-                                  content: Text('${app.tr('Are you sure you want to redeem this gift?')} (${g.name}, ${g.points} pts)'),
+                                  title: Row(
+                                    children: [
+                                      Expanded(child: Text(app.tr('Confirm redemption?'))),
+                                      SpeakerButton(text: confirmationText),
+                                    ],
+                                  ),
+                                  content: Text(confirmationText),
                                   actions: [
                                     TextButton(onPressed: () => Navigator.pop(context, false), child: Text(app.tr('Cancel'))),
                                     TextButton(onPressed: () => Navigator.pop(context, true), child: Text(app.tr('Confirm'))),
@@ -324,7 +373,7 @@ class GiftSuccessScreen extends StatelessWidget {
             const SizedBox(height: 18),
             Text(app.tr('Gift redeemed'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
-            Text('$name. We will notify you on each update.', textAlign: TextAlign.center, style: TextStyle(color: kMuted, fontSize: 13)),
+            Text('$name. ${app.tr('We will notify you on each update.')}', textAlign: TextAlign.center, style: TextStyle(color: kMuted, fontSize: 13)),
             const SizedBox(height: 20),
             ElevatedButton(onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (r) => false), child: Text(app.tr('Back to dashboard'))),
           ],
@@ -399,6 +448,11 @@ class _LeadNewScreenState extends State<LeadNewScreen> {
   double? lat;
   double? lng;
 
+  Future<void> _pickContact() async {
+    final number = await pickContactPhone();
+    if (number != null) setState(() => phone.text = number);
+  }
+
   Future<void> _useCurrentLocation() async {
     setState(() => locating = true);
     try {
@@ -438,14 +492,29 @@ class _LeadNewScreenState extends State<LeadNewScreen> {
         children: [
           Text(app.tr('Refer someone who needs work done'), style: const TextStyle(color: kMuted, fontSize: 13)),
           const SizedBox(height: 14),
-          TextField(controller: name, decoration: InputDecoration(labelText: app.tr('Name'))),
+          TextField(
+            controller: name,
+            decoration: InputDecoration(labelText: app.tr('Name'), suffixIcon: MicButton(controller: name)),
+          ),
           const SizedBox(height: 10),
-          TextField(controller: phone, decoration: InputDecoration(labelText: app.tr('Phone number'))),
+          TextField(
+            controller: phone,
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(
+              labelText: app.tr('Phone number'),
+              suffixIcon: IconButton(
+                tooltip: app.tr('Pick from contacts'),
+                icon: const Icon(Icons.contacts_outlined, color: kMuted),
+                onPressed: _pickContact,
+              ),
+            ),
+          ),
           const SizedBox(height: 10),
-          TextField(controller: location, decoration: InputDecoration(labelText: app.tr('Location (optional)'))),
-          const SizedBox(height: 6),
-          Align(
-            alignment: Alignment.centerLeft,
+          // "Use current location" is the primary path -- a single tap, no
+          // reading or typing required -- so it's offered before the manual
+          // fallback field below, not after it.
+          SizedBox(
+            width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: locating ? null : _useCurrentLocation,
               icon: locating
@@ -454,8 +523,14 @@ class _LeadNewScreenState extends State<LeadNewScreen> {
               label: Text(app.tr('Use current location')),
             ),
           ),
+          const SizedBox(height: 6),
+          TextField(controller: location, decoration: InputDecoration(labelText: app.tr('Location (optional)'))),
           const SizedBox(height: 10),
-          TextField(controller: notes, decoration: InputDecoration(labelText: app.tr('Remarks')), maxLines: 2),
+          TextField(
+            controller: notes,
+            decoration: InputDecoration(labelText: app.tr('Remarks'), suffixIcon: MicButton(controller: notes)),
+            maxLines: 2,
+          ),
           if (error != null) Padding(padding: const EdgeInsets.only(top: 10), child: Text(error!, style: const TextStyle(color: kDanger, fontSize: 12))),
           const SizedBox(height: 16),
           ElevatedButton(
@@ -529,8 +604,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(n.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                      Text(n.body, style: TextStyle(color: kMuted, fontSize: 12)),
+                      Text(app.trDyn(n.title), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                      Text(app.trDyn(n.body), style: TextStyle(color: kMuted, fontSize: 12)),
                       Text(n.time, style: TextStyle(color: kMuted, fontSize: 11)),
                     ],
                   ),

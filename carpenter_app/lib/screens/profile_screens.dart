@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../services/cloudinary_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
+import '../widgets/mic_button.dart';
+import 'qr_scan_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key, this.embedded = false});
@@ -72,7 +74,10 @@ class ProfileScreen extends StatelessWidget {
               child: OutlinedButton(
                 style: app.locale.isHindi ? null : OutlinedButton.styleFrom(backgroundColor: kPrimary, foregroundColor: Colors.white),
                 onPressed: () => app.setLanguage(false),
-                child: const Text('English'),
+                // Always shown in Devanagari, not the Latin word "English" --
+                // a user who can't read English script would otherwise have
+                // no way to tell which button is which.
+                child: const Text('अंग्रेज़ी'),
               ),
             ),
             const SizedBox(width: 8),
@@ -158,10 +163,30 @@ class _AccountScreenState extends State<AccountScreen> {
       final url = await CloudinaryService.instance.uploadBytes(bytes, picked.name);
       if (url != null) await app.savePayout({'qrUrl': url});
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('QR upload failed: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.read<AppState>().tr('QR upload failed')}: $e')));
     } finally {
       if (mounted) setState(() => uploadingQr = false);
     }
+  }
+
+  /// Live camera QR scan -- the recommended way to fill in the UPI ID,
+  /// since IFSC/account-number-style alphanumeric codes are high-risk for
+  /// a non-literate user to read or type correctly (Section 7). Scanning
+  /// a UPI QR (e.g. from the carpenter's own bank/UPI app) decodes the ID
+  /// directly, no typing required.
+  Future<void> _scanQr(AppState app) async {
+    final scanned = await Navigator.of(context).push<String>(MaterialPageRoute(builder: (_) => const QrScanScreen()));
+    if (scanned == null) return;
+    final upi = extractUpiId(scanned);
+    if (upi == null) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(app.tr('Could not read this QR code'))));
+      return;
+    }
+    setState(() {
+      editing = true;
+      upiId.text = upi;
+    });
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(app.tr('QR scanned'))));
   }
 
   void _initControllersIfNeeded(AppState app) {
@@ -199,7 +224,7 @@ class _AccountScreenState extends State<AccountScreen> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(app.tr('Account details saved'))));
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not save: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.read<AppState>().tr('Could not save')}: $e')));
     } finally {
       if (mounted) setState(() => saving = false);
     }
@@ -211,7 +236,7 @@ class _AccountScreenState extends State<AccountScreen> {
     _initControllersIfNeeded(app);
     Widget row(String a, String b) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(a, style: TextStyle(color: kMuted, fontSize: 13)), Text(b.isEmpty ? '-- not set --' : b, style: const TextStyle(fontSize: 13))]),
+          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(a, style: TextStyle(color: kMuted, fontSize: 13)), Text(b.isEmpty ? app.tr('-- not set --') : b, style: const TextStyle(fontSize: 13))]),
         );
     final hasDetails = app.upiId.isNotEmpty || app.bankName.isNotEmpty;
     return Scaffold(
@@ -249,7 +274,7 @@ class _AccountScreenState extends State<AccountScreen> {
               icon: uploadingQr
                   ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.qr_code_scanner, size: 16),
-              label: Text(app.qrUrl != null ? 'Change QR code' : 'Upload QR code'),
+              label: Text(app.qrUrl != null ? app.tr('Change QR code') : app.tr('Upload QR code')),
             ),
           ),
           const SizedBox(height: 16),
@@ -262,20 +287,34 @@ class _AccountScreenState extends State<AccountScreen> {
                   row(app.tr('UPI ID'), app.upiId),
                   row(app.tr('Bank'), app.bankName),
                   row(app.tr('Account'), app.accountNumber),
-                  row('IFSC', app.ifsc),
+                  row(app.tr('IFSC'), app.ifsc),
                 ],
               ),
             )
           else
             Column(
               children: [
+                // Scanning is the recommended path -- typing/reading a UPI ID,
+                // account number or IFSC code is high-risk for a non-literate
+                // user. Manual entry below stays available as a fallback.
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _scanQr(app),
+                    icon: const Icon(Icons.qr_code_scanner, size: 18),
+                    label: Text(app.tr('Scan QR code')),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(app.tr('Enter details manually instead'), style: TextStyle(color: kMuted, fontSize: 12)),
+                const SizedBox(height: 10),
                 TextField(controller: upiId, decoration: InputDecoration(labelText: app.tr('UPI ID'), hintText: 'name@bank')),
                 const SizedBox(height: 10),
-                TextField(controller: bankName, decoration: InputDecoration(labelText: app.tr('Bank'), hintText: 'HDFC Bank')),
+                TextField(controller: bankName, decoration: InputDecoration(labelText: app.tr('Bank'), hintText: 'HDFC Bank', suffixIcon: MicButton(controller: bankName))),
                 const SizedBox(height: 10),
                 TextField(controller: accountNumber, decoration: InputDecoration(labelText: app.tr('Account'), hintText: 'Account number')),
                 const SizedBox(height: 10),
-                TextField(controller: ifsc, decoration: const InputDecoration(labelText: 'IFSC', hintText: 'HDFC0001234')),
+                TextField(controller: ifsc, decoration: InputDecoration(labelText: app.tr('IFSC'), hintText: 'HDFC0001234')),
               ],
             ),
           const SizedBox(height: 14),
@@ -295,7 +334,7 @@ class _AccountScreenState extends State<AccountScreen> {
           else
             OutlinedButton(
               onPressed: () => setState(() => editing = true),
-              child: Text(hasDetails ? app.tr('Edit account details') : 'Add account details'),
+              child: Text(hasDetails ? app.tr('Edit account details') : app.tr('Add account details')),
             ),
         ],
       ),
@@ -354,11 +393,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() => photoUrl = url);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Photo uploaded — tap 'Save changes' below to apply it")),
+          SnackBar(content: Text(context.read<AppState>().tr("Photo uploaded — tap 'Save changes' below to apply it"))),
         );
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Photo upload failed: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.read<AppState>().tr('Photo upload failed')}: $e')));
     } finally {
       if (mounted) setState(() => uploadingPhoto = false);
     }
@@ -376,11 +415,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final discard = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Discard changes?'),
-        content: const Text("You have unsaved changes (including any uploaded photo) that will be lost if you don't tap 'Save changes'."),
+        title: Text(app.tr('Discard changes?')),
+        content: Text(app.tr("You have unsaved changes (including any uploaded photo) that will be lost if you don't tap 'Save changes'.")),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Keep editing')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Discard')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(app.tr('Keep editing'))),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(app.tr('Discard'))),
         ],
       ),
     );
@@ -389,7 +428,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _save(AppState app) async {
     if (name.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Name cannot be empty')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(app.tr('Name cannot be empty'))));
       return;
     }
     setState(() => saving = true);
@@ -397,7 +436,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       await app.updateProfile(name: name.text.trim(), shop: shop.text.trim(), addr: address.text.trim(), photoUrl: photoUrl);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not save: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${app.tr('Could not save')}: $e')));
     } finally {
       if (mounted) setState(() => saving = false);
     }
@@ -442,17 +481,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   icon: uploadingPhoto
                       ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(Icons.camera_alt_outlined, size: 16),
-                  label: Text(photoUrl != null ? 'Change photo' : 'Add photo'),
+                  label: Text(photoUrl != null ? app.tr('Change photo') : app.tr('Add photo')),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 20),
-          TextField(controller: name, decoration: InputDecoration(labelText: app.tr('Full name'))),
+          TextField(controller: name, decoration: InputDecoration(labelText: app.tr('Full name'), suffixIcon: MicButton(controller: name))),
           const SizedBox(height: 12),
-          TextField(controller: shop, decoration: InputDecoration(labelText: app.tr('Shop name'))),
+          TextField(controller: shop, decoration: InputDecoration(labelText: app.tr('Shop name'), suffixIcon: MicButton(controller: shop))),
           const SizedBox(height: 12),
-          TextField(controller: address, decoration: InputDecoration(labelText: app.tr('Address'))),
+          TextField(controller: address, decoration: InputDecoration(labelText: app.tr('Address'), suffixIcon: MicButton(controller: address))),
           const SizedBox(height: 12),
           SectionCard(child: Text('${app.tr('Mobile number')}: ${app.mobile} (cannot be changed here)', style: TextStyle(color: kMuted, fontSize: 12))),
           const SizedBox(height: 20),

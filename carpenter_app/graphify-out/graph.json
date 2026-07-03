@@ -475,6 +475,106 @@
       "norm_label": "ishindi"
     },
     {
+      "label": "priceCorrected",
+      "file_type": "code",
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_l10n_strings_pricecorrected",
+      "community": 17,
+      "norm_label": "pricecorrected"
+    },
+    {
+      "label": "order",
+      "file_type": "code",
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_l10n_strings_order",
+      "community": 17,
+      "norm_label": "order"
+    },
+    {
+      "label": "pointsForOrder",
+      "file_type": "code",
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_l10n_strings_pointsfororder",
+      "community": 17,
+      "norm_label": "pointsfororder"
+    },
+    {
+      "label": "pointsForLead",
+      "file_type": "code",
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_l10n_strings_pointsforlead",
+      "community": 17,
+      "norm_label": "pointsforlead"
+    },
+    {
+      "label": "offerLive",
+      "file_type": "code",
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_l10n_strings_offerlive",
+      "community": 17,
+      "norm_label": "offerlive"
+    },
+    {
+      "label": "redemptionStatus",
+      "file_type": "code",
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_l10n_strings_redemptionstatus",
+      "community": 17,
+      "norm_label": "redemptionstatus"
+    },
+    {
+      "label": "leadBonus",
+      "file_type": "code",
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_l10n_strings_leadbonus",
+      "community": 17,
+      "norm_label": "leadbonus"
+    },
+    {
+      "label": "giftRedemption",
+      "file_type": "code",
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_l10n_strings_giftredemption",
+      "community": 17,
+      "norm_label": "giftredemption"
+    },
+    {
+      "label": "text",
+      "file_type": "code",
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_l10n_strings_text",
+      "community": 17,
+      "norm_label": "text"
+    },
+    {
+      "label": "return",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "return",
+      "community": 17,
+      "norm_label": "return"
+    },
+    {
       "label": "tr",
       "file_type": "code",
       "source_file": "lib/l10n/strings.dart",
@@ -493,6 +593,26 @@
       "id": "lib_l10n_strings_trf",
       "community": 17,
       "norm_label": "trf"
+    },
+    {
+      "label": "translateDynamicText",
+      "file_type": "code",
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_l10n_strings_translatedynamictext",
+      "community": 17,
+      "norm_label": "translatedynamictext"
+    },
+    {
+      "label": "trStatus",
+      "file_type": "code",
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_l10n_strings_trstatus",
+      "community": 17,
+      "norm_label": "trstatus"
     },
     {
       "label": "main.dart",
@@ -521,7 +641,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "statelesswidget",
-      "community": 1,
+      "community": 34,
       "norm_label": "statelesswidget"
     },
     {
@@ -685,14 +805,14 @@
       "norm_label": "../services/background_location.dart"
     },
     {
-      "label": "state/app_state.dart",
+      "label": "../state/app_state.dart",
       "file_type": "code",
       "source_file": null,
       "source_location": null,
       "_origin": "ast",
       "id": "state_app_state_dart",
       "community": 16,
-      "norm_label": "state/app_state.dart"
+      "norm_label": "../state/app_state.dart"
     },
     {
       "label": "../theme.dart",
@@ -701,7 +821,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "theme_dart",
-      "community": 16,
+      "community": 40,
       "norm_label": "../theme.dart"
     },
     {
@@ -1151,7 +1271,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "double",
-      "community": 1,
+      "community": 33,
       "norm_label": "double?"
     },
     {
@@ -1291,7 +1411,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_home_shell_dashboardscreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "dashboardscreen"
     },
     {
@@ -1415,6 +1535,16 @@
       "norm_label": "route /account"
     },
     {
+      "label": "../widgets/speaker_button.dart",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "widgets_speaker_button_dart",
+      "community": 16,
+      "norm_label": "../widgets/speaker_button.dart"
+    },
+    {
       "label": "order_screens.dart",
       "file_type": "code",
       "source_file": null,
@@ -1461,7 +1591,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_onboarding_screens_splashscreen",
-      "community": 12,
+      "community": 34,
       "norm_label": "splashscreen"
     },
     {
@@ -1471,7 +1601,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_onboarding_screens_loginscreen",
-      "community": 1,
+      "community": 12,
       "norm_label": "loginscreen"
     },
     {
@@ -1481,7 +1611,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_onboarding_screens_loginscreenstate",
-      "community": 1,
+      "community": 12,
       "norm_label": "_loginscreenstate"
     },
     {
@@ -1491,7 +1621,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_onboarding_screens_registerscreen",
-      "community": 1,
+      "community": 12,
       "norm_label": "registerscreen"
     },
     {
@@ -1501,7 +1631,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_onboarding_screens_registerscreenstate",
-      "community": 1,
+      "community": 12,
       "norm_label": "_registerscreenstate"
     },
     {
@@ -1511,7 +1641,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_onboarding_screens_pendingscreen",
-      "community": 1,
+      "community": 12,
       "norm_label": "pendingscreen"
     },
     {
@@ -1521,7 +1651,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_onboarding_screens_pendingscreenstate",
-      "community": 1,
+      "community": 12,
       "norm_label": "_pendingscreenstate"
     },
     {
@@ -1531,7 +1661,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_onboarding_screens_consentscreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "consentscreen"
     },
     {
@@ -1741,7 +1871,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_order_screens_offersscreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "offersscreen"
     },
     {
@@ -1751,7 +1881,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_order_screens_offerdetailsscreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "offerdetailsscreen"
     },
     {
@@ -1761,7 +1891,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_order_screens_createorderscreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "createorderscreen"
     },
     {
@@ -1845,13 +1975,33 @@
       "norm_label": "ordersuccessscreen"
     },
     {
+      "label": "_OrderSuccessScreenState",
+      "file_type": "code",
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_order_screens_ordersuccessscreenstate",
+      "community": 1,
+      "norm_label": "_ordersuccessscreenstate"
+    },
+    {
+      "label": "OrderThumbnail",
+      "file_type": "code",
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_order_screens_orderthumbnail",
+      "community": 34,
+      "norm_label": "orderthumbnail"
+    },
+    {
       "label": "OrderHistoryScreen",
       "file_type": "code",
       "source_file": "lib/screens/order_screens.dart",
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_order_screens_orderhistoryscreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "orderhistoryscreen"
     },
     {
@@ -1861,7 +2011,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_order_screens_orderdetailsscreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "orderdetailsscreen"
     },
     {
@@ -1931,7 +2081,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "texteditingcontroller",
-      "community": 10,
+      "community": 36,
       "norm_label": "texteditingcontroller"
     },
     {
@@ -2035,6 +2185,26 @@
       "norm_label": "error"
     },
     {
+      "label": "order",
+      "file_type": "code",
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_order_screens_order",
+      "community": 5,
+      "norm_label": "order"
+    },
+    {
+      "label": "size",
+      "file_type": "code",
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_order_screens_size",
+      "community": 5,
+      "norm_label": "size"
+    },
+    {
       "label": "embedded",
       "file_type": "code",
       "source_file": "lib/screens/order_screens.dart",
@@ -2053,16 +2223,6 @@
       "id": "lib_screens_order_screens_detail",
       "community": 5,
       "norm_label": "detail"
-    },
-    {
-      "label": "return",
-      "file_type": "code",
-      "source_file": null,
-      "source_location": null,
-      "_origin": "ast",
-      "id": "return",
-      "community": 5,
-      "norm_label": "return"
     },
     {
       "label": "url",
@@ -2141,7 +2301,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_order_screens_pick",
-      "community": 5,
+      "community": 34,
       "norm_label": "_pick"
     },
     {
@@ -2173,6 +2333,16 @@
       "id": "lib_screens_order_screens_removerow",
       "community": 5,
       "norm_label": "_removerow"
+    },
+    {
+      "label": "_setQty",
+      "file_type": "code",
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_order_screens_setqty",
+      "community": 5,
+      "norm_label": "_setqty"
     },
     {
       "label": "_editableRow",
@@ -2211,7 +2381,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_order_screens_start",
-      "community": 5,
+      "community": 34,
       "norm_label": "_start"
     },
     {
@@ -2221,7 +2391,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_order_screens_stop",
-      "community": 5,
+      "community": 34,
       "norm_label": "_stop"
     },
     {
@@ -2231,7 +2401,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_order_screens_upload",
-      "community": 5,
+      "community": 34,
       "norm_label": "_upload"
     },
     {
@@ -2253,6 +2423,26 @@
       "id": "lib_screens_order_screens_submit",
       "community": 5,
       "norm_label": "_submit"
+    },
+    {
+      "label": "initState",
+      "file_type": "code",
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_order_screens_initstate",
+      "community": 5,
+      "norm_label": "initstate"
+    },
+    {
+      "label": "_fallbackIcon",
+      "file_type": "code",
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_order_screens_fallbackicon",
+      "community": 5,
+      "norm_label": "_fallbackicon"
     },
     {
       "label": "Route /orderDetails",
@@ -2281,7 +2471,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_order_screens_openfullscreenimage",
-      "community": 5,
+      "community": 10,
       "norm_label": "_openfullscreenimage"
     },
     {
@@ -2291,7 +2481,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "materialpageroute",
-      "community": 5,
+      "community": 10,
       "norm_label": "materialpageroute"
     },
     {
@@ -2301,7 +2491,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_order_screens_toggle",
-      "community": 5,
+      "community": 34,
       "norm_label": "_toggle"
     },
     {
@@ -2361,8 +2551,28 @@
       "source_location": null,
       "_origin": "ast",
       "id": "models_models_dart",
-      "community": 1,
+      "community": 33,
       "norm_label": "../models/models.dart"
+    },
+    {
+      "label": "../services/tts_service.dart",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "services_tts_service_dart",
+      "community": 40,
+      "norm_label": "../services/tts_service.dart"
+    },
+    {
+      "label": "../widgets/mic_button.dart",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "widgets_mic_button_dart",
+      "community": 10,
+      "norm_label": "../widgets/mic_button.dart"
     },
     {
       "label": "profile_screens.dart",
@@ -2381,7 +2591,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_profile_screens_profilescreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "profilescreen"
     },
     {
@@ -2391,7 +2601,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_profile_screens_accountscreen",
-      "community": 1,
+      "community": 10,
       "norm_label": "accountscreen"
     },
     {
@@ -2401,7 +2611,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_profile_screens_accountscreenstate",
-      "community": 1,
+      "community": 10,
       "norm_label": "_accountscreenstate"
     },
     {
@@ -2411,7 +2621,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_profile_screens_editprofilescreen",
-      "community": 1,
+      "community": 10,
       "norm_label": "editprofilescreen"
     },
     {
@@ -2421,7 +2631,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_profile_screens_editprofilescreenstate",
-      "community": 1,
+      "community": 10,
       "norm_label": "_editprofilescreenstate"
     },
     {
@@ -2615,6 +2825,16 @@
       "norm_label": "_changeqr"
     },
     {
+      "label": "_scanQr",
+      "file_type": "code",
+      "source_file": "lib/screens/profile_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_profile_screens_scanqr",
+      "community": 10,
+      "norm_label": "_scanqr"
+    },
+    {
       "label": "_initControllersIfNeeded",
       "file_type": "code",
       "source_file": "lib/screens/profile_screens.dart",
@@ -2641,7 +2861,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_profile_screens_openfullscreenqr",
-      "community": 5,
+      "community": 10,
       "norm_label": "_openfullscreenqr"
     },
     {
@@ -2675,13 +2895,163 @@
       "norm_label": "_confirmdiscard"
     },
     {
+      "label": "qr_scan_screen.dart",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "qr_scan_screen_dart",
+      "community": 10,
+      "norm_label": "qr_scan_screen.dart"
+    },
+    {
+      "label": "qr_scan_screen.dart",
+      "file_type": "code",
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_qr_scan_screen",
+      "community": 38,
+      "norm_label": "qr_scan_screen.dart"
+    },
+    {
+      "label": "QrScanScreen",
+      "file_type": "code",
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_qr_scan_screen_qrscanscreen",
+      "community": 1,
+      "norm_label": "qrscanscreen"
+    },
+    {
+      "label": "_QrScanScreenState",
+      "file_type": "code",
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_qr_scan_screen_qrscanscreenstate",
+      "community": 1,
+      "norm_label": "_qrscanscreenstate"
+    },
+    {
+      "label": "_FirstOrNull",
+      "file_type": "code",
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_qr_scan_screen_firstornull",
+      "community": 4,
+      "norm_label": "_firstornull"
+    },
+    {
+      "label": "_controller",
+      "file_type": "code",
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_qr_scan_screen_controller",
+      "community": 38,
+      "norm_label": "_controller"
+    },
+    {
+      "label": "_handled",
+      "file_type": "code",
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_qr_scan_screen_handled",
+      "community": 38,
+      "norm_label": "_handled"
+    },
+    {
+      "label": "T? get",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "t_get",
+      "community": 38,
+      "norm_label": "t? get"
+    },
+    {
+      "label": "createState",
+      "file_type": "code",
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_qr_scan_screen_createstate",
+      "community": 38,
+      "norm_label": "createstate"
+    },
+    {
+      "label": "dispose",
+      "file_type": "code",
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_qr_scan_screen_dispose",
+      "community": 38,
+      "norm_label": "dispose"
+    },
+    {
+      "label": "_onDetect",
+      "file_type": "code",
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_qr_scan_screen_ondetect",
+      "community": 38,
+      "norm_label": "_ondetect"
+    },
+    {
+      "label": "build",
+      "file_type": "code",
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_qr_scan_screen_build",
+      "community": 38,
+      "norm_label": "build"
+    },
+    {
+      "label": "extractUpiId",
+      "file_type": "code",
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_qr_scan_screen_extractupiid",
+      "community": 38,
+      "norm_label": "extractupiid"
+    },
+    {
+      "label": "contains",
+      "file_type": "code",
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_qr_scan_screen_contains",
+      "community": 38,
+      "norm_label": "contains"
+    },
+    {
+      "label": "package:mobile_scanner/mobile_scanner.dart",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "package_mobile_scanner_mobile_scanner_dart",
+      "community": 38,
+      "norm_label": "package:mobile_scanner/mobile_scanner.dart"
+    },
+    {
       "label": "rewards_screens.dart",
       "file_type": "code",
       "source_file": "lib/screens/rewards_screens.dart",
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens",
-      "community": 1,
+      "community": 33,
       "norm_label": "rewards_screens.dart"
     },
     {
@@ -2691,7 +3061,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_pointsscreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "pointsscreen"
     },
     {
@@ -2721,7 +3091,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_redeemcashdonescreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "redeemcashdonescreen"
     },
     {
@@ -2731,7 +3101,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_giftstorescreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "giftstorescreen"
     },
     {
@@ -2741,7 +3111,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_giftsuccessscreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "giftsuccessscreen"
     },
     {
@@ -2751,7 +3121,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_leadsscreen",
-      "community": 1,
+      "community": 34,
       "norm_label": "leadsscreen"
     },
     {
@@ -2795,13 +3165,43 @@
       "norm_label": "_notificationsscreenstate"
     },
     {
+      "label": "match",
+      "file_type": "code",
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_rewards_screens_match",
+      "community": 33,
+      "norm_label": "match"
+    },
+    {
+      "label": "id",
+      "file_type": "code",
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_rewards_screens_id",
+      "community": 33,
+      "norm_label": "id"
+    },
+    {
+      "label": "null",
+      "file_type": "code",
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_rewards_screens_null",
+      "community": 33,
+      "norm_label": "null"
+    },
+    {
       "label": "controller",
       "file_type": "code",
       "source_file": "lib/screens/rewards_screens.dart",
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_controller",
-      "community": 1,
+      "community": 33,
       "norm_label": "controller"
     },
     {
@@ -2811,7 +3211,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_embedded",
-      "community": 1,
+      "community": 33,
       "norm_label": "embedded"
     },
     {
@@ -2821,7 +3221,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_markdelivered",
-      "community": 1,
+      "community": 33,
       "norm_label": "markdelivered"
     },
     {
@@ -2831,7 +3231,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_name",
-      "community": 1,
+      "community": 33,
       "norm_label": "name"
     },
     {
@@ -2841,7 +3241,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_phone",
-      "community": 1,
+      "community": 33,
       "norm_label": "phone"
     },
     {
@@ -2851,7 +3251,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_location",
-      "community": 1,
+      "community": 33,
       "norm_label": "location"
     },
     {
@@ -2861,7 +3261,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_notes",
-      "community": 1,
+      "community": 33,
       "norm_label": "notes"
     },
     {
@@ -2871,7 +3271,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_error",
-      "community": 1,
+      "community": 33,
       "norm_label": "error"
     },
     {
@@ -2881,7 +3281,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_submitting",
-      "community": 1,
+      "community": 33,
       "norm_label": "submitting"
     },
     {
@@ -2891,7 +3291,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_locating",
-      "community": 1,
+      "community": 33,
       "norm_label": "locating"
     },
     {
@@ -2901,7 +3301,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_lat",
-      "community": 1,
+      "community": 33,
       "norm_label": "lat"
     },
     {
@@ -2911,8 +3311,18 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_lng",
-      "community": 1,
+      "community": 33,
       "norm_label": "lng"
+    },
+    {
+      "label": "_orderForLedgerEntry",
+      "file_type": "code",
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_rewards_screens_orderforledgerentry",
+      "community": 33,
+      "norm_label": "_orderforledgerentry"
     },
     {
       "label": "build",
@@ -2931,7 +3341,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_createstate",
-      "community": 1,
+      "community": 33,
       "norm_label": "createstate"
     },
     {
@@ -2961,7 +3371,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_showredemptiondetail",
-      "community": 1,
+      "community": 33,
       "norm_label": "_showredemptiondetail"
     },
     {
@@ -2975,13 +3385,23 @@
       "norm_label": "route /leadnew"
     },
     {
+      "label": "_pickContact",
+      "file_type": "code",
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_screens_rewards_screens_pickcontact",
+      "community": 33,
+      "norm_label": "_pickcontact"
+    },
+    {
       "label": "_useCurrentLocation",
       "file_type": "code",
       "source_file": "lib/screens/rewards_screens.dart",
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_usecurrentlocation",
-      "community": 1,
+      "community": 33,
       "norm_label": "_usecurrentlocation"
     },
     {
@@ -2991,7 +3411,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_initstate",
-      "community": 1,
+      "community": 33,
       "norm_label": "initstate"
     },
     {
@@ -3003,6 +3423,16 @@
       "id": "package_geolocator_geolocator_dart",
       "community": 6,
       "norm_label": "package:geolocator/geolocator.dart"
+    },
+    {
+      "label": "../services/contact_picker.dart",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "services_contact_picker_dart",
+      "community": 33,
+      "norm_label": "../services/contact_picker.dart"
     },
     {
       "label": "background_location.dart",
@@ -3193,6 +3623,36 @@
       "id": "package_http_http_dart",
       "community": 14,
       "norm_label": "package:http/http.dart"
+    },
+    {
+      "label": "contact_picker.dart",
+      "file_type": "code",
+      "source_file": "lib/services/contact_picker.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_contact_picker",
+      "community": 47,
+      "norm_label": "contact_picker.dart"
+    },
+    {
+      "label": "pickContactPhone",
+      "file_type": "code",
+      "source_file": "lib/services/contact_picker.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_contact_picker_pickcontactphone",
+      "community": 47,
+      "norm_label": "pickcontactphone"
+    },
+    {
+      "label": "package:flutter_contacts/flutter_contacts.dart",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "package_flutter_contacts_flutter_contacts_dart",
+      "community": 47,
+      "norm_label": "package:flutter_contacts/flutter_contacts.dart"
     },
     {
       "label": "firebase_service.dart",
@@ -3525,6 +3985,266 @@
       "norm_label": "watchconfig"
     },
     {
+      "label": "speech_service.dart",
+      "file_type": "code",
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_speech_service",
+      "community": 35,
+      "norm_label": "speech_service.dart"
+    },
+    {
+      "label": "SpeechService",
+      "file_type": "code",
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_speech_service_speechservice",
+      "community": 35,
+      "norm_label": "speechservice"
+    },
+    {
+      "label": "instance",
+      "file_type": "code",
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_speech_service_instance",
+      "community": 35,
+      "norm_label": "instance"
+    },
+    {
+      "label": "static final SpeechService",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "static_final_speechservice",
+      "community": 35,
+      "norm_label": "static final speechservice"
+    },
+    {
+      "label": "_stt",
+      "file_type": "code",
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_speech_service_stt",
+      "community": 35,
+      "norm_label": "_stt"
+    },
+    {
+      "label": "SpeechToText",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "speechtotext",
+      "community": 35,
+      "norm_label": "speechtotext"
+    },
+    {
+      "label": "_available",
+      "file_type": "code",
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_speech_service_available",
+      "community": 35,
+      "norm_label": "_available"
+    },
+    {
+      "label": "_initTried",
+      "file_type": "code",
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_speech_service_inittried",
+      "community": 35,
+      "norm_label": "_inittried"
+    },
+    {
+      "label": "isListening",
+      "file_type": "code",
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_speech_service_islistening",
+      "community": 35,
+      "norm_label": "islistening"
+    },
+    {
+      "label": "bool get",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "bool_get",
+      "community": 35,
+      "norm_label": "bool get"
+    },
+    {
+      "label": "_ensureInit",
+      "file_type": "code",
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_speech_service_ensureinit",
+      "community": 35,
+      "norm_label": "_ensureinit"
+    },
+    {
+      "label": "listen",
+      "file_type": "code",
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_speech_service_listen",
+      "community": 35,
+      "norm_label": "listen"
+    },
+    {
+      "label": "stop",
+      "file_type": "code",
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_speech_service_stop",
+      "community": 35,
+      "norm_label": "stop"
+    },
+    {
+      "label": "cancel",
+      "file_type": "code",
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_speech_service_cancel",
+      "community": 35,
+      "norm_label": "cancel"
+    },
+    {
+      "label": "package:speech_to_text/speech_to_text.dart",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "package_speech_to_text_speech_to_text_dart",
+      "community": 35,
+      "norm_label": "package:speech_to_text/speech_to_text.dart"
+    },
+    {
+      "label": "tts_service.dart",
+      "file_type": "code",
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_tts_service",
+      "community": 37,
+      "norm_label": "tts_service.dart"
+    },
+    {
+      "label": "TtsService",
+      "file_type": "code",
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_tts_service_ttsservice",
+      "community": 37,
+      "norm_label": "ttsservice"
+    },
+    {
+      "label": "instance",
+      "file_type": "code",
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_tts_service_instance",
+      "community": 37,
+      "norm_label": "instance"
+    },
+    {
+      "label": "static final TtsService",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "static_final_ttsservice",
+      "community": 37,
+      "norm_label": "static final ttsservice"
+    },
+    {
+      "label": "_tts",
+      "file_type": "code",
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_tts_service_tts",
+      "community": 37,
+      "norm_label": "_tts"
+    },
+    {
+      "label": "FlutterTts",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "fluttertts",
+      "community": 37,
+      "norm_label": "fluttertts"
+    },
+    {
+      "label": "_configured",
+      "file_type": "code",
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_tts_service_configured",
+      "community": 37,
+      "norm_label": "_configured"
+    },
+    {
+      "label": "_ensureConfigured",
+      "file_type": "code",
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_tts_service_ensureconfigured",
+      "community": 37,
+      "norm_label": "_ensureconfigured"
+    },
+    {
+      "label": "speak",
+      "file_type": "code",
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_tts_service_speak",
+      "community": 37,
+      "norm_label": "speak"
+    },
+    {
+      "label": "stop",
+      "file_type": "code",
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_services_tts_service_stop",
+      "community": 37,
+      "norm_label": "stop"
+    },
+    {
+      "label": "package:flutter_tts/flutter_tts.dart",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "package_flutter_tts_flutter_tts_dart",
+      "community": 37,
+      "norm_label": "package:flutter_tts/flutter_tts.dart"
+    },
+    {
       "label": "app_state.dart",
       "file_type": "code",
       "source_file": "lib/state/app_state.dart",
@@ -3541,7 +4261,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_state_app_state_appstate",
-      "community": 1,
+      "community": 34,
       "norm_label": "appstate"
     },
     {
@@ -3551,7 +4271,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "changenotifier",
-      "community": 1,
+      "community": 34,
       "norm_label": "changenotifier"
     },
     {
@@ -3945,16 +4665,6 @@
       "norm_label": "isloggedin"
     },
     {
-      "label": "bool get",
-      "file_type": "code",
-      "source_file": null,
-      "source_location": null,
-      "_origin": "ast",
-      "id": "bool_get",
-      "community": 0,
-      "norm_label": "bool get"
-    },
-    {
       "label": "isApproved",
       "file_type": "code",
       "source_file": "lib/state/app_state.dart",
@@ -4013,6 +4723,16 @@
       "id": "lib_state_app_state_trf",
       "community": 0,
       "norm_label": "trf"
+    },
+    {
+      "label": "trDyn",
+      "file_type": "code",
+      "source_file": "lib/state/app_state.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_state_app_state_trdyn",
+      "community": 0,
+      "norm_label": "trdyn"
     },
     {
       "label": "loadPrefs",
@@ -4311,7 +5031,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_theme_statusbadge",
-      "community": 1,
+      "community": 34,
       "norm_label": "statusbadge"
     },
     {
@@ -4605,6 +5325,16 @@
       "norm_label": "statuscolor"
     },
     {
+      "label": "statusIcon",
+      "file_type": "code",
+      "source_file": "lib/theme.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_theme_statusicon",
+      "community": 8,
+      "norm_label": "statusicon"
+    },
+    {
       "label": "build",
       "file_type": "code",
       "source_file": "lib/theme.dart",
@@ -4612,6 +5342,216 @@
       "_origin": "ast",
       "id": "lib_theme_build",
       "community": 8,
+      "norm_label": "build"
+    },
+    {
+      "label": "mic_button.dart",
+      "file_type": "code",
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_mic_button",
+      "community": 36,
+      "norm_label": "mic_button.dart"
+    },
+    {
+      "label": "MicButton",
+      "file_type": "code",
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_mic_button_micbutton",
+      "community": 36,
+      "norm_label": "micbutton"
+    },
+    {
+      "label": "_MicButtonState",
+      "file_type": "code",
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_mic_button_micbuttonstate",
+      "community": 36,
+      "norm_label": "_micbuttonstate"
+    },
+    {
+      "label": "controller",
+      "file_type": "code",
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_mic_button_controller",
+      "community": 36,
+      "norm_label": "controller"
+    },
+    {
+      "label": "onFinalResult",
+      "file_type": "code",
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_mic_button_onfinalresult",
+      "community": 36,
+      "norm_label": "onfinalresult"
+    },
+    {
+      "label": "ValueChanged",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "valuechanged",
+      "community": 36,
+      "norm_label": "valuechanged"
+    },
+    {
+      "label": "_listening",
+      "file_type": "code",
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_mic_button_listening",
+      "community": 36,
+      "norm_label": "_listening"
+    },
+    {
+      "label": "_baseText",
+      "file_type": "code",
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_mic_button_basetext",
+      "community": 36,
+      "norm_label": "_basetext"
+    },
+    {
+      "label": "createState",
+      "file_type": "code",
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_mic_button_createstate",
+      "community": 36,
+      "norm_label": "createstate"
+    },
+    {
+      "label": "_toggle",
+      "file_type": "code",
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_mic_button_toggle",
+      "community": 36,
+      "norm_label": "_toggle"
+    },
+    {
+      "label": "build",
+      "file_type": "code",
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_mic_button_build",
+      "community": 36,
+      "norm_label": "build"
+    },
+    {
+      "label": "../services/speech_service.dart",
+      "file_type": "code",
+      "source_file": null,
+      "source_location": null,
+      "_origin": "ast",
+      "id": "services_speech_service_dart",
+      "community": 36,
+      "norm_label": "../services/speech_service.dart"
+    },
+    {
+      "label": "speaker_button.dart",
+      "file_type": "code",
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_speaker_button",
+      "community": 40,
+      "norm_label": "speaker_button.dart"
+    },
+    {
+      "label": "SpeakerButton",
+      "file_type": "code",
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_speaker_button_speakerbutton",
+      "community": 1,
+      "norm_label": "speakerbutton"
+    },
+    {
+      "label": "_SpeakerButtonState",
+      "file_type": "code",
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_speaker_button_speakerbuttonstate",
+      "community": 1,
+      "norm_label": "_speakerbuttonstate"
+    },
+    {
+      "label": "text",
+      "file_type": "code",
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_speaker_button_text",
+      "community": 40,
+      "norm_label": "text"
+    },
+    {
+      "label": "size",
+      "file_type": "code",
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_speaker_button_size",
+      "community": 40,
+      "norm_label": "size"
+    },
+    {
+      "label": "_speaking",
+      "file_type": "code",
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_speaker_button_speaking",
+      "community": 40,
+      "norm_label": "_speaking"
+    },
+    {
+      "label": "createState",
+      "file_type": "code",
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_speaker_button_createstate",
+      "community": 40,
+      "norm_label": "createstate"
+    },
+    {
+      "label": "_toggle",
+      "file_type": "code",
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_speaker_button_toggle",
+      "community": 40,
+      "norm_label": "_toggle"
+    },
+    {
+      "label": "build",
+      "file_type": "code",
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_widgets_speaker_button_build",
+      "community": 40,
       "norm_label": "build"
     },
     {
@@ -4974,22 +5914,44 @@
       "norm_label": "firebase_storage"
     },
     {
-      "label": "geolocator_apple",
+      "label": "flutter_tts",
       "file_type": "code",
       "type": "module",
       "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
       "source_location": "L15",
+      "_origin": "ast",
+      "id": "flutter_tts",
+      "community": 3,
+      "norm_label": "flutter_tts"
+    },
+    {
+      "label": "geolocator_apple",
+      "file_type": "code",
+      "type": "module",
+      "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
+      "source_location": "L16",
       "_origin": "ast",
       "id": "geolocator_apple",
       "community": 3,
       "norm_label": "geolocator_apple"
     },
     {
+      "label": "mobile_scanner",
+      "file_type": "code",
+      "type": "module",
+      "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
+      "source_location": "L17",
+      "_origin": "ast",
+      "id": "mobile_scanner",
+      "community": 3,
+      "norm_label": "mobile_scanner"
+    },
+    {
       "label": "path_provider_foundation",
       "file_type": "code",
       "type": "module",
       "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
-      "source_location": "L16",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "path_provider_foundation",
       "community": 3,
@@ -5000,7 +5962,7 @@
       "file_type": "code",
       "type": "module",
       "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
-      "source_location": "L17",
+      "source_location": "L19",
       "_origin": "ast",
       "id": "record_macos",
       "community": 3,
@@ -5011,28 +5973,50 @@
       "file_type": "code",
       "type": "module",
       "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
-      "source_location": "L18",
+      "source_location": "L20",
       "_origin": "ast",
       "id": "shared_preferences_foundation",
       "community": 3,
       "norm_label": "shared_preferences_foundation"
     },
     {
+      "label": "speech_to_text",
+      "file_type": "code",
+      "type": "module",
+      "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "speech_to_text",
+      "community": 3,
+      "norm_label": "speech_to_text"
+    },
+    {
       "label": "url_launcher_macos",
       "file_type": "code",
       "type": "module",
       "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
-      "source_location": "L19",
+      "source_location": "L22",
       "_origin": "ast",
       "id": "url_launcher_macos",
       "community": 3,
       "norm_label": "url_launcher_macos"
     },
     {
+      "label": "webview_flutter_wkwebview",
+      "file_type": "code",
+      "type": "module",
+      "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
+      "source_location": "L23",
+      "_origin": "ast",
+      "id": "webview_flutter_wkwebview",
+      "community": 3,
+      "norm_label": "webview_flutter_wkwebview"
+    },
+    {
       "label": "RegisterGeneratedPlugins()",
       "file_type": "code",
       "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
-      "source_location": "L21",
+      "source_location": "L25",
       "_origin": "ast",
       "id": "macos_flutter_generatedpluginregistrant_registergeneratedplugins",
       "community": 3,
@@ -5371,7 +6355,7 @@
       "label": "RegisterPlugins()",
       "file_type": "code",
       "source_file": "windows/flutter/generated_plugin_registrant.cc",
-      "source_location": "L19",
+      "source_location": "L21",
       "_origin": "ast",
       "id": "windows_flutter_generated_plugin_registrant_registerplugins",
       "community": 2,
@@ -6110,6 +7094,626 @@
     {
       "label": "CLAUDE.md",
       "file_type": "document",
+      "source_file": ".claude/CLAUDE.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_claude",
+      "community": 48,
+      "norm_label": "claude.md"
+    },
+    {
+      "label": "graphify",
+      "file_type": "document",
+      "source_file": ".claude/CLAUDE.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_claude_graphify",
+      "community": 48,
+      "norm_label": "graphify"
+    },
+    {
+      "label": "SKILL.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill",
+      "community": 32,
+      "norm_label": "skill.md"
+    },
+    {
+      "label": "/graphify",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_graphify",
+      "community": 32,
+      "norm_label": "/graphify"
+    },
+    {
+      "label": "Usage",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_usage",
+      "community": 32,
+      "norm_label": "usage"
+    },
+    {
+      "label": "What graphify is for",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_what_graphify_is_for",
+      "community": 32,
+      "norm_label": "what graphify is for"
+    },
+    {
+      "label": "What You Must Do When Invoked",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "community": 32,
+      "norm_label": "what you must do when invoked"
+    },
+    {
+      "label": "Step 0 - GitHub repos and multi-path merge (only if a URL or several paths)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L61",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_0_github_repos_and_multi_path_merge_only_if_a_url_or_several_paths",
+      "community": 32,
+      "norm_label": "step 0 - github repos and multi-path merge (only if a url or several paths)"
+    },
+    {
+      "label": "Step 1 - Ensure graphify is installed",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L65",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_1_ensure_graphify_is_installed",
+      "community": 32,
+      "norm_label": "step 1 - ensure graphify is installed"
+    },
+    {
+      "label": "Step 2 - Detect files",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L107",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_2_detect_files",
+      "community": 32,
+      "norm_label": "step 2 - detect files"
+    },
+    {
+      "label": "Step 2.5 - Video and audio (only if video files detected)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L144",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_2_5_video_and_audio_only_if_video_files_detected",
+      "community": 32,
+      "norm_label": "step 2.5 - video and audio (only if video files detected)"
+    },
+    {
+      "label": "Step 3 - Extract entities and relationships",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L148",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+      "community": 32,
+      "norm_label": "step 3 - extract entities and relationships"
+    },
+    {
+      "label": "Part A - Structural extraction for code files",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L167",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_part_a_structural_extraction_for_code_files",
+      "community": 32,
+      "norm_label": "part a - structural extraction for code files"
+    },
+    {
+      "label": "Part B - Semantic extraction (parallel subagents)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L193",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_part_b_semantic_extraction_parallel_subagents",
+      "community": 32,
+      "norm_label": "part b - semantic extraction (parallel subagents)"
+    },
+    {
+      "label": "Part C - Merge AST + semantic into final extraction",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L353",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_part_c_merge_ast_semantic_into_final_extraction",
+      "community": 32,
+      "norm_label": "part c - merge ast + semantic into final extraction"
+    },
+    {
+      "label": "Step 4 - Build graph, cluster, analyze, generate outputs",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L387",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_4_build_graph_cluster_analyze_generate_outputs",
+      "community": 32,
+      "norm_label": "step 4 - build graph, cluster, analyze, generate outputs"
+    },
+    {
+      "label": "Step 4.5 - Graph health check (read-only integrity gate)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L450",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_4_5_graph_health_check_read_only_integrity_gate",
+      "community": 32,
+      "norm_label": "step 4.5 - graph health check (read-only integrity gate)"
+    },
+    {
+      "label": "Step 5 - Label communities",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L476",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_5_label_communities",
+      "community": 32,
+      "norm_label": "step 5 - label communities"
+    },
+    {
+      "label": "Step 6 - Generate Obsidian vault (opt-in) + HTML",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L517",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_6_generate_obsidian_vault_opt_in_html",
+      "community": 32,
+      "norm_label": "step 6 - generate obsidian vault (opt-in) + html"
+    },
+    {
+      "label": "Steps 6b-8 - Wiki, Neo4j, FalkorDB, SVG, GraphML, MCP, benchmark (only on their flags)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L537",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_steps_6b_8_wiki_neo4j_falkordb_svg_graphml_mcp_benchmark_only_on_their_flags",
+      "community": 32,
+      "norm_label": "steps 6b-8 - wiki, neo4j, falkordb, svg, graphml, mcp, benchmark (only on their flags)"
+    },
+    {
+      "label": "Step 9 - Save manifest, update cost tracker, clean up, and report",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L543",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_9_save_manifest_update_cost_tracker_clean_up_and_report",
+      "community": 32,
+      "norm_label": "step 9 - save manifest, update cost tracker, clean up, and report"
+    },
+    {
+      "label": "Interpreter guard for subcommands",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L623",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_interpreter_guard_for_subcommands",
+      "community": 32,
+      "norm_label": "interpreter guard for subcommands"
+    },
+    {
+      "label": "For --update and --cluster-only",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L641",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_for_update_and_cluster_only",
+      "community": 32,
+      "norm_label": "for --update and --cluster-only"
+    },
+    {
+      "label": "For /graphify query",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L647",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_for_graphify_query",
+      "community": 32,
+      "norm_label": "for /graphify query"
+    },
+    {
+      "label": "For /graphify add and --watch",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L659",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_for_graphify_add_and_watch",
+      "community": 32,
+      "norm_label": "for /graphify add and --watch"
+    },
+    {
+      "label": "For the commit hook and native CLAUDE.md integration",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L665",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_for_the_commit_hook_and_native_claude_md_integration",
+      "community": 32,
+      "norm_label": "for the commit hook and native claude.md integration"
+    },
+    {
+      "label": "Honesty Rules",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L671",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_honesty_rules",
+      "community": 32,
+      "norm_label": "honesty rules"
+    },
+    {
+      "label": "add-watch.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_add_watch",
+      "community": 42,
+      "norm_label": "add-watch.md"
+    },
+    {
+      "label": "graphify reference: add a URL and watch a folder",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder",
+      "community": 42,
+      "norm_label": "graphify reference: add a url and watch a folder"
+    },
+    {
+      "label": "For /graphify add",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_add_watch_for_graphify_add",
+      "community": 42,
+      "norm_label": "for /graphify add"
+    },
+    {
+      "label": "For --watch",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L39",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_add_watch_for_watch",
+      "community": 42,
+      "norm_label": "for --watch"
+    },
+    {
+      "label": "exports.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports",
+      "community": 39,
+      "norm_label": "exports.md"
+    },
+    {
+      "label": "graphify reference: extra exports and benchmark",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "community": 39,
+      "norm_label": "graphify reference: extra exports and benchmark"
+    },
+    {
+      "label": "Step 6b - Wiki (only if --wiki flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_6b_wiki_only_if_wiki_flag",
+      "community": 39,
+      "norm_label": "step 6b - wiki (only if --wiki flag)"
+    },
+    {
+      "label": "Step 7 - Neo4j export (only if --neo4j or --neo4j-push flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_7_neo4j_export_only_if_neo4j_or_neo4j_push_flag",
+      "community": 39,
+      "norm_label": "step 7 - neo4j export (only if --neo4j or --neo4j-push flag)"
+    },
+    {
+      "label": "Step 7a - FalkorDB export (only if --falkordb or --falkordb-push flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_7a_falkordb_export_only_if_falkordb_or_falkordb_push_flag",
+      "community": 39,
+      "norm_label": "step 7a - falkordb export (only if --falkordb or --falkordb-push flag)"
+    },
+    {
+      "label": "Step 7b - SVG export (only if --svg flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_7b_svg_export_only_if_svg_flag",
+      "community": 39,
+      "norm_label": "step 7b - svg export (only if --svg flag)"
+    },
+    {
+      "label": "Step 7c - GraphML export (only if --graphml flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L53",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_7c_graphml_export_only_if_graphml_flag",
+      "community": 39,
+      "norm_label": "step 7c - graphml export (only if --graphml flag)"
+    },
+    {
+      "label": "Step 7d - MCP server (only if --mcp flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L59",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_7d_mcp_server_only_if_mcp_flag",
+      "community": 39,
+      "norm_label": "step 7d - mcp server (only if --mcp flag)"
+    },
+    {
+      "label": "Step 8 - Token reduction benchmark (only if total_words > 5000)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L79",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_8_token_reduction_benchmark_only_if_total_words_5000",
+      "community": 39,
+      "norm_label": "step 8 - token reduction benchmark (only if total_words > 5000)"
+    },
+    {
+      "label": "extraction-spec.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_extraction_spec",
+      "community": 49,
+      "norm_label": "extraction-spec.md"
+    },
+    {
+      "label": "graphify reference: extraction subagent prompt",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_extraction_spec_graphify_reference_extraction_subagent_prompt",
+      "community": 49,
+      "norm_label": "graphify reference: extraction subagent prompt"
+    },
+    {
+      "label": "github-and-merge.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_github_and_merge",
+      "community": 45,
+      "norm_label": "github-and-merge.md"
+    },
+    {
+      "label": "graphify reference: GitHub clone and cross-repo merge",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_github_and_merge_graphify_reference_github_clone_and_cross_repo_merge",
+      "community": 45,
+      "norm_label": "graphify reference: github clone and cross-repo merge"
+    },
+    {
+      "label": "Step 0 - Clone GitHub repo(s) (only if a GitHub URL was given)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_github_and_merge_step_0_clone_github_repo_s_only_if_a_github_url_was_given",
+      "community": 45,
+      "norm_label": "step 0 - clone github repo(s) (only if a github url was given)"
+    },
+    {
+      "label": "hooks.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_hooks",
+      "community": 43,
+      "norm_label": "hooks.md"
+    },
+    {
+      "label": "graphify reference: commit hook and native CLAUDE.md integration",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration",
+      "community": 43,
+      "norm_label": "graphify reference: commit hook and native claude.md integration"
+    },
+    {
+      "label": "For git commit hook",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_hooks_for_git_commit_hook",
+      "community": 43,
+      "norm_label": "for git commit hook"
+    },
+    {
+      "label": "For native CLAUDE.md integration",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_hooks_for_native_claude_md_integration",
+      "community": 43,
+      "norm_label": "for native claude.md integration"
+    },
+    {
+      "label": "query.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_query",
+      "community": 41,
+      "norm_label": "query.md"
+    },
+    {
+      "label": "graphify reference: query, path, explain",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "community": 41,
+      "norm_label": "graphify reference: query, path, explain"
+    },
+    {
+      "label": "Step 0 \u2014 Constrained query expansion (REQUIRED before traversal)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L23",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_query_step_0_constrained_query_expansion_required_before_traversal",
+      "community": 41,
+      "norm_label": "step 0 \u2014 constrained query expansion (required before traversal)"
+    },
+    {
+      "label": "Step 1 \u2014 Traversal",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L61",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_query_step_1_traversal",
+      "community": 41,
+      "norm_label": "step 1 \u2014 traversal"
+    },
+    {
+      "label": "For /graphify path",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L186",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_query_for_graphify_path",
+      "community": 41,
+      "norm_label": "for /graphify path"
+    },
+    {
+      "label": "For /graphify explain",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L254",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_query_for_graphify_explain",
+      "community": 41,
+      "norm_label": "for /graphify explain"
+    },
+    {
+      "label": "transcribe.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_transcribe",
+      "community": 46,
+      "norm_label": "transcribe.md"
+    },
+    {
+      "label": "graphify reference: transcribe video and audio",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_transcribe_graphify_reference_transcribe_video_and_audio",
+      "community": 46,
+      "norm_label": "graphify reference: transcribe video and audio"
+    },
+    {
+      "label": "Step 2.5 - Transcribe video / audio files (only if video files detected)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_transcribe_step_2_5_transcribe_video_audio_files_only_if_video_files_detected",
+      "community": 46,
+      "norm_label": "step 2.5 - transcribe video / audio files (only if video files detected)"
+    },
+    {
+      "label": "update.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_update",
+      "community": 44,
+      "norm_label": "update.md"
+    },
+    {
+      "label": "graphify reference: incremental update and cluster-only",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only",
+      "community": 44,
+      "norm_label": "graphify reference: incremental update and cluster-only"
+    },
+    {
+      "label": "For --update (incremental re-extraction)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_update_for_update_incremental_re_extraction",
+      "community": 44,
+      "norm_label": "for --update (incremental re-extraction)"
+    },
+    {
+      "label": "For --cluster-only",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L184",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_update_for_cluster_only",
+      "community": 44,
+      "norm_label": "for --cluster-only"
+    },
+    {
+      "label": "CLAUDE.md",
+      "file_type": "document",
       "source_file": "CLAUDE.md",
       "source_location": "L1",
       "_origin": "ast",
@@ -6518,7 +8122,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "ios/Runner/GeneratedPluginRegistrant.m",
-      "source_location": "L87",
+      "source_location": "L117",
       "weight": 1.0,
       "source": "ios_runner_generatedpluginregistrant_m_ios_runner_generatedpluginregistrant",
       "target": "ios_runner_generatedpluginregistrant_generatedpluginregistrant",
@@ -6594,11 +8198,11 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "source_file": "ios/Runner/GeneratedPluginRegistrant.m",
-      "source_location": "L48",
+      "source_location": "L54",
       "weight": 1.0,
       "context": "import",
       "source": "ios_runner_generatedpluginregistrant_m_ios_runner_generatedpluginregistrant",
-      "target": "geolocator_apple",
+      "target": "flutter_tts",
       "confidence_score": 1.0
     },
     {
@@ -6609,7 +8213,7 @@
       "weight": 1.0,
       "context": "import",
       "source": "ios_runner_generatedpluginregistrant_m_ios_runner_generatedpluginregistrant",
-      "target": "path_provider_foundation",
+      "target": "geolocator_apple",
       "confidence_score": 1.0
     },
     {
@@ -6620,7 +8224,51 @@
       "weight": 1.0,
       "context": "import",
       "source": "ios_runner_generatedpluginregistrant_m_ios_runner_generatedpluginregistrant",
+      "target": "mobile_scanner",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "ios/Runner/GeneratedPluginRegistrant.m",
+      "source_location": "L78",
+      "weight": 1.0,
+      "context": "import",
+      "source": "ios_runner_generatedpluginregistrant_m_ios_runner_generatedpluginregistrant",
+      "target": "path_provider_foundation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "ios/Runner/GeneratedPluginRegistrant.m",
+      "source_location": "L90",
+      "weight": 1.0,
+      "context": "import",
+      "source": "ios_runner_generatedpluginregistrant_m_ios_runner_generatedpluginregistrant",
       "target": "shared_preferences_foundation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "ios/Runner/GeneratedPluginRegistrant.m",
+      "source_location": "L96",
+      "weight": 1.0,
+      "context": "import",
+      "source": "ios_runner_generatedpluginregistrant_m_ios_runner_generatedpluginregistrant",
+      "target": "speech_to_text",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "ios/Runner/GeneratedPluginRegistrant.m",
+      "source_location": "L108",
+      "weight": 1.0,
+      "context": "import",
+      "source": "ios_runner_generatedpluginregistrant_m_ios_runner_generatedpluginregistrant",
+      "target": "webview_flutter_wkwebview",
       "confidence_score": 1.0
     },
     {
@@ -6732,6 +8380,16 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_l10n_strings",
+      "target": "lib_l10n_strings_giftredemption"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_l10n_strings",
       "target": "lib_l10n_strings_histrings"
     },
     {
@@ -6752,6 +8410,86 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_l10n_strings",
+      "target": "lib_l10n_strings_leadbonus"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_l10n_strings",
+      "target": "lib_l10n_strings_offerlive"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_l10n_strings",
+      "target": "lib_l10n_strings_order"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_l10n_strings",
+      "target": "lib_l10n_strings_pointsforlead"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_l10n_strings",
+      "target": "lib_l10n_strings_pointsfororder"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_l10n_strings",
+      "target": "lib_l10n_strings_pricecorrected"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_l10n_strings",
+      "target": "lib_l10n_strings_redemptionstatus"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_l10n_strings",
+      "target": "lib_l10n_strings_text"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_l10n_strings",
       "target": "lib_l10n_strings_tr"
     },
     {
@@ -6762,7 +8500,27 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_l10n_strings",
+      "target": "lib_l10n_strings_translatedynamictext"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_l10n_strings",
       "target": "lib_l10n_strings_trf"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_l10n_strings",
+      "target": "lib_l10n_strings_trstatus"
     },
     {
       "relation": "references",
@@ -6779,12 +8537,56 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
+      "source_file": "lib/l10n/strings.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "variable_type",
+      "source": "lib_l10n_strings",
+      "target": "return"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "lib/state/app_state.dart",
       "source_location": null,
       "weight": 1.0,
       "context": "variable_type",
       "source": "lib_state_app_state",
       "target": "lib_l10n_strings_applocale"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "variable_type",
+      "source": "lib_screens_order_screens",
+      "target": "return"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "variable_type",
+      "source": "lib_screens_rewards_screens",
+      "target": "return"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/state/app_state.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "variable_type",
+      "source": "lib_state_app_state",
+      "target": "return"
     },
     {
       "relation": "imports",
@@ -7114,7 +8916,7 @@
       "source_file": "lib/screens/order_screens.dart",
       "source_location": null,
       "weight": 1.0,
-      "source": "lib_screens_order_screens_ordersuccessscreen",
+      "source": "lib_screens_order_screens_orderthumbnail",
       "target": "statelesswidget"
     },
     {
@@ -7284,6 +9086,16 @@
       "source_file": "lib/screens/order_screens.dart",
       "source_location": null,
       "weight": 1.0,
+      "source": "lib_screens_order_screens_ordersuccessscreen",
+      "target": "statefulwidget"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
       "source": "lib_screens_order_screens_uploadorderscreen",
       "target": "statefulwidget"
     },
@@ -7331,6 +9143,16 @@
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen_qrscanscreen",
+      "target": "statefulwidget"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "lib/screens/rewards_screens.dart",
       "source_location": null,
       "weight": 1.0,
@@ -7355,6 +9177,26 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_screens_rewards_screens_redeemcashscreen",
+      "target": "statefulwidget"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button_micbutton",
+      "target": "statefulwidget"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button_speakerbutton",
       "target": "statefulwidget"
     },
     {
@@ -7435,6 +9277,16 @@
       "source_file": "lib/screens/order_screens.dart",
       "source_location": null,
       "weight": 1.0,
+      "source": "lib_screens_order_screens_ordersuccessscreenstate",
+      "target": "state"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
       "source": "lib_screens_order_screens_uploadorderscreenstate",
       "target": "state"
     },
@@ -7482,6 +9334,16 @@
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen_qrscanscreenstate",
+      "target": "state"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "lib/screens/rewards_screens.dart",
       "source_location": null,
       "weight": 1.0,
@@ -7506,6 +9368,26 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_screens_rewards_screens_redeemcashscreenstate",
+      "target": "state"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button_micbuttonstate",
+      "target": "state"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button_speakerbuttonstate",
       "target": "state"
     },
     {
@@ -7563,6 +9445,16 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "package_flutter_material_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "lib/screens/rewards_screens.dart",
       "source_location": null,
       "weight": 1.0,
@@ -7587,6 +9479,26 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_theme",
+      "target": "package_flutter_material_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "package_flutter_material_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
       "target": "package_flutter_material_dart"
     },
     {
@@ -7643,6 +9555,16 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "package_provider_provider_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "lib/screens/rewards_screens.dart",
       "source_location": null,
       "weight": 1.0,
@@ -7657,6 +9579,26 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_theme",
+      "target": "package_provider_provider_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "package_provider_provider_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
       "target": "package_provider_provider_dart"
     },
     {
@@ -7733,6 +9675,16 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "state_app_state_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "lib/screens/rewards_screens.dart",
       "source_location": null,
       "weight": 1.0,
@@ -7747,6 +9699,26 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_theme",
+      "target": "state_app_state_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "state_app_state_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
       "target": "state_app_state_dart"
     },
     {
@@ -7793,10 +9765,40 @@
       "relation": "imports",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "theme_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "lib/screens/rewards_screens.dart",
       "source_location": null,
       "weight": 1.0,
       "source": "lib_screens_rewards_screens",
+      "target": "theme_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "theme_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
       "target": "theme_dart"
     },
     {
@@ -8286,12 +10288,33 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "variable_type",
+      "source": "lib_screens_order_screens",
+      "target": "lib_models_models_carpenterorder"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "lib/state/app_state.dart",
       "source_location": null,
       "weight": 1.0,
       "context": "variable_type",
       "source": "lib_state_app_state",
       "target": "int_get"
+    },
+    {
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen_firstornull",
+      "target": "list"
     },
     {
       "relation": "references",
@@ -8415,6 +10438,16 @@
       "weight": 1.0,
       "source": "lib_screens_home_shell",
       "target": "rewards_screens_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/home_shell.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_home_shell",
+      "target": "widgets_speaker_button_dart"
     },
     {
       "relation": "references",
@@ -8623,6 +10656,36 @@
       "context": "route_path",
       "source": "lib_screens_rewards_screens_build",
       "target": "route_account"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_order_screens",
+      "target": "widgets_speaker_button_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_rewards_screens",
+      "target": "widgets_speaker_button_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_rewards_screens",
+      "target": "order_screens_dart"
     },
     {
       "relation": "defines",
@@ -8882,6 +10945,17 @@
       "source_file": "lib/screens/onboarding_screens.dart",
       "source_location": null,
       "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_onboarding_screens_splashscreen",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/onboarding_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
       "source": "lib_screens_onboarding_screens_loginscreenstate",
       "target": "lib_screens_onboarding_screens_loginscreen"
     },
@@ -8992,6 +11066,17 @@
       "context": "route_path",
       "source": "lib_screens_onboarding_screens_build",
       "target": "route_register"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/onboarding_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_onboarding_screens_pickphoto",
+      "target": "lib_state_app_state_appstate"
     },
     {
       "relation": "imports",
@@ -9173,7 +11258,27 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_screens_order_screens",
+      "target": "lib_screens_order_screens_fallbackicon"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_order_screens",
       "target": "lib_screens_order_screens_imageurl"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_order_screens",
+      "target": "lib_screens_order_screens_initstate"
     },
     {
       "relation": "defines",
@@ -9253,6 +11358,16 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_screens_order_screens",
+      "target": "lib_screens_order_screens_order"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_order_screens",
       "target": "lib_screens_order_screens_orderdetaillabel"
     },
     {
@@ -9284,6 +11399,26 @@
       "weight": 1.0,
       "source": "lib_screens_order_screens",
       "target": "lib_screens_order_screens_ordersuccessscreen"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_order_screens",
+      "target": "lib_screens_order_screens_ordersuccessscreenstate"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_order_screens",
+      "target": "lib_screens_order_screens_orderthumbnail"
     },
     {
       "relation": "defines",
@@ -9394,6 +11529,26 @@
       "weight": 1.0,
       "source": "lib_screens_order_screens",
       "target": "lib_screens_order_screens_rows"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_order_screens",
+      "target": "lib_screens_order_screens_setqty"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_order_screens",
+      "target": "lib_screens_order_screens_size"
     },
     {
       "relation": "defines",
@@ -9627,15 +11782,14 @@
       "target": "package_url_launcher_url_launcher_dart"
     },
     {
-      "relation": "references",
+      "relation": "imports",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/screens/order_screens.dart",
       "source_location": null,
       "weight": 1.0,
-      "context": "variable_type",
       "source": "lib_screens_order_screens",
-      "target": "return"
+      "target": "services_tts_service_dart"
     },
     {
       "relation": "references",
@@ -9647,6 +11801,16 @@
       "context": "variable_type",
       "source": "lib_screens_order_screens",
       "target": "texteditingcontroller"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_order_screens",
+      "target": "widgets_mic_button_dart"
     },
     {
       "relation": "references",
@@ -9751,8 +11915,18 @@
       "source_file": "lib/screens/order_screens.dart",
       "source_location": null,
       "weight": 1.0,
+      "source": "lib_screens_order_screens_ordersuccessscreenstate",
+      "target": "lib_screens_order_screens_ordersuccessscreen"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
       "context": "bloc_lookup",
-      "source": "lib_screens_order_screens_ordersuccessscreen",
+      "source": "lib_screens_order_screens_ordersuccessscreenstate",
       "target": "lib_state_app_state_appstate"
     },
     {
@@ -9813,12 +11987,12 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "lib/state/app_state.dart",
+      "source_file": "lib/widgets/mic_button.dart",
       "source_location": null,
       "weight": 1.0,
       "context": "variable_type",
-      "source": "lib_state_app_state",
-      "target": "return"
+      "source": "lib_widgets_mic_button",
+      "target": "texteditingcontroller"
     },
     {
       "relation": "references",
@@ -9865,6 +12039,61 @@
       "target": "route_offerdetails"
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_order_screens_pick",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_order_screens_start",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_order_screens_stop",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_order_screens_upload",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_order_screens_initstate",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
       "relation": "navigates",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -9887,6 +12116,17 @@
       "target": "materialpageroute"
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/order_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_order_screens_toggle",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
       "relation": "imports",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -9905,6 +12145,46 @@
       "weight": 1.0,
       "source": "lib_state_app_state",
       "target": "models_models_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_rewards_screens",
+      "target": "services_tts_service_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
+      "target": "services_tts_service_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/profile_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_profile_screens",
+      "target": "widgets_mic_button_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_rewards_screens",
+      "target": "widgets_mic_button_dart"
     },
     {
       "relation": "defines",
@@ -10154,6 +12434,16 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_screens_profile_screens",
+      "target": "lib_screens_profile_screens_scanqr"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/profile_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_profile_screens",
       "target": "lib_screens_profile_screens_shop"
     },
     {
@@ -10196,6 +12486,16 @@
       "context": "type_lookup",
       "source": "lib_screens_profile_screens",
       "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/profile_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_profile_screens",
+      "target": "qr_scan_screen_dart"
     },
     {
       "relation": "references",
@@ -10273,6 +12573,213 @@
       "target": "route_editprofile"
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/profile_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_profile_screens_changeqr",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/profile_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_profile_screens_save",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/profile_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_profile_screens_pickphoto",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "lib_screens_qr_scan_screen_build"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "lib_screens_qr_scan_screen_contains"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "lib_screens_qr_scan_screen_controller"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "lib_screens_qr_scan_screen_createstate"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "lib_screens_qr_scan_screen_dispose"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "lib_screens_qr_scan_screen_extractupiid"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "lib_screens_qr_scan_screen_firstornull"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "lib_screens_qr_scan_screen_handled"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "lib_screens_qr_scan_screen_ondetect"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "lib_screens_qr_scan_screen_qrscanscreen"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "lib_screens_qr_scan_screen_qrscanscreenstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "type_lookup",
+      "source": "lib_screens_qr_scan_screen",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen",
+      "target": "package_mobile_scanner_mobile_scanner_dart"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "variable_type",
+      "source": "lib_screens_qr_scan_screen",
+      "target": "t_get"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_qr_scan_screen_qrscanscreenstate",
+      "target": "lib_screens_qr_scan_screen_qrscanscreen"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_qr_scan_screen_qrscanscreenstate",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/qr_scan_screen.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_screens_qr_scan_screen_build",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
       "relation": "defines",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -10341,6 +12848,16 @@
       "weight": 1.0,
       "source": "lib_screens_rewards_screens",
       "target": "lib_screens_rewards_screens_giftsuccessscreen"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_rewards_screens",
+      "target": "lib_screens_rewards_screens_id"
     },
     {
       "relation": "defines",
@@ -10440,6 +12957,16 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_screens_rewards_screens",
+      "target": "lib_screens_rewards_screens_match"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_rewards_screens",
       "target": "lib_screens_rewards_screens_name"
     },
     {
@@ -10480,7 +13007,37 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_screens_rewards_screens",
+      "target": "lib_screens_rewards_screens_null"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_rewards_screens",
+      "target": "lib_screens_rewards_screens_orderforledgerentry"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_rewards_screens",
       "target": "lib_screens_rewards_screens_phone"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_rewards_screens",
+      "target": "lib_screens_rewards_screens_pickcontact"
     },
     {
       "relation": "defines",
@@ -10572,6 +13129,16 @@
       "weight": 1.0,
       "source": "lib_screens_rewards_screens",
       "target": "package_geolocator_geolocator_dart"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/screens/rewards_screens.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_screens_rewards_screens",
+      "target": "services_contact_picker_dart"
     },
     {
       "relation": "references",
@@ -10979,6 +13546,26 @@
       "target": "static_final_cloudinaryservice"
     },
     {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/contact_picker.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_contact_picker",
+      "target": "lib_services_contact_picker_pickcontactphone"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/contact_picker.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_contact_picker",
+      "target": "package_flutter_contacts_flutter_contacts_dart"
+    },
+    {
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -11317,12 +13904,257 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "variable_type",
+      "source": "lib_services_speech_service",
+      "target": "bool_get"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_speech_service",
+      "target": "lib_services_speech_service_available"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_speech_service",
+      "target": "lib_services_speech_service_cancel"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_speech_service",
+      "target": "lib_services_speech_service_ensureinit"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_speech_service",
+      "target": "lib_services_speech_service_inittried"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_speech_service",
+      "target": "lib_services_speech_service_instance"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_speech_service",
+      "target": "lib_services_speech_service_islistening"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_speech_service",
+      "target": "lib_services_speech_service_listen"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_speech_service",
+      "target": "lib_services_speech_service_speechservice"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_speech_service",
+      "target": "lib_services_speech_service_stop"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_speech_service",
+      "target": "lib_services_speech_service_stt"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_speech_service",
+      "target": "package_speech_to_text_speech_to_text_dart"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "variable_type",
+      "source": "lib_services_speech_service",
+      "target": "speechtotext"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/speech_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "variable_type",
+      "source": "lib_services_speech_service",
+      "target": "static_final_speechservice"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "lib/state/app_state.dart",
       "source_location": null,
       "weight": 1.0,
       "context": "variable_type",
       "source": "lib_state_app_state",
       "target": "bool_get"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "variable_type",
+      "source": "lib_services_tts_service",
+      "target": "fluttertts"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_tts_service",
+      "target": "lib_services_tts_service_configured"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_tts_service",
+      "target": "lib_services_tts_service_ensureconfigured"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_tts_service",
+      "target": "lib_services_tts_service_instance"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_tts_service",
+      "target": "lib_services_tts_service_speak"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_tts_service",
+      "target": "lib_services_tts_service_stop"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_tts_service",
+      "target": "lib_services_tts_service_tts"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_tts_service",
+      "target": "lib_services_tts_service_ttsservice"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_services_tts_service",
+      "target": "package_flutter_tts_flutter_tts_dart"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/services/tts_service.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "variable_type",
+      "source": "lib_services_tts_service",
+      "target": "static_final_ttsservice"
     },
     {
       "relation": "imports",
@@ -11962,6 +14794,16 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_state_app_state",
+      "target": "lib_state_app_state_trdyn"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/state/app_state.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_state_app_state",
       "target": "lib_state_app_state_trf"
     },
     {
@@ -12107,6 +14949,72 @@
       "weight": 1.0,
       "context": "bloc_lookup",
       "source": "lib_theme_statusbadge",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "type_lookup",
+      "source": "lib_widgets_mic_button",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_widgets_mic_button_build",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_widgets_mic_button_micbuttonstate",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "type_lookup",
+      "source": "lib_widgets_speaker_button",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_widgets_speaker_button_build",
+      "target": "lib_state_app_state_appstate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "bloc_lookup",
+      "source": "lib_widgets_speaker_button_speakerbuttonstate",
       "target": "lib_state_app_state_appstate"
     },
     {
@@ -12389,6 +15297,16 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_theme",
+      "target": "lib_theme_statusicon"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/theme.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_theme",
       "target": "lib_theme_subtitle"
     },
     {
@@ -12422,6 +15340,217 @@
       "context": "variable_type",
       "source": "lib_theme",
       "target": "widget"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "lib_widgets_mic_button_basetext"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "lib_widgets_mic_button_build"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "lib_widgets_mic_button_controller"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "lib_widgets_mic_button_createstate"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "lib_widgets_mic_button_listening"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "lib_widgets_mic_button_micbutton"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "lib_widgets_mic_button_micbuttonstate"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "lib_widgets_mic_button_onfinalresult"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "lib_widgets_mic_button_toggle"
+    },
+    {
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button",
+      "target": "services_speech_service_dart"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "context": "variable_type",
+      "source": "lib_widgets_mic_button",
+      "target": "valuechanged"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/mic_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_mic_button_micbuttonstate",
+      "target": "lib_widgets_mic_button_micbutton"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
+      "target": "lib_widgets_speaker_button_build"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
+      "target": "lib_widgets_speaker_button_createstate"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
+      "target": "lib_widgets_speaker_button_size"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
+      "target": "lib_widgets_speaker_button_speakerbutton"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
+      "target": "lib_widgets_speaker_button_speakerbuttonstate"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
+      "target": "lib_widgets_speaker_button_speaking"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
+      "target": "lib_widgets_speaker_button_text"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button",
+      "target": "lib_widgets_speaker_button_toggle"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/widgets/speaker_button.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_widgets_speaker_button_speakerbuttonstate",
+      "target": "lib_widgets_speaker_button_speakerbutton"
     },
     {
       "relation": "contains",
@@ -12835,6 +15964,17 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "macos_flutter_generatedpluginregistrant",
+      "target": "flutter_tts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
       "source_location": "L5",
       "weight": 1.0,
       "source": "macos_flutter_generatedpluginregistrant",
@@ -12857,7 +15997,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
-      "source_location": "L15",
+      "source_location": "L16",
       "weight": 1.0,
       "source": "macos_flutter_generatedpluginregistrant",
       "target": "geolocator_apple",
@@ -12867,7 +16007,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
-      "source_location": "L21",
+      "source_location": "L25",
       "weight": 1.0,
       "source": "macos_flutter_generatedpluginregistrant",
       "target": "macos_flutter_generatedpluginregistrant_registergeneratedplugins",
@@ -12878,21 +16018,10 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "macos_flutter_generatedpluginregistrant",
-      "target": "path_provider_foundation",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
       "source_location": "L17",
       "weight": 1.0,
       "source": "macos_flutter_generatedpluginregistrant",
-      "target": "record_macos",
+      "target": "mobile_scanner",
       "confidence_score": 1.0
     },
     {
@@ -12903,7 +16032,7 @@
       "source_location": "L18",
       "weight": 1.0,
       "source": "macos_flutter_generatedpluginregistrant",
-      "target": "shared_preferences_foundation",
+      "target": "path_provider_foundation",
       "confidence_score": 1.0
     },
     {
@@ -12914,7 +16043,51 @@
       "source_location": "L19",
       "weight": 1.0,
       "source": "macos_flutter_generatedpluginregistrant",
+      "target": "record_macos",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "macos_flutter_generatedpluginregistrant",
+      "target": "shared_preferences_foundation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "macos_flutter_generatedpluginregistrant",
+      "target": "speech_to_text",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "macos_flutter_generatedpluginregistrant",
       "target": "url_launcher_macos",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "macos_flutter_generatedpluginregistrant",
+      "target": "webview_flutter_wkwebview",
       "confidence_score": 1.0
     },
     {
@@ -12954,7 +16127,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "macos/Flutter/GeneratedPluginRegistrant.swift",
-      "source_location": "L21",
+      "source_location": "L25",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "macos_flutter_generatedpluginregistrant_registergeneratedplugins",
@@ -13263,7 +16436,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "windows/flutter/generated_plugin_registrant.cc",
-      "source_location": "L19",
+      "source_location": "L21",
       "weight": 1.0,
       "source": "windows_flutter_generated_plugin_registrant_cc_windows_flutter_generated_plugin_registrant",
       "target": "windows_flutter_generated_plugin_registrant_registerplugins",
@@ -13273,7 +16446,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "windows/flutter/generated_plugin_registrant.cc",
-      "source_location": "L19",
+      "source_location": "L21",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "windows_flutter_generated_plugin_registrant_registerplugins",
@@ -14660,6 +17833,526 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": ".claude/CLAUDE.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "claude_claude",
+      "target": "claude_claude_graphify",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill",
+      "target": "claude_skills_graphify_skill_graphify",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L659",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_for_graphify_add_and_watch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L647",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_for_graphify_query",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L665",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_for_the_commit_hook_and_native_claude_md_integration",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L641",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_for_update_and_cluster_only",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L671",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_honesty_rules",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L623",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_interpreter_guard_for_subcommands",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_what_graphify_is_for",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_0_github_repos_and_multi_path_merge_only_if_a_url_or_several_paths",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L65",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_1_ensure_graphify_is_installed",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L144",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_2_5_video_and_audio_only_if_video_files_detected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L107",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_2_detect_files",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L148",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L450",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_4_5_graph_health_check_read_only_integrity_gate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L387",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_4_build_graph_cluster_analyze_generate_outputs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L476",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_5_label_communities",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L517",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_6_generate_obsidian_vault_opt_in_html",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L543",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_9_save_manifest_update_cost_tracker_clean_up_and_report",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L537",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_steps_6b_8_wiki_neo4j_falkordb_svg_graphml_mcp_benchmark_only_on_their_flags",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L167",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+      "target": "claude_skills_graphify_skill_part_a_structural_extraction_for_code_files",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L193",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+      "target": "claude_skills_graphify_skill_part_b_semantic_extraction_parallel_subagents",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L353",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+      "target": "claude_skills_graphify_skill_part_c_merge_ast_semantic_into_final_extraction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_add_watch",
+      "target": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder",
+      "target": "claude_skills_graphify_references_add_watch_for_graphify_add",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder",
+      "target": "claude_skills_graphify_references_add_watch_for_watch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_exports",
+      "target": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_6b_wiki_only_if_wiki_flag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7_neo4j_export_only_if_neo4j_or_neo4j_push_flag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7a_falkordb_export_only_if_falkordb_or_falkordb_push_flag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7b_svg_export_only_if_svg_flag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7c_graphml_export_only_if_graphml_flag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7d_mcp_server_only_if_mcp_flag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_8_token_reduction_benchmark_only_if_total_words_5000",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_extraction_spec",
+      "target": "claude_skills_graphify_references_extraction_spec_graphify_reference_extraction_subagent_prompt",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_github_and_merge",
+      "target": "claude_skills_graphify_references_github_and_merge_graphify_reference_github_clone_and_cross_repo_merge",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_github_and_merge_graphify_reference_github_clone_and_cross_repo_merge",
+      "target": "claude_skills_graphify_references_github_and_merge_step_0_clone_github_repo_s_only_if_a_github_url_was_given",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_hooks",
+      "target": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration",
+      "target": "claude_skills_graphify_references_hooks_for_git_commit_hook",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration",
+      "target": "claude_skills_graphify_references_hooks_for_native_claude_md_integration",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_query",
+      "target": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L254",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "target": "claude_skills_graphify_references_query_for_graphify_explain",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L186",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "target": "claude_skills_graphify_references_query_for_graphify_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "target": "claude_skills_graphify_references_query_step_0_constrained_query_expansion_required_before_traversal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "target": "claude_skills_graphify_references_query_step_1_traversal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_transcribe",
+      "target": "claude_skills_graphify_references_transcribe_graphify_reference_transcribe_video_and_audio",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_transcribe_graphify_reference_transcribe_video_and_audio",
+      "target": "claude_skills_graphify_references_transcribe_step_2_5_transcribe_video_audio_files_only_if_video_files_detected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_update",
+      "target": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L184",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only",
+      "target": "claude_skills_graphify_references_update_for_cluster_only",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only",
+      "target": "claude_skills_graphify_references_update_for_update_incremental_re_extraction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "CLAUDE.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -14699,5 +18392,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "eb1daa33d533d552733a5302dc393273866c1480"
+  "built_at_commit": "f14876a306ed00f0c5acc4281f5729bd93321b50"
 }

@@ -10,6 +10,7 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final app = context.watch<AppState>();
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -34,13 +35,13 @@ class SplashScreen extends StatelessWidget {
                 const SizedBox(height: 18),
                 const Text('CarpenterHub', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: kText)),
                 const SizedBox(height: 6),
-                const Text('Order  ·  Earn points  ·  Redeem', style: TextStyle(color: kMuted, fontSize: 13)),
+                Text(app.tr('Order  ·  Earn points  ·  Redeem'), style: TextStyle(color: kMuted, fontSize: 13)),
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () => Navigator.pushNamed(context, '/login'),
-                    child: const Text('Get started'),
+                    child: Text(app.tr('Get started')),
                   ),
                 ),
               ],
@@ -77,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 4),
           Text(app.tr('Login to continue'), style: TextStyle(color: kMuted, fontSize: 13)),
           const SizedBox(height: 20),
-          TextField(controller: email, decoration: const InputDecoration(labelText: 'Email')),
+          TextField(controller: email, decoration: InputDecoration(labelText: app.tr('Email'))),
           const SizedBox(height: 12),
           TextField(controller: password, decoration: InputDecoration(labelText: app.tr('Password')), obscureText: true),
           if (error != null) Padding(padding: const EdgeInsets.only(top: 10), child: Text(error!, style: const TextStyle(color: kDanger, fontSize: 12))),
@@ -144,9 +145,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final bytes = await picked.readAsBytes();
       final url = await CloudinaryService.instance.uploadBytes(bytes, picked.name);
       setState(() => photoUrl = url);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Photo uploaded')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.read<AppState>().tr('Photo uploaded'))));
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Photo upload failed: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.read<AppState>().tr('Photo upload failed')}: $e')));
     } finally {
       if (mounted) setState(() => uploadingPhoto = false);
     }
@@ -166,7 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           const SizedBox(height: 12),
           TextField(controller: mobile, decoration: InputDecoration(labelText: app.tr('Mobile number'), hintText: '98765 43210')),
           const SizedBox(height: 12),
-          TextField(controller: email, decoration: const InputDecoration(labelText: 'Email')),
+          TextField(controller: email, decoration: InputDecoration(labelText: app.tr('Email'))),
           const SizedBox(height: 12),
           TextField(controller: password, decoration: InputDecoration(labelText: app.tr('Password')), obscureText: true),
           const SizedBox(height: 12),
@@ -184,7 +185,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             icon: uploadingPhoto
                 ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(Icons.camera_alt_outlined),
-            label: Text(photoUrl != null ? 'Change photo' : app.tr('Upload profile photo')),
+            label: Text(photoUrl != null ? app.tr('Change photo') : app.tr('Upload profile photo')),
           ),
           if (error != null) Padding(padding: const EdgeInsets.only(top: 10), child: Text(error!, style: const TextStyle(color: kDanger, fontSize: 12))),
           const SizedBox(height: 20),
@@ -193,7 +194,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ? null
                 : () async {
                     if (name.text.isEmpty || email.text.isEmpty || password.text.isEmpty) {
-                      setState(() => error = 'Fill all required fields');
+                      setState(() => error = app.tr('Fill all required fields'));
                       return;
                     }
                     setState(() {
@@ -276,7 +277,7 @@ class _PendingScreenState extends State<PendingScreen> {
                           Navigator.pushNamed(context, '/consent');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Still pending approval')),
+                            SnackBar(content: Text(app.tr('Still pending approval'))),
                           );
                         }
                       },

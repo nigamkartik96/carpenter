@@ -78,6 +78,15 @@ dependencies:
   # Data visualization (Apache ECharts wrapper)
   graphify: ^1.2.1
 
+  # Accessibility redesign: on-device Hindi TTS for the audio-guidance
+  # feature, speech-to-text for voice-fillable form fields, a contacts
+  # picker for the lead-referral phone field, and a live QR scanner so
+  # UPI setup doesn't require typing/reading an ID.
+  flutter_tts: ^4.2.0
+  speech_to_text: ^7.0.0
+  flutter_contacts: ^1.1.9+2
+  mobile_scanner: ^6.0.6
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
