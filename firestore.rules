@@ -1,12 +1,24 @@
 rules_version = '2';
 
-// First-cut security rules for CarpenterHub.
-// Trade-off: there's no admin custom-claim set up yet (would need a Cloud
-// Function or manual claim assignment), so for now ANY authenticated user
-// can read everything and write status/points fields. This is fine while
-// only you and your team have admin logins, but before opening this up
-// more broadly, add a custom claim (e.g. `admin: true`) to admin accounts
-// and tighten the `isAdmin()` check below to use it instead of `isSignedIn()`.
+// Security rules for CarpenterHub.
+//
+// Admin status is a Firestore-collection allowlist (`admins/{uid}`),
+// checked via exists() below, rather than a custom auth claim -- custom
+// claims need a Cloud Function or the Admin SDK to set, both of which
+// require the paid Blaze plan; this project intentionally stays on Spark
+// (see the Cloudinary-instead-of-Storage note elsewhere in the repo).
+// Admin accounts are provisioned by hand: create the Firebase Auth user
+// in the Console, then add a doc at `admins/{that user's uid}` (content
+// doesn't matter, only existence does). Never done through either app.
+//
+// Previously isAdmin() was just isSignedIn() -- meaning any authenticated
+// user, including a carpenter who just self-registered in the mobile app,
+// had admin-level write access to every collection below. Combined with
+// admin_console's login screen auto-creating an account for whatever
+// email/password was typed in, this meant anyone who found the public
+// admin URL could grant themselves full write access with one login
+// attempt. Both halves of that are now fixed (this file, and
+// admin_console's login flow no longer auto-creates accounts).
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -19,10 +31,18 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == carpenterId;
     }
 
-    // TODO: replace with request.auth.token.admin == true once custom
-    // claims are set up for admin accounts.
     function isAdmin() {
-      return isSignedIn();
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // A user may check ONLY their own admin status (needed for the
+    // client-side gate in admin_console) -- never list or read anyone
+    // else's, and never write: admin status changes only via the
+    // Console/Admin SDK, which bypass rules entirely.
+    match /admins/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if false;
     }
 
     match /carpenters/{carpenterId} {

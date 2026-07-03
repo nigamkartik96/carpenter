@@ -89,10 +89,20 @@ class AdminState extends ChangeNotifier {
   bool sessionChecked = false;
 
   Future<bool> tryResumeSession() async {
-    final resumed = _fb.hasSession;
+    var resumed = _fb.hasSession;
     if (resumed) {
-      loggedIn = true;
-      _startListening();
+      // Being authenticated isn't being an admin -- a carpenter's own
+      // valid login (from the mobile app) authenticates the same way.
+      // Re-check on every resume, not just at login, in case admin
+      // status was revoked (doc removed) since the session started.
+      final uid = _fb.auth.currentUser!.uid;
+      if (await _fb.checkIsAdmin(uid)) {
+        loggedIn = true;
+        _startListening();
+      } else {
+        await _fb.logout();
+        resumed = false;
+      }
     }
     sessionChecked = true;
     notifyListeners();
@@ -104,9 +114,15 @@ class AdminState extends ChangeNotifier {
     loginError = null;
     notifyListeners();
     try {
-      // First admin login also bootstraps the account if it doesn't exist yet.
-      await _fb.ensureAdminAccount(email, password);
-      await _fb.login(email, password);
+      final cred = await _fb.login(email, password);
+      final uid = cred.user!.uid;
+      if (!await _fb.checkIsAdmin(uid)) {
+        await _fb.logout();
+        loginError = 'This account is not authorized as an admin.';
+        busy = false;
+        notifyListeners();
+        return;
+      }
       loggedIn = true;
       _startListening();
     } catch (e) {

@@ -11,8 +11,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final email = TextEditingController(text: 'admin@carpenterhub.app');
-  final password = TextEditingController(text: 'admin123');
+  final email = TextEditingController();
+  final password = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const Row(children: [Icon(Icons.handyman, color: kPrimary), SizedBox(width: 8), Text('CarpenterHub admin', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))]),
                   const SizedBox(height: 4),
-                  const Text('First login creates this admin account automatically.', style: TextStyle(color: kMuted, fontSize: 12)),
+                  const Text('Admin accounts are provisioned manually and are not self-service.', style: TextStyle(color: kMuted, fontSize: 12)),
                   const SizedBox(height: 16),
                   TextField(controller: email, decoration: const InputDecoration(labelText: 'Email')),
                   const SizedBox(height: 12),

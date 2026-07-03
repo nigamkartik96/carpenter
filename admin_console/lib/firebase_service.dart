@@ -16,20 +16,32 @@ class AdminFirebaseService {
     return auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
-  /// One-time bootstrap so you don't need to hand-create the first admin
-  /// user in the console. Safe to call repeatedly -- Firebase Auth just
-  /// returns an error (which we swallow) if the account already exists.
-  Future<void> ensureAdminAccount(String email, String password) async {
-    try {
-      await auth.createUserWithEmailAndPassword(email: email, password: password);
-    } catch (_) {
-      // already exists, or will fail login below with a clear error
-    }
-  }
-
+  /// Admin accounts are provisioned manually (Firebase Console ->
+  /// Authentication -> Add user, then add a matching doc to the `admins`
+  /// collection) -- NOT self-service from this login screen. This used to
+  /// auto-create whatever email/password was typed in via
+  /// createUserWithEmailAndPassword, which meant anyone who found the
+  /// public URL could grant themselves an authenticated session with a
+  /// single login attempt. Authentication alone was never the real gate
+  /// anyway; being listed in `admins` is (see checkIsAdmin and
+  /// firestore.rules' isAdmin()).
   Future<void> logout() => auth.signOut();
 
   bool get hasSession => auth.currentUser != null;
+
+  /// firestore.rules lets a signed-in user read ONLY their own doc under
+  /// `admins/{uid}` (never list or read anyone else's) and never write to
+  /// it at all -- admin status is granted exclusively via the Firebase
+  /// Console or Admin SDK. A permission-denied error here means "not an
+  /// admin", same as a missing doc.
+  Future<bool> checkIsAdmin(String uid) async {
+    try {
+      final doc = await db.collection('admins').doc(uid).get();
+      return doc.exists;
+    } catch (_) {
+      return false;
+    }
+  }
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> watchConfig() =>
       db.collection('config').doc('rules').snapshots();
