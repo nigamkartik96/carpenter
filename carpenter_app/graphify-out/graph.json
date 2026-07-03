@@ -651,7 +651,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_main_authgate",
-      "community": 1,
+      "community": 6,
       "norm_label": "authgate"
     },
     {
@@ -671,7 +671,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_main_authgatestate",
-      "community": 1,
+      "community": 6,
       "norm_label": "_authgatestate"
     },
     {
@@ -811,7 +811,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "state_app_state_dart",
-      "community": 16,
+      "community": 40,
       "norm_label": "../state/app_state.dart"
     },
     {
@@ -821,7 +821,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "theme_dart",
-      "community": 40,
+      "community": 16,
       "norm_label": "../theme.dart"
     },
     {
@@ -1131,7 +1131,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "list",
-      "community": 4,
+      "community": 38,
       "norm_label": "list"
     },
     {
@@ -1391,7 +1391,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_home_shell_homeshell",
-      "community": 1,
+      "community": 16,
       "norm_label": "homeshell"
     },
     {
@@ -1401,7 +1401,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_home_shell_homeshellstate",
-      "community": 1,
+      "community": 16,
       "norm_label": "_homeshellstate"
     },
     {
@@ -1601,7 +1601,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_onboarding_screens_loginscreen",
-      "community": 12,
+      "community": 1,
       "norm_label": "loginscreen"
     },
     {
@@ -1611,7 +1611,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_onboarding_screens_loginscreenstate",
-      "community": 12,
+      "community": 1,
       "norm_label": "_loginscreenstate"
     },
     {
@@ -2431,7 +2431,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_order_screens_initstate",
-      "community": 5,
+      "community": 34,
       "norm_label": "initstate"
     },
     {
@@ -2921,7 +2921,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_qr_scan_screen_qrscanscreen",
-      "community": 1,
+      "community": 38,
       "norm_label": "qrscanscreen"
     },
     {
@@ -2931,7 +2931,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_qr_scan_screen_qrscanscreenstate",
-      "community": 1,
+      "community": 38,
       "norm_label": "_qrscanscreenstate"
     },
     {
@@ -2941,7 +2941,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_qr_scan_screen_firstornull",
-      "community": 4,
+      "community": 38,
       "norm_label": "_firstornull"
     },
     {
@@ -3071,7 +3071,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_redeemcashscreen",
-      "community": 1,
+      "community": 33,
       "norm_label": "redeemcashscreen"
     },
     {
@@ -3081,7 +3081,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_redeemcashscreenstate",
-      "community": 1,
+      "community": 33,
       "norm_label": "_redeemcashscreenstate"
     },
     {
@@ -3131,7 +3131,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_leadnewscreen",
-      "community": 1,
+      "community": 33,
       "norm_label": "leadnewscreen"
     },
     {
@@ -3141,7 +3141,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_leadnewscreenstate",
-      "community": 1,
+      "community": 33,
       "norm_label": "_leadnewscreenstate"
     },
     {
@@ -3151,7 +3151,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_notificationsscreen",
-      "community": 1,
+      "community": 33,
       "norm_label": "notificationsscreen"
     },
     {
@@ -3161,7 +3161,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_screens_rewards_screens_notificationsscreenstate",
-      "community": 1,
+      "community": 33,
       "norm_label": "_notificationsscreenstate"
     },
     {
@@ -5145,6 +5145,16 @@
       "norm_label": "kprimarydark"
     },
     {
+      "label": "kOnPrimary",
+      "file_type": "code",
+      "source_file": "lib/theme.dart",
+      "source_location": null,
+      "_origin": "ast",
+      "id": "lib_theme_konprimary",
+      "community": 8,
+      "norm_label": "konprimary"
+    },
+    {
       "label": "kSuccess",
       "file_type": "code",
       "source_file": "lib/theme.dart",
@@ -5481,7 +5491,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_widgets_speaker_button_speakerbutton",
-      "community": 1,
+      "community": 40,
       "norm_label": "speakerbutton"
     },
     {
@@ -5491,7 +5501,7 @@
       "source_location": null,
       "_origin": "ast",
       "id": "lib_widgets_speaker_button_speakerbuttonstate",
-      "community": 1,
+      "community": 40,
       "norm_label": "_speakerbuttonstate"
     },
     {
@@ -15177,6 +15187,16 @@
       "source_location": null,
       "weight": 1.0,
       "source": "lib_theme",
+      "target": "lib_theme_konprimary"
+    },
+    {
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/theme.dart",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "lib_theme",
       "target": "lib_theme_kprimary"
     },
     {
@@ -18392,5 +18412,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "f14876a306ed00f0c5acc4281f5729bd93321b50"
+  "built_at_commit": "eafb598a182237e1a3996a9d660d894405403bdc"
 }

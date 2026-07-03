@@ -76,7 +76,10 @@ class DashboardScreen extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 21,
-              backgroundColor: kPrimary.withOpacity(0.2),
+              // Neutral fixed background, not a translucent orange tint --
+              // opacity-composited-over-unknown-background makes contrast
+              // impossible to guarantee, and orange is reserved for CTAs.
+              backgroundColor: kCard2,
               child: app.photoUrl != null
                   ? ClipOval(
                       child: Image.network(
@@ -84,10 +87,10 @@ class DashboardScreen extends StatelessWidget {
                         width: 42,
                         height: 42,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Text(app.initials, style: const TextStyle(color: kPrimaryLight, fontWeight: FontWeight.w600)),
+                        errorBuilder: (_, __, ___) => Text(app.initials, style: const TextStyle(color: kPrimaryDark, fontWeight: FontWeight.w600)),
                       ),
                     )
-                  : Text(app.initials, style: const TextStyle(color: kPrimaryLight, fontWeight: FontWeight.w600)),
+                  : Text(app.initials, style: const TextStyle(color: kPrimaryDark, fontWeight: FontWeight.w600)),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -122,7 +125,7 @@ class DashboardScreen extends StatelessWidget {
                       child: Text(
                         app.unreadCount > 9 ? '9+' : '${app.unreadCount}',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w600),
+                        style: const TextStyle(color: kOnPrimary, fontSize: 9, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
@@ -133,8 +136,13 @@ class DashboardScreen extends StatelessWidget {
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.all(16),
+          // Was a full orange gradient -- orange is reserved for "the
+          // button to press" now, not decorative card fills, so this is a
+          // neutral surface with the brand color kept only as a small
+          // accent on the trophy icon.
           decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [kPrimaryDark, kPrimary], begin: Alignment.centerLeft, end: Alignment.centerRight),
+            color: kCard,
+            border: Border.all(color: kBorder),
             borderRadius: BorderRadius.circular(18),
           ),
           child: Column(
@@ -146,20 +154,20 @@ class DashboardScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(app.tr('Your points'), style: const TextStyle(fontSize: 11, color: Colors.white70, fontFamily: 'monospace')),
+                        Text(app.tr('Your points'), style: const TextStyle(fontSize: 11, color: kMuted, fontFamily: 'monospace')),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.baseline,
                           textBaseline: TextBaseline.alphabetic,
                           children: [
-                            Text('${app.points}', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white)),
+                            Text('${app.points}', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: kText)),
                             const SizedBox(width: 6),
-                            Text(app.tr('pts'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white70)),
+                            Text(app.tr('pts'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: kMuted)),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  const Icon(Icons.emoji_events_outlined, color: Colors.white54, size: 32),
+                  const Icon(Icons.emoji_events_outlined, color: kPrimaryDark, size: 32),
                 ],
               ),
               const SizedBox(height: 12),
@@ -167,7 +175,6 @@ class DashboardScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.white38), foregroundColor: Colors.white, minimumSize: const Size.fromHeight(38)),
                       onPressed: () => Navigator.pushNamed(context, '/points'),
                       child: Text(app.tr('Activity')),
                     ),
@@ -175,7 +182,6 @@ class DashboardScreen extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: kPrimaryDark, minimumSize: const Size.fromHeight(38)),
                       onPressed: () => Navigator.pushNamed(context, '/redeemCash'),
                       child: Text(app.tr('Redeem cash')),
                     ),
@@ -264,10 +270,10 @@ class DashboardScreen extends StatelessWidget {
                                     width: 46,
                                     height: 46,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Text(e.initials, style: TextStyle(color: you ? Colors.white : kText, fontWeight: FontWeight.w600)),
+                                    errorBuilder: (_, __, ___) => Text(e.initials, style: TextStyle(color: you ? kOnPrimary : kText, fontWeight: FontWeight.w600)),
                                   ),
                                 )
-                              : Text(e.initials, style: TextStyle(color: you ? Colors.white : kText, fontWeight: FontWeight.w600)),
+                              : Text(e.initials, style: TextStyle(color: you ? kOnPrimary : kText, fontWeight: FontWeight.w600)),
                         ),
                         Positioned(
                           top: -4,

@@ -46,14 +46,17 @@ class PointsScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
+            // Neutral surface, not an orange gradient -- orange stays
+            // reserved for actionable buttons (see the two below).
             decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [kPrimaryDark, kPrimary], begin: Alignment.centerLeft, end: Alignment.centerRight),
+              color: kCard,
+              border: Border.all(color: kBorder),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Column(
               children: [
-                Text(app.tr('Current balance'), style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                Text('${app.points} pts', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white)),
+                Text(app.tr('Current balance'), style: const TextStyle(color: kMuted, fontSize: 12)),
+                Text('${app.points} pts', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: kText)),
               ],
             ),
           ),
@@ -82,7 +85,19 @@ class PointsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text('${l.points >= 0 ? '+' : ''}${l.points}', style: TextStyle(fontWeight: FontWeight.w600, color: l.points >= 0 ? kSuccess : kDanger)),
+                  // Icon alongside color, not color alone -- color-blind
+                  // users must be able to tell earned vs. deducted apart.
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        l.points >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+                        size: 14,
+                        color: l.points >= 0 ? kSuccess : kDanger,
+                      ),
+                      Text('${l.points >= 0 ? '+' : ''}${l.points}', style: TextStyle(fontWeight: FontWeight.w600, color: l.points >= 0 ? kSuccess : kDanger)),
+                    ],
+                  ),
                 ],
               ),
             );

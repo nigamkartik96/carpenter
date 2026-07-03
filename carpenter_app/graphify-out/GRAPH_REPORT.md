@@ -1,16 +1,16 @@
 # Graph Report - carpenter_app  (2026-07-03)
 
 ## Corpus Check
-- 72 files · ~44,012 words
+- 72 files · ~44,479 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 774 nodes · 1030 edges · 50 communities (37 shown, 13 thin omitted)
+- 775 nodes · 1031 edges · 50 communities (37 shown, 13 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 18 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f14876a3`
+- Built from commit: `eafb598a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -80,11 +80,11 @@
   lib/main.dart → lib/state/app_state.dart
 - `_pickPhoto` --references--> `AppState`  [EXTRACTED]
   lib/screens/onboarding_screens.dart → lib/state/app_state.dart
-- `initState` --references--> `AppState`  [EXTRACTED]
-  lib/screens/order_screens.dart → lib/state/app_state.dart
 - `_changeQr` --references--> `AppState`  [EXTRACTED]
   lib/screens/profile_screens.dart → lib/state/app_state.dart
 - `_save` --references--> `AppState`  [EXTRACTED]
+  lib/screens/profile_screens.dart → lib/state/app_state.dart
+- `_pickPhoto` --references--> `AppState`  [EXTRACTED]
   lib/screens/profile_screens.dart → lib/state/app_state.dart
 
 ## Import Cycles
@@ -97,8 +97,8 @@ Cohesion: 0.03
 Nodes (74): dart:async, ../l10n/strings.dart, accountNumber, addLead, addOrder, address, bankName, carpenterName (+66 more)
 
 ### Community 1 - "AppState"
-Cohesion: 0.11
-Nodes (26): AuthGate, _AuthGateState, HomeShell, _HomeShellState, ManualOrderScreen, _ManualOrderScreenState, OrderSuccessScreen, _OrderSuccessScreenState (+18 more)
+Cohesion: 0.20
+Nodes (14): LoginScreen, _LoginScreenState, ManualOrderScreen, _ManualOrderScreenState, OrderSuccessScreen, _OrderSuccessScreenState, UploadOrderScreen, _UploadOrderScreenState (+6 more)
 
 ### Community 2 - "Win32Window"
 Cohesion: 0.06
@@ -110,15 +110,15 @@ Nodes (41): Any, audioplayers_darwin, cloud_firestore, Cocoa, file_selector_maco
 
 ### Community 4 - "models.dart"
 Cohesion: 0.04
-Nodes (48): int get, AppNotification, audioUrl, bannerUrl, body, CarpenterOrder, category, date (+40 more)
+Nodes (46): int get, AppNotification, audioUrl, bannerUrl, body, CarpenterOrder, category, date (+38 more)
 
 ### Community 5 - "order_screens.dart"
 Cohesion: 0.05
-Nodes (41): AudioPlayer?, AudioPlayer get, dart:io, _addRow, audioUrl, createState, detail, dispose (+33 more)
+Nodes (40): AudioPlayer?, AudioPlayer get, dart:io, _addRow, audioUrl, createState, detail, dispose (+32 more)
 
 ### Community 6 - "main.dart"
-Cohesion: 0.07
-Nodes (30): @pragma, ../firebase_options.dart, android, DefaultFirebaseOptions, web, build, CarpenterHubApp, _check (+22 more)
+Cohesion: 0.06
+Nodes (32): @pragma, ../firebase_options.dart, android, DefaultFirebaseOptions, web, AuthGate, _AuthGateState, build (+24 more)
 
 ### Community 7 - "firebase_service.dart"
 Cohesion: 0.06
@@ -126,7 +126,7 @@ Nodes (32): FirebaseAuth, FirebaseFirestore, addLead, addOrder, auth, carpenterD
 
 ### Community 8 - "theme.dart"
 Cohesion: 0.06
-Nodes (31): Color, IconData, ActionTile, build, buildAppTheme, child, color, icon (+23 more)
+Nodes (32): Color, IconData, ActionTile, build, buildAppTheme, child, color, icon (+24 more)
 
 ### Community 9 - "my_application.cc"
 Cohesion: 0.10
@@ -141,8 +141,8 @@ Cohesion: 0.13
 Nodes (19): build, build, build, build, Route /account, Route /createOrder, Route /editProfile, Route /gifts (+11 more)
 
 ### Community 12 - "onboarding_screens.dart"
-Cohesion: 0.10
-Nodes (21): address, busy, checking, createState, email, error, LoginScreen, _LoginScreenState (+13 more)
+Cohesion: 0.11
+Nodes (19): address, busy, checking, createState, email, error, mobile, name (+11 more)
 
 ### Community 13 - "wWinMain"
 Cohesion: 0.24
@@ -157,8 +157,8 @@ Cohesion: 0.18
 Nodes (10): background_color, description, display, icons, name, orientation, prefer_related_applications, short_name (+2 more)
 
 ### Community 16 - "home_shell.dart"
-Cohesion: 0.22
-Nodes (8): createState, _index, order_screens.dart, package:provider/provider.dart, profile_screens.dart, rewards_screens.dart, ../state/app_state.dart, ../widgets/speaker_button.dart
+Cohesion: 0.20
+Nodes (10): createState, HomeShell, _HomeShellState, _index, order_screens.dart, package:provider/provider.dart, profile_screens.dart, rewards_screens.dart (+2 more)
 
 ### Community 17 - "strings.dart"
 Cohesion: 0.11
@@ -181,12 +181,12 @@ Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 33 - "rewards_screens.dart"
-Cohesion: 0.08
-Nodes (24): double?, controller, createState, embedded, error, id, initState, lat (+16 more)
+Cohesion: 0.07
+Nodes (30): double?, controller, createState, embedded, error, id, initState, lat (+22 more)
 
 ### Community 34 - "AppState"
 Cohesion: 0.13
-Nodes (24): ChangeNotifier, DashboardScreen, ConsentScreen, SplashScreen, CreateOrderScreen, OfferDetailsScreen, OffersScreen, OrderDetailsScreen (+16 more)
+Nodes (25): ChangeNotifier, DashboardScreen, ConsentScreen, SplashScreen, CreateOrderScreen, initState, OfferDetailsScreen, OffersScreen (+17 more)
 
 ### Community 35 - "speech_service.dart"
 Cohesion: 0.13
@@ -201,16 +201,16 @@ Cohesion: 0.18
 Nodes (10): FlutterTts, _configured, _ensureConfigured, instance, speak, stop, _tts, TtsService (+2 more)
 
 ### Community 38 - "qr_scan_screen.dart"
-Cohesion: 0.18
-Nodes (10): build, contains, _controller, createState, dispose, extractUpiId, _handled, _onDetect (+2 more)
+Cohesion: 0.14
+Nodes (14): build, contains, _controller, createState, dispose, extractUpiId, _FirstOrNull, _handled (+6 more)
 
 ### Community 39 - "graphify reference: extra exports and benchmark"
 Cohesion: 0.22
 Nodes (8): graphify reference: extra exports and benchmark, Step 6b - Wiki (only if --wiki flag), Step 7 - Neo4j export (only if --neo4j or --neo4j-push flag), Step 7a - FalkorDB export (only if --falkordb or --falkordb-push flag), Step 7b - SVG export (only if --svg flag), Step 7c - GraphML export (only if --graphml flag), Step 7d - MCP server (only if --mcp flag), Step 8 - Token reduction benchmark (only if total_words > 5000)
 
 ### Community 40 - "speaker_button.dart"
-Cohesion: 0.22
-Nodes (8): build, createState, size, _speaking, text, _toggle, ../services/tts_service.dart, ../theme.dart
+Cohesion: 0.20
+Nodes (10): build, createState, size, SpeakerButton, _SpeakerButtonState, _speaking, text, _toggle (+2 more)
 
 ### Community 41 - "graphify reference: query, path, explain"
 Cohesion: 0.33
@@ -229,7 +229,7 @@ Cohesion: 0.50
 Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
 
 ## Knowledge Gaps
-- **389 isolated node(s):** `flutter_export_environment.sh script`, `+registerWithRegistry`, `DefaultFirebaseOptions`, `android`, `web` (+384 more)
+- **390 isolated node(s):** `flutter_export_environment.sh script`, `+registerWithRegistry`, `DefaultFirebaseOptions`, `android`, `web` (+385 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -243,10 +243,10 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `FirebaseService` connect `firebase_service.dart` to `app_state.dart`?**
   _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **What connects `Intercept NOTIFY_DEBUGGER_ABOUT_RX_PAGES and touch the pages.`, `flutter_export_environment.sh script`, `+registerWithRegistry` to the rest of the system?**
-  _390 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _391 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `app_state.dart` be split into smaller, more focused modules?**
   _Cohesion score 0.02666666666666667 - nodes in this community are weakly interconnected._
-- **Should `AppState` be split into smaller, more focused modules?**
-  _Cohesion score 0.11076923076923077 - nodes in this community are weakly interconnected._
 - **Should `Win32Window` be split into smaller, more focused modules?**
   _Cohesion score 0.0597567424643046 - nodes in this community are weakly interconnected._
+- **Should `GeneratedPluginRegistrant.swift` be split into smaller, more focused modules?**
+  _Cohesion score 0.050505050505050504 - nodes in this community are weakly interconnected._

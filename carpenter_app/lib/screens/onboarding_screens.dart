@@ -12,10 +12,11 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
     return Scaffold(
+      // Was a near-black gradient -- kept as a plain Container (not just
+      // relying on scaffoldBackgroundColor) so this screen still renders
+      // correctly if a dark theme toggle is ever added back later.
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: [Color(0xFF0D1117), Color(0xFF1A1200)], begin: Alignment.topCenter, end: Alignment.bottomCenter),
-        ),
+        color: kBg,
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -30,7 +31,9 @@ class SplashScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [BoxShadow(color: kPrimary.withOpacity(0.4), blurRadius: 24, offset: const Offset(0, 8))],
                   ),
-                  child: const Icon(Icons.handyman, color: Colors.white, size: 40),
+                  // Dark icon, not white -- white-on-kPrimary is too low
+                  // contrast (brand orange is tuned for kOnPrimary content).
+                  child: const Icon(Icons.handyman, color: kOnPrimary, size: 40),
                 ),
                 const SizedBox(height: 18),
                 const Text('CarpenterHub', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: kText)),

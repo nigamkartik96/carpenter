@@ -2,30 +2,51 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'state/app_state.dart';
 
-// Dark "GitHub Dark"-style palette with a burnt-orange/amber accent,
-// matching the CarpenterHub reference design.
-const kBg = Color(0xFF0D1117);
-const kCard = Color(0xFF161B22);
-const kCard2 = Color(0xFF1C2128);
-const kBorder = Color(0x33636E7B);
-const kText = Color(0xFFE6EDF3);
-const kMuted = Color(0xFF768390);
+// Light, warm palette tuned for outdoor/sunlight use on low-to-mid-range
+// screens: a light background beats dark here (dark backgrounds + mid-gray
+// text wash out badly in glare), and every color below is chosen to clear
+// WCAG AA contrast (4.5:1 for text, 3:1 for large text/icons) against the
+// light surfaces it actually sits on -- not just carried over from the old
+// dark-theme values, which mostly fail badly once the background flips
+// from near-black to near-white. See git history for the pre-redesign
+// dark palette if a dark-mode toggle is ever added back.
+const kBg = Color(0xFFF7F5F2); // off-white/warm-gray, not pure white -- easier on the eyes in direct sun
+const kCard = Color(0xFFFFFFFF);
+const kCard2 = Color(0xFFEFEBE5); // dialogs, snackbars, disabled surfaces
+const kBorder = Color(0xFFDCD6CC);
+const kText = Color(0xFF1A1A1A); // near-black, ~18.5:1 on kCard
+const kMuted = Color(0xFF4A5563); // secondary/muted text -- 7.6:1 on white, well past AA (timestamps, hints, helper text)
+
+// Brand orange itself is unchanged (kPrimary) -- it's reserved for solid
+// CTA button backgrounds, paired with kOnPrimary (dark) text/icons, since
+// white text on this orange only clears ~3:1 (fails AA). kPrimaryLight/Dark
+// are darker burnt-orange variants for when the brand color needs to be
+// TEXT or an icon directly on a light surface (nav label, focus ring,
+// balance figures) -- the original values only worked against a dark
+// background and dropped as low as ~2.1:1 here.
 const kPrimary = Color(0xFFE8780C);
-const kPrimaryLight = Color(0xFFF0A030);
-const kPrimaryDark = Color(0xFFCC6B2C);
-const kSuccess = Color(0xFF57AB5A);
-const kWarning = Color(0xFFF0A030);
-const kDanger = Color(0xFFE5534B);
-const kInfo = Color(0xFF4493F8);
-const kPurple = Color(0xFFA371F7);
+const kPrimaryLight = Color(0xFFB85A1F); // ~4.7:1 on white
+const kPrimaryDark = Color(0xFFAD5518); // ~5.1:1 on white
+const kOnPrimary = kText;
+
+// Success/warning/danger/info are deliberately distinct hues from kPrimary
+// and from each other -- the old kWarning was literally the same hex as
+// kPrimaryLight, making "Processing" visually indistinguishable from the
+// brand accent. All four clear >=5:1 against white as both text and as a
+// solid fill with white/light content on top.
+const kSuccess = Color(0xFF2E7D32); // Delivered, Converted, positive amounts
+const kWarning = Color(0xFF8F5C00); // Processing -- its own mustard, not reused blue or orange
+const kDanger = Color(0xFFC62828); // errors, negative/deducted amounts
+const kInfo = Color(0xFF1565C0); // Submitted
+const kPurple = Color(0xFF6A3FA0); // decorative accent only (Order history tile)
 
 ThemeData buildAppTheme() {
   return ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
+    brightness: Brightness.light,
     scaffoldBackgroundColor: kBg,
     fontFamily: 'Roboto',
-    colorScheme: ColorScheme.fromSeed(seedColor: kPrimary, brightness: Brightness.dark).copyWith(
+    colorScheme: ColorScheme.fromSeed(seedColor: kPrimary, brightness: Brightness.light).copyWith(
       surface: kBg,
       primary: kPrimary,
     ),
@@ -37,11 +58,13 @@ ThemeData buildAppTheme() {
       titleTextStyle: TextStyle(color: kText, fontSize: 15, fontWeight: FontWeight.w600),
       iconTheme: IconThemeData(color: kText),
     ),
-    textTheme: ThemeData.dark().textTheme.apply(bodyColor: kText, displayColor: kText),
+    textTheme: ThemeData.light().textTheme.apply(bodyColor: kText, displayColor: kText),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: kPrimary,
-        foregroundColor: Colors.white,
+        // Dark text/icons on the orange fill, not white -- white-on-kPrimary
+        // only clears ~3:1, which fails AA for button labels.
+        foregroundColor: kOnPrimary,
         disabledBackgroundColor: kCard2,
         disabledForegroundColor: kMuted,
         minimumSize: const Size.fromHeight(48),
@@ -57,7 +80,7 @@ ThemeData buildAppTheme() {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
-    textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: kPrimaryLight)),
+    textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: kPrimaryDark)),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: kCard,
@@ -74,10 +97,10 @@ ThemeData buildAppTheme() {
       indicatorColor: Colors.transparent,
       labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
             fontSize: 10,
-            color: states.contains(WidgetState.selected) ? kPrimaryLight : kMuted,
+            color: states.contains(WidgetState.selected) ? kPrimaryDark : kMuted,
           )),
       iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
-            color: states.contains(WidgetState.selected) ? kPrimaryLight : kMuted,
+            color: states.contains(WidgetState.selected) ? kPrimaryDark : kMuted,
           )),
     ),
     snackBarTheme: const SnackBarThemeData(backgroundColor: kCard2, contentTextStyle: TextStyle(color: kText)),

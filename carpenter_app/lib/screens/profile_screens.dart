@@ -22,7 +22,7 @@ class ProfileScreen extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 36,
-                backgroundColor: kPrimary.withOpacity(0.2),
+                backgroundColor: kCard2,
                 child: app.photoUrl != null
                     ? ClipOval(
                         child: Image.network(
@@ -30,10 +30,10 @@ class ProfileScreen extends StatelessWidget {
                           width: 72,
                           height: 72,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Text(app.initials, style: const TextStyle(fontSize: 20, color: kPrimaryLight, fontWeight: FontWeight.w600)),
+                          errorBuilder: (_, __, ___) => Text(app.initials, style: const TextStyle(fontSize: 20, color: kPrimaryDark, fontWeight: FontWeight.w600)),
                         ),
                       )
-                    : Text(app.initials, style: const TextStyle(fontSize: 20, color: kPrimaryLight, fontWeight: FontWeight.w600)),
+                    : Text(app.initials, style: const TextStyle(fontSize: 20, color: kPrimaryDark, fontWeight: FontWeight.w600)),
               ),
               const SizedBox(height: 10),
               Text(app.carpenterName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
@@ -72,7 +72,7 @@ class ProfileScreen extends StatelessWidget {
           children: [
             Expanded(
               child: OutlinedButton(
-                style: app.locale.isHindi ? null : OutlinedButton.styleFrom(backgroundColor: kPrimary, foregroundColor: Colors.white),
+                style: app.locale.isHindi ? null : OutlinedButton.styleFrom(backgroundColor: kPrimary, foregroundColor: kOnPrimary),
                 onPressed: () => app.setLanguage(false),
                 // Always shown in Devanagari, not the Latin word "English" --
                 // a user who can't read English script would otherwise have
@@ -83,7 +83,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton(
-                style: app.locale.isHindi ? OutlinedButton.styleFrom(backgroundColor: kPrimary, foregroundColor: Colors.white) : null,
+                style: app.locale.isHindi ? OutlinedButton.styleFrom(backgroundColor: kPrimary, foregroundColor: kOnPrimary) : null,
                 onPressed: () => app.setLanguage(true),
                 child: const Text('हिंदी'),
               ),
@@ -462,7 +462,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               children: [
                 CircleAvatar(
                   radius: 44,
-                  backgroundColor: kPrimary.withOpacity(0.2),
+                  backgroundColor: kCard2,
                   child: photoUrl != null
                       ? ClipOval(
                           child: Image.network(
@@ -470,10 +470,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             width: 88,
                             height: 88,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Text(initialsOf(name.text.isEmpty ? app.carpenterName : name.text), style: const TextStyle(fontSize: 22, color: kPrimaryLight, fontWeight: FontWeight.w600)),
+                            errorBuilder: (_, __, ___) => Text(initialsOf(name.text.isEmpty ? app.carpenterName : name.text), style: const TextStyle(fontSize: 22, color: kPrimaryDark, fontWeight: FontWeight.w600)),
                           ),
                         )
-                      : Text(initialsOf(name.text.isEmpty ? app.carpenterName : name.text), style: const TextStyle(fontSize: 22, color: kPrimaryLight, fontWeight: FontWeight.w600)),
+                      : Text(initialsOf(name.text.isEmpty ? app.carpenterName : name.text), style: const TextStyle(fontSize: 22, color: kPrimaryDark, fontWeight: FontWeight.w600)),
                 ),
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
