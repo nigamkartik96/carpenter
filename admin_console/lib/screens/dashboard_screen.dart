@@ -17,12 +17,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String statusFilter = 'All';
   String dateFilter = 'all';
   String sortBy = 'newest';
+  int _page = 0;
+  int _perPage = 10;
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AdminState>();
     final pending = app.carpenters.where((c) => c.status == 'Pending').length;
-    final recent = filterAndSortOrders(app.orders, dateFilter: dateFilter, statusFilter: statusFilter, sortBy: sortBy).take(10).toList();
+    final allFiltered = filterAndSortOrders(app.orders, dateFilter: dateFilter, statusFilter: statusFilter, sortBy: sortBy);
+    final recent = pageSlice(allFiltered, _page, _perPage);
 
     return ListView(
       children: [
@@ -87,11 +90,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           dateFilter: dateFilter,
           statusFilter: statusFilter,
           sortBy: sortBy,
-          onDateFilter: (v) => setState(() => dateFilter = v),
-          onStatusFilter: (v) => setState(() => statusFilter = v),
-          onSortBy: (v) => setState(() => sortBy = v),
+          onDateFilter: (v) => setState(() { dateFilter = v; _page = 0; }),
+          onStatusFilter: (v) => setState(() { statusFilter = v; _page = 0; }),
+          onSortBy: (v) => setState(() { sortBy = v; _page = 0; }),
         ),
-        const SizedBox(height: 10),
+        PaginationBar(
+          total: allFiltered.length,
+          page: _page,
+          perPage: _perPage,
+          onPageChanged: (p) => setState(() => _page = p),
+          onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+        ),
         if (recent.isEmpty) const EmptyState(icon: Icons.inventory_2_outlined, message: 'No orders match this filter'),
         ...recent.map((o) => AppCard(
               onTap: () => context.push('/orders/${o.id}'),

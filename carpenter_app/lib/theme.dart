@@ -219,6 +219,81 @@ class SectionCard extends StatelessWidget {
   }
 }
 
+List<T> pageSlice<T>(List<T> items, int page, int perPage) {
+  if (items.isEmpty) return [];
+  final maxPage = ((items.length / perPage).ceil() - 1).clamp(0, 999999);
+  final safePage = page.clamp(0, maxPage);
+  final start = safePage * perPage;
+  return items.sublist(start, (start + perPage).clamp(0, items.length));
+}
+
+const _defaultPageSizes = [10, 25, 50];
+
+class PaginationBar extends StatelessWidget {
+  const PaginationBar({
+    super.key,
+    required this.total,
+    required this.page,
+    required this.perPage,
+    required this.onPageChanged,
+    required this.onPerPageChanged,
+    this.pageSizes = _defaultPageSizes,
+  });
+  final int total;
+  final int page;
+  final int perPage;
+  final ValueChanged<int> onPageChanged;
+  final ValueChanged<int> onPerPageChanged;
+  final List<int> pageSizes;
+
+  @override
+  Widget build(BuildContext context) {
+    if (total == 0) return const SizedBox.shrink();
+    final maxPage = ((total / perPage).ceil() - 1).clamp(0, 999999);
+    final safePage = page.clamp(0, maxPage);
+    final start = safePage * perPage + 1;
+    final end = ((safePage + 1) * perPage).clamp(0, total);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Text('$start-$end of $total', style: const TextStyle(fontSize: 11, color: kMuted)),
+          const SizedBox(width: 8),
+          Container(
+            height: 28,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(border: Border.all(color: kBorder), borderRadius: BorderRadius.circular(6)),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: perPage,
+                isDense: true,
+                style: const TextStyle(fontSize: 11, color: kText),
+                items: pageSizes.map((n) => DropdownMenuItem(value: n, child: Text('$n'))).toList(),
+                onChanged: (v) { if (v != null) onPerPageChanged(v); },
+              ),
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            onPressed: safePage > 0 ? () => onPageChanged(safePage - 1) : null,
+            icon: const Icon(Icons.chevron_left, size: 20),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            padding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+          ),
+          IconButton(
+            onPressed: safePage < maxPage ? () => onPageChanged(safePage + 1) : null,
+            icon: const Icon(Icons.chevron_right, size: 20),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            padding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class ActionTile extends StatelessWidget {
   const ActionTile({
     super.key,

@@ -24,12 +24,21 @@ CarpenterOrder? _orderForLedgerEntry(AppState app, String desc) {
   return null;
 }
 
-class PointsScreen extends StatelessWidget {
+class PointsScreen extends StatefulWidget {
   const PointsScreen({super.key});
+
+  @override
+  State<PointsScreen> createState() => _PointsScreenState();
+}
+
+class _PointsScreenState extends State<PointsScreen> {
+  int _page = 0;
+  int _perPage = 10;
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
+    final pagedLedger = pageSlice(app.ledger, _page, _perPage);
     return Scaffold(
       appBar: AppBar(
         title: Text(app.tr('Points')),
@@ -46,8 +55,6 @@ class PointsScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            // Neutral surface, not an orange gradient -- orange stays
-            // reserved for actionable buttons (see the two below).
             decoration: BoxDecoration(
               color: kCard,
               border: Border.all(color: kBorder),
@@ -63,45 +70,53 @@ class PointsScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Text(app.tr('Points activity'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
           const SizedBox(height: 8),
-          if (app.ledger.isEmpty) Text(app.tr('No activity yet'), style: TextStyle(color: kMuted, fontSize: 12)),
-          ...app.ledger.map((l) {
-            final linkedOrder = _orderForLedgerEntry(app, l.desc);
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (linkedOrder != null) ...[
-                    OrderThumbnail(order: linkedOrder, size: 36),
-                    const SizedBox(width: 10),
-                  ],
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          if (app.ledger.isEmpty)
+            Text(app.tr('No activity yet'), style: TextStyle(color: kMuted, fontSize: 12))
+          else ...[
+            PaginationBar(
+              total: app.ledger.length,
+              page: _page,
+              perPage: _perPage,
+              onPageChanged: (p) => setState(() => _page = p),
+              onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+            ),
+            ...pagedLedger.map((l) {
+              final linkedOrder = _orderForLedgerEntry(app, l.desc);
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (linkedOrder != null) ...[
+                      OrderThumbnail(order: linkedOrder, size: 36),
+                      const SizedBox(width: 10),
+                    ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(app.trDyn(l.desc), style: const TextStyle(fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
+                          Text(l.date, style: TextStyle(color: kMuted, fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(app.trDyn(l.desc), style: const TextStyle(fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
-                        Text(l.date, style: TextStyle(color: kMuted, fontSize: 11)),
+                        Icon(
+                          l.points >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+                          size: 14,
+                          color: l.points >= 0 ? kSuccess : kDanger,
+                        ),
+                        Text('${l.points >= 0 ? '+' : ''}${l.points}', style: TextStyle(fontWeight: FontWeight.w600, color: l.points >= 0 ? kSuccess : kDanger)),
                       ],
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Icon alongside color, not color alone -- color-blind
-                  // users must be able to tell earned vs. deducted apart.
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        l.points >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
-                        size: 14,
-                        color: l.points >= 0 ? kSuccess : kDanger,
-                      ),
-                      Text('${l.points >= 0 ? '+' : ''}${l.points}', style: TextStyle(fontWeight: FontWeight.w600, color: l.points >= 0 ? kSuccess : kDanger)),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }),
+                  ],
+                ),
+              );
+            }),
+          ],
           const SizedBox(height: 16),
           Row(
             children: [
@@ -239,13 +254,25 @@ class RedeemCashDoneScreen extends StatelessWidget {
   }
 }
 
-class GiftStoreScreen extends StatelessWidget {
+class GiftStoreScreen extends StatefulWidget {
   const GiftStoreScreen({super.key, this.embedded = false});
   final bool embedded;
 
   @override
+  State<GiftStoreScreen> createState() => _GiftStoreScreenState();
+}
+
+class _GiftStoreScreenState extends State<GiftStoreScreen> {
+  int _giftPage = 0;
+  int _giftPerPage = 10;
+  int _redemptionPage = 0;
+  int _redemptionPerPage = 10;
+
+  @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
+    final pagedGifts = pageSlice(app.gifts, _giftPage, _giftPerPage);
+    final pagedRedemptions = pageSlice(app.redemptions, _redemptionPage, _redemptionPerPage);
     final body = ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -254,6 +281,14 @@ class GiftStoreScreen extends StatelessWidget {
           children: [Text(app.tr('Gifts'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)), Text('${app.points} pts', style: TextStyle(color: kMuted, fontSize: 12))],
         ),
         const SizedBox(height: 10),
+        if (app.gifts.isNotEmpty)
+          PaginationBar(
+            total: app.gifts.length,
+            page: _giftPage,
+            perPage: _giftPerPage,
+            onPageChanged: (p) => setState(() => _giftPage = p),
+            onPerPageChanged: (n) => setState(() { _giftPerPage = n; _giftPage = 0; }),
+          ),
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
@@ -261,7 +296,7 @@ class GiftStoreScreen extends StatelessWidget {
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
           childAspectRatio: 0.68 / app.fontScale,
-          children: app.gifts.map((g) {
+          children: pagedGifts.map((g) {
             final outOfStock = g.qty <= 0;
             final notEnoughPoints = app.points < g.points;
             final ok = !outOfStock && !notEnoughPoints;
@@ -330,22 +365,32 @@ class GiftStoreScreen extends StatelessWidget {
         const SizedBox(height: 16),
         Text(app.tr('My gifts'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
         const SizedBox(height: 8),
-        if (app.redemptions.isEmpty) Text(app.tr('No gifts redeemed yet'), style: const TextStyle(color: kMuted, fontSize: 12)),
-        ...app.redemptions.map(
-          (r) => SectionCard(
-            onTap: r.status == 'Delivered' ? null : () => _showRedemptionDetail(context, app, r),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(r.giftName, style: const TextStyle(fontSize: 13)), Text(r.date, style: const TextStyle(color: kMuted, fontSize: 11))]),
-                StatusBadge(r.status),
-              ],
+        if (app.redemptions.isEmpty)
+          Text(app.tr('No gifts redeemed yet'), style: const TextStyle(color: kMuted, fontSize: 12))
+        else ...[
+          PaginationBar(
+            total: app.redemptions.length,
+            page: _redemptionPage,
+            perPage: _redemptionPerPage,
+            onPageChanged: (p) => setState(() => _redemptionPage = p),
+            onPerPageChanged: (n) => setState(() { _redemptionPerPage = n; _redemptionPage = 0; }),
+          ),
+          ...pagedRedemptions.map(
+            (r) => SectionCard(
+              onTap: r.status == 'Delivered' ? null : () => _showRedemptionDetail(context, app, r),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(r.giftName, style: const TextStyle(fontSize: 13)), Text(r.date, style: const TextStyle(color: kMuted, fontSize: 11))]),
+                  StatusBadge(r.status),
+                ],
+              ),
             ),
           ),
-        ),
+        ],
       ],
     );
-    if (embedded) return body;
+    if (widget.embedded) return body;
     return Scaffold(appBar: AppBar(title: Text(app.tr('Gifts'))), body: body);
   }
 }
@@ -398,12 +443,21 @@ class GiftSuccessScreen extends StatelessWidget {
   }
 }
 
-class LeadsScreen extends StatelessWidget {
+class LeadsScreen extends StatefulWidget {
   const LeadsScreen({super.key});
+
+  @override
+  State<LeadsScreen> createState() => _LeadsScreenState();
+}
+
+class _LeadsScreenState extends State<LeadsScreen> {
+  int _page = 0;
+  int _perPage = 10;
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
+    final pagedLeads = pageSlice(app.leads, _page, _perPage);
     return Scaffold(
       appBar: AppBar(title: Text(app.tr('Suggestions'))),
       body: ListView(
@@ -413,32 +467,42 @@ class LeadsScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Text(app.tr('Your leads'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
           const SizedBox(height: 8),
-          if (app.leads.isEmpty) Text(app.tr('No leads submitted yet'), style: TextStyle(color: kMuted, fontSize: 12)),
-          ...app.leads.map(
-            (l) => SectionCard(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(l.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                        if (l.notes.isNotEmpty) Text(l.notes, style: const TextStyle(color: kMuted, fontSize: 12)),
-                        if (l.location.isNotEmpty) Text('📍 ${l.location}', style: const TextStyle(color: kMuted, fontSize: 11)),
-                        if (l.pointsAwarded > 0)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text('${app.tr('Points earned')}: +${l.pointsAwarded}', style: const TextStyle(color: kSuccess, fontSize: 12, fontWeight: FontWeight.w600)),
-                          ),
-                      ],
+          if (app.leads.isEmpty)
+            Text(app.tr('No leads submitted yet'), style: TextStyle(color: kMuted, fontSize: 12))
+          else ...[
+            PaginationBar(
+              total: app.leads.length,
+              page: _page,
+              perPage: _perPage,
+              onPageChanged: (p) => setState(() => _page = p),
+              onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+            ),
+            ...pagedLeads.map(
+              (l) => SectionCard(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                          if (l.notes.isNotEmpty) Text(l.notes, style: const TextStyle(color: kMuted, fontSize: 12)),
+                          if (l.location.isNotEmpty) Text('📍 ${l.location}', style: const TextStyle(color: kMuted, fontSize: 11)),
+                          if (l.pointsAwarded > 0)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text('${app.tr('Points earned')}: +${l.pointsAwarded}', style: const TextStyle(color: kSuccess, fontSize: 12, fontWeight: FontWeight.w600)),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                  StatusBadge(l.status),
-                ],
+                    StatusBadge(l.status),
+                  ],
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -585,11 +649,12 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
+  int _page = 0;
+  int _perPage = 10;
+
   @override
   void initState() {
     super.initState();
-    // Mark unread notifications as read once the carpenter actually views
-    // this screen, so the bell badge clears.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AppState>().markNotificationsRead();
     });
@@ -598,37 +663,49 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
+    if (app.notifications.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: Text(app.tr('Notifications'))),
+        body: Center(child: Text(app.tr('No notifications yet'), style: TextStyle(color: kMuted, fontSize: 13))),
+      );
+    }
+    final paged = pageSlice(app.notifications, _page, _perPage);
     return Scaffold(
       appBar: AppBar(title: Text(app.tr('Notifications'))),
-      body: app.notifications.isEmpty
-          ? Center(child: Text(app.tr('No notifications yet'), style: TextStyle(color: kMuted, fontSize: 13)))
-          : ListView.builder(
+      body: ListView(
         padding: const EdgeInsets.all(16),
-        itemCount: app.notifications.length,
-        itemBuilder: (context, i) {
-          final n = app.notifications[i];
-          final linkedOffer = n.type == 'offer' ? app.offers.where((o) => o.id == n.refId) : const Iterable<Offer>.empty();
-          final offer = linkedOffer.isEmpty ? null : linkedOffer.first;
-          return SectionCard(
-            onTap: offer == null ? null : () => Navigator.pushNamed(context, '/offerDetails', arguments: offer),
-            child: Row(
-              children: [
-                Icon(Icons.notifications_outlined, color: n.read ? kMuted : kPrimary, size: 20),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(app.trDyn(n.title), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                      Text(app.trDyn(n.body), style: TextStyle(color: kMuted, fontSize: 12)),
-                      Text(n.time, style: TextStyle(color: kMuted, fontSize: 11)),
-                    ],
+        children: [
+          PaginationBar(
+            total: app.notifications.length,
+            page: _page,
+            perPage: _perPage,
+            onPageChanged: (p) => setState(() => _page = p),
+            onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+          ),
+          ...paged.map((n) {
+            final linkedOffer = n.type == 'offer' ? app.offers.where((o) => o.id == n.refId) : const Iterable<Offer>.empty();
+            final offer = linkedOffer.isEmpty ? null : linkedOffer.first;
+            return SectionCard(
+              onTap: offer == null ? null : () => Navigator.pushNamed(context, '/offerDetails', arguments: offer),
+              child: Row(
+                children: [
+                  Icon(Icons.notifications_outlined, color: n.read ? kMuted : kPrimary, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(app.trDyn(n.title), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                        Text(app.trDyn(n.body), style: TextStyle(color: kMuted, fontSize: 12)),
+                        Text(n.time, style: TextStyle(color: kMuted, fontSize: 11)),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

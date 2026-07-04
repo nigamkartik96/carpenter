@@ -17,6 +17,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   String targetTier = 'All';
   bool sending = false;
   bool submitted = false;
+  int _page = 0;
+  int _perPage = 10;
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +77,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         const SubHeading('Recently sent'),
         const SizedBox(height: 8),
         if (app.broadcasts.isEmpty) const EmptyState(icon: Icons.notifications_outlined, message: 'No notifications sent yet'),
-        ...app.broadcasts.map((b) => AppCard(
+        if (app.broadcasts.isNotEmpty)
+          PaginationBar(
+            total: app.broadcasts.length,
+            page: _page,
+            perPage: _perPage,
+            onPageChanged: (p) => setState(() => _page = p),
+            onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+          ),
+        ...pageSlice(app.broadcasts, _page, _perPage).map((b) => AppCard(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

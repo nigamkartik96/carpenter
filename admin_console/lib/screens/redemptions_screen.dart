@@ -5,18 +5,34 @@ import '../widgets.dart';
 
 const redemptionStatuses = ['Ordered', 'In store', 'Delivered'];
 
-class RedemptionsScreen extends StatelessWidget {
+class RedemptionsScreen extends StatefulWidget {
   const RedemptionsScreen({super.key});
+
+  @override
+  State<RedemptionsScreen> createState() => _RedemptionsScreenState();
+}
+
+class _RedemptionsScreenState extends State<RedemptionsScreen> {
+  int _page = 0;
+  int _perPage = 25;
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AdminState>();
+    final paged = pageSlice(app.redemptions, _page, _perPage);
     return ListView(
       children: [
         const Heading('Redemption queue', subtitle: 'Move cash and gift redemption requests through fulfilment'),
         const SizedBox(height: 16),
         if (app.redemptions.isEmpty) const EmptyState(icon: Icons.assignment_outlined, message: 'No redemptions yet'),
-        if (app.redemptions.isNotEmpty)
+        if (app.redemptions.isNotEmpty) ...[
+          PaginationBar(
+            total: app.redemptions.length,
+            page: _page,
+            perPage: _perPage,
+            onPageChanged: (p) => setState(() => _page = p),
+            onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+          ),
           Container(
             decoration: BoxDecoration(color: kBgSurface, borderRadius: BorderRadius.circular(kCardRadius), border: Border.all(color: kBorderSubtle)),
             child: SingleChildScrollView(
@@ -29,7 +45,7 @@ class RedemptionsScreen extends StatelessWidget {
                 DataColumn(label: Text('Status')),
                 DataColumn(label: Text('Update')),
               ],
-              rows: app.redemptions
+              rows: paged
                   .map((r) => DataRow(cells: [
                         DataCell(Text(r.carpenterName)),
                         DataCell(Text(r.giftName)),
@@ -53,6 +69,7 @@ class RedemptionsScreen extends StatelessWidget {
               ),
             ),
           ),
+        ],
       ],
     );
   }

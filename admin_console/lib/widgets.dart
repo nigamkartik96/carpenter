@@ -722,6 +722,84 @@ class _DashedBorderPainter extends CustomPainter {
   bool shouldRepaint(covariant _DashedBorderPainter oldDelegate) => oldDelegate.color != color || oldDelegate.radius != radius;
 }
 
+// ---------------------------------------------------------------------------
+// Pagination
+// ---------------------------------------------------------------------------
+
+const _defaultPageSizes = [10, 25, 50, 100];
+
+/// Controls for a paginated list: "Showing X–Y of Z", a page-size dropdown
+/// and prev/next buttons. Stateless -- the owning screen holds page + perPage.
+class PaginationBar extends StatelessWidget {
+  const PaginationBar({
+    super.key,
+    required this.total,
+    required this.page,
+    required this.perPage,
+    required this.onPageChanged,
+    required this.onPerPageChanged,
+    this.pageSizes = _defaultPageSizes,
+  });
+
+  final int total;
+  final int page;
+  final int perPage;
+  final ValueChanged<int> onPageChanged;
+  final ValueChanged<int> onPerPageChanged;
+  final List<int> pageSizes;
+
+  int get _totalPages => (total / perPage).ceil().clamp(1, 999999);
+
+  @override
+  Widget build(BuildContext context) {
+    final start = total == 0 ? 0 : page * perPage + 1;
+    final end = ((page + 1) * perPage).clamp(0, total);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: spaceSm),
+      child: Row(
+        children: [
+          Text('Showing $start–$end of $total', style: const TextStyle(fontSize: 12, color: kTextSecondary)),
+          const Spacer(),
+          const Text('Per page ', style: TextStyle(fontSize: 12, color: kTextSecondary)),
+          DropdownButton<int>(
+            value: perPage,
+            underline: const SizedBox(),
+            isDense: true,
+            items: pageSizes.map((n) => DropdownMenuItem(value: n, child: Text('$n', style: const TextStyle(fontSize: 13)))).toList(),
+            onChanged: (v) {
+              if (v != null) onPerPageChanged(v);
+            },
+          ),
+          const SizedBox(width: spaceMd),
+          IconButton(
+            icon: const Icon(Icons.chevron_left, size: 20),
+            onPressed: page > 0 ? () => onPageChanged(page - 1) : null,
+            visualDensity: VisualDensity.compact,
+            tooltip: 'Previous page',
+          ),
+          Text('${page + 1} / $_totalPages', style: const TextStyle(fontSize: 12, color: kTextSecondary)),
+          IconButton(
+            icon: const Icon(Icons.chevron_right, size: 20),
+            onPressed: page < _totalPages - 1 ? () => onPageChanged(page + 1) : null,
+            visualDensity: VisualDensity.compact,
+            tooltip: 'Next page',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Returns a page-slice of [items]. Clamps to the last valid page if [page]
+/// overshoots (can happen when a filter shrinks the list while paged forward).
+List<T> pageSlice<T>(List<T> items, int page, int perPage) {
+  if (items.isEmpty) return [];
+  final maxPage = ((items.length / perPage).ceil() - 1).clamp(0, 999999);
+  final safePage = page.clamp(0, maxPage);
+  final start = safePage * perPage;
+  return items.sublist(start, (start + perPage).clamp(0, items.length));
+}
+
 class StatusDropdown extends StatelessWidget {
   const StatusDropdown({super.key, required this.value, required this.options, required this.onChanged, this.enabled = true});
   final String value;

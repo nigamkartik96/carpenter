@@ -131,6 +131,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
   String statusFilter = 'All';
   String dateFilter = 'all';
   String sortBy = 'newest';
+  int _page = 0;
+  int _perPage = 25;
 
   void _open(BuildContext context, String orderId) => context.push('/orders/$orderId');
 
@@ -151,7 +153,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         const SizedBox(height: 16),
         TextField(
           controller: search,
-          onChanged: (_) => setState(() {}),
+          onChanged: (_) => setState(() => _page = 0),
           decoration: const InputDecoration(prefixIcon: Icon(Icons.search, size: 18), hintText: 'Search by order number or carpenter', isDense: true),
         ),
         const SizedBox(height: 10),
@@ -159,9 +161,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
           dateFilter: dateFilter,
           statusFilter: statusFilter,
           sortBy: sortBy,
-          onDateFilter: (v) => setState(() => dateFilter = v),
-          onStatusFilter: (v) => setState(() => statusFilter = v),
-          onSortBy: (v) => setState(() => sortBy = v),
+          onDateFilter: (v) => setState(() { dateFilter = v; _page = 0; }),
+          onStatusFilter: (v) => setState(() { statusFilter = v; _page = 0; }),
+          onSortBy: (v) => setState(() { sortBy = v; _page = 0; }),
         ),
         const SizedBox(height: 8),
         Row(
@@ -173,7 +175,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
         ),
         const SizedBox(height: 8),
         if (visible.isEmpty) const EmptyState(icon: Icons.inventory_2_outlined, message: 'No orders match this filter'),
-        if (visible.isNotEmpty)
+        if (visible.isNotEmpty) ...[
+          PaginationBar(
+            total: visible.length,
+            page: _page,
+            perPage: _perPage,
+            onPageChanged: (p) => setState(() => _page = p),
+            onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+          ),
           Container(
             decoration: BoxDecoration(color: kBgSurface, borderRadius: BorderRadius.circular(kCardRadius), border: Border.all(color: kBorderSubtle)),
             clipBehavior: Clip.antiAlias,
@@ -188,7 +197,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 DataColumn(label: Text('Status')),
                 DataColumn(label: Text('')),
               ],
-              rows: visible
+              rows: pageSlice(visible, _page, _perPage)
                   .map((o) => DataRow(
                         // Status changes happen on the order detail screen now --
                         // a second "Quick update" dropdown here duplicated that
@@ -207,6 +216,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ),
             ),
           ),
+        ],
       ],
     );
   }

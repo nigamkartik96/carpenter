@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,7 +21,9 @@ class PartyOrdersScreen extends StatefulWidget {
 
 class _PartyOrdersScreenState extends State<PartyOrdersScreen> {
   final search = TextEditingController();
-  String statusFilter = 'all'; // all, pending, approved, completed
+  String statusFilter = 'all';
+  int _page = 0;
+  int _perPage = 10;
 
   // Admin-facing labels for the status filter chips, mirroring PartyStatusChip.
   static const _statusFilters = [
@@ -51,12 +54,12 @@ class _PartyOrdersScreenState extends State<PartyOrdersScreen> {
 
     return ListView(
       children: [
-        Heading('Party orders', subtitle: pending > 0 ? '$pending awaiting your approval' : 'Orders logged on carpenters’ behalf'),
+        Heading('Party orders', subtitle: pending > 0 ? '$pending awaiting your approval' : "Orders logged on carpenters' behalf"),
         const SizedBox(height: spaceMd),
         if (orders.isNotEmpty) ...[
           TextField(
             controller: search,
-            onChanged: (_) => setState(() {}),
+            onChanged: (_) => setState(() => _page = 0),
             decoration: const InputDecoration(prefixIcon: Icon(Icons.search, size: 18), hintText: 'Search by carpenter or party', isDense: true),
           ),
           const SizedBox(height: 10),
@@ -68,7 +71,7 @@ class _PartyOrdersScreenState extends State<PartyOrdersScreen> {
                 FilterChip(
                   label: Text(label, style: const TextStyle(fontSize: 12)),
                   selected: statusFilter == value,
-                  onSelected: (_) => setState(() => statusFilter = value),
+                  onSelected: (_) => setState(() { statusFilter = value; _page = 0; }),
                   visualDensity: VisualDensity.compact,
                 ),
             ],
@@ -76,11 +79,18 @@ class _PartyOrdersScreenState extends State<PartyOrdersScreen> {
           const SizedBox(height: spaceMd),
         ],
         if (orders.isEmpty)
-          const EmptyState(icon: Icons.receipt_long_outlined, message: 'No party orders yet. They’ll appear here once a creator logs one.')
+          const EmptyState(icon: Icons.receipt_long_outlined, message: 'No party orders yet. They will appear here once a creator logs one.')
         else if (visible.isEmpty)
           const EmptyState(icon: Icons.filter_alt_off_outlined, message: 'No party orders match this filter.')
-        else
-          ...visible.map((o) => AppCard(
+        else ...[
+          PaginationBar(
+            total: visible.length,
+            page: _page,
+            perPage: _perPage,
+            onPageChanged: (p) => setState(() => _page = p),
+            onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+          ),
+          ...pageSlice(visible, _page, _perPage).map((o) => AppCard(
                 onTap: () => context.go('/party-orders/${o.id}'),
                 child: Row(
                   children: [
@@ -102,6 +112,7 @@ class _PartyOrdersScreenState extends State<PartyOrdersScreen> {
                   ],
                 ),
               )),
+        ],
       ],
     );
   }
@@ -259,7 +270,7 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
         children: [
           LabeledField(
             label: 'Approved order amount',
-            child: TextField(controller: approveAmt, keyboardType: TextInputType.number, decoration: const InputDecoration(prefixText: '₹ ')),
+            child: TextField(controller: approveAmt, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(prefixText: '₹ ')),
           ),
           const SizedBox(height: spaceMd),
           ElevatedButton.icon(
@@ -309,7 +320,7 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
           const Divider(height: 24, color: kBorderSubtle),
           LabeledField(
             label: 'Record payment received from party',
-            child: TextField(controller: payAmt, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: '10000', prefixText: '₹ ')),
+            child: TextField(controller: payAmt, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(hintText: '10000', prefixText: '₹ ')),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 6, bottom: 10),
@@ -341,7 +352,7 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
                               await infoDialog(
                                 context,
                                 title: 'Order completed',
-                                message: '${o.party}’s order is fully paid. ${_money(totalCollected)} collected and +$totalPoints pts awarded to ${o.carpenterName.split(' ').first}.',
+                                message: "${o.party}'s order is fully paid. ${_money(totalCollected)} collected and +$totalPoints pts awarded to ${o.carpenterName.split(' ').first}.",
                               );
                             }
                           }

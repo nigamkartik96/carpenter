@@ -14,52 +14,71 @@ import '../theme.dart';
 import '../widgets/mic_button.dart';
 import '../widgets/speaker_button.dart';
 
-class OffersScreen extends StatelessWidget {
+class OffersScreen extends StatefulWidget {
   const OffersScreen({super.key});
+
+  @override
+  State<OffersScreen> createState() => _OffersScreenState();
+}
+
+class _OffersScreenState extends State<OffersScreen> {
+  int _page = 0;
+  int _perPage = 10;
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
-    final today = app.offers.where((o) => o.category == 'Today').toList();
-    final weekly = app.offers.where((o) => o.category == 'Weekly').toList();
-    Widget tile(Offer o, Color accent) => SectionCard(
-          onTap: () => Navigator.pushNamed(context, '/offerDetails', arguments: o),
-          child: Row(
-            children: [
-              o.bannerUrl != null
-                  ? ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.network(o.bannerUrl!, width: 40, height: 40, fit: BoxFit.cover))
-                  : Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(10)),
-                      child: const Icon(Icons.local_offer, color: Colors.white, size: 20),
-                    ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(o.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                    Text(app.trf('Valid till {n}', o.validTill), style: TextStyle(color: kMuted, fontSize: 12)),
-                  ],
-                ),
+    final all = app.offers;
+    final paged = pageSlice(all, _page, _perPage);
+    Widget tile(Offer o) {
+      final accent = o.category == 'Today' ? const Color(0xFFD85A30) : const Color(0xFF534AB7);
+      return SectionCard(
+        onTap: () => Navigator.pushNamed(context, '/offerDetails', arguments: o),
+        child: Row(
+          children: [
+            o.bannerUrl != null
+                ? ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.network(o.bannerUrl!, width: 40, height: 40, fit: BoxFit.cover))
+                : Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.local_offer, color: Colors.white, size: 20),
+                  ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(o.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  Text(app.trf('Valid till {n}', o.validTill), style: TextStyle(color: kMuted, fontSize: 12)),
+                ],
               ),
-            ],
-          ),
-        );
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(color: accent.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
+              child: Text(app.tr(o.category), style: TextStyle(fontSize: 10, color: accent, fontWeight: FontWeight.w600)),
+            ),
+          ],
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(title: Text(app.tr('Offers'))),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(app.tr('Today'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: kMuted)),
-          Text(app.tr('Aaj hi order dene me fayada'), style: const TextStyle(fontSize: 11, color: kPrimary, fontStyle: FontStyle.italic)),
-          const SizedBox(height: 8),
-          ...today.map((o) => tile(o, const Color(0xFFD85A30))),
-          const SizedBox(height: 12),
-          Text(app.tr('Weekly'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: kMuted)),
-          Text(app.tr('Is hafte order dene me fayada'), style: const TextStyle(fontSize: 11, color: kPrimary, fontStyle: FontStyle.italic)),
-          const SizedBox(height: 8),
-          ...weekly.map((o) => tile(o, const Color(0xFF534AB7))),
+          if (all.isEmpty)
+            Center(child: Text(app.tr('No offers available'), style: TextStyle(color: kMuted, fontSize: 13)))
+          else ...[
+            PaginationBar(
+              total: all.length,
+              page: _page,
+              perPage: _perPage,
+              onPageChanged: (p) => setState(() => _page = p),
+              onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+            ),
+            ...paged.map((o) => tile(o)),
+          ],
         ],
       ),
     );
@@ -662,33 +681,50 @@ class OrderThumbnail extends StatelessWidget {
   }
 }
 
-class OrderHistoryScreen extends StatelessWidget {
+class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key, this.embedded = false});
   final bool embedded;
 
   @override
+  State<OrderHistoryScreen> createState() => _OrderHistoryScreenState();
+}
+
+class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
+  int _page = 0;
+  int _perPage = 10;
+
+  @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
-    final body = app.orders.isEmpty
-        ? Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.inventory_2_outlined, size: 40, color: kMuted),
-                  const SizedBox(height: 10),
-                  Text(app.tr('No orders yet'), style: TextStyle(color: kMuted, fontSize: 13)),
-                ],
-              ),
-            ),
-          )
-        : ListView.builder(
+    if (app.orders.isEmpty) {
+      final empty = Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.inventory_2_outlined, size: 40, color: kMuted),
+              const SizedBox(height: 10),
+              Text(app.tr('No orders yet'), style: TextStyle(color: kMuted, fontSize: 13)),
+            ],
+          ),
+        ),
+      );
+      if (widget.embedded) return empty;
+      return Scaffold(appBar: AppBar(title: Text(app.tr('Order history'))), body: empty);
+    }
+    final paged = pageSlice(app.orders, _page, _perPage);
+    final body = ListView(
       padding: const EdgeInsets.all(16),
-      itemCount: app.orders.length,
-      itemBuilder: (context, i) {
-        final o = app.orders[i];
-        return SectionCard(
+      children: [
+        PaginationBar(
+          total: app.orders.length,
+          page: _page,
+          perPage: _perPage,
+          onPageChanged: (p) => setState(() => _page = p),
+          onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+        ),
+        ...paged.map((o) => SectionCard(
           onTap: () => Navigator.pushNamed(context, '/orderDetails', arguments: o.id),
           child: Row(
             children: [
@@ -706,10 +742,10 @@ class OrderHistoryScreen extends StatelessWidget {
               StatusBadge(o.status),
             ],
           ),
-        );
-      },
+        )),
+      ],
     );
-    if (embedded) return body;
+    if (widget.embedded) return body;
     return Scaffold(appBar: AppBar(title: Text(app.tr('Order history'))), body: body);
   }
 }

@@ -427,10 +427,18 @@ class AdminState extends ChangeNotifier {
   List<Redemption> redemptionsFor(String carpenterId) => redemptions.where((r) => r.carpenterId == carpenterId).toList();
   List<AdminLead> leadsFor(String carpenterId) => leads.where((l) => l.carpenterId == carpenterId).toList();
 
-  int totalOrderAmount(String carpenterId) => ordersFor(carpenterId).fold(0, (sum, o) => sum + o.amount);
+  List<PartyOrder> partyOrdersFor(String carpenterId) => partyOrders.where((o) => o.carpenterId == carpenterId).toList();
+
+  int totalOrderAmount(String carpenterId) {
+    final regular = ordersFor(carpenterId).fold(0, (sum, o) => sum + o.amount);
+    final party = partyOrdersFor(carpenterId).fold(0, (sum, o) => sum + o.amount);
+    return regular + party;
+  }
 
   DateTime? lastOrderDate(String carpenterId) {
-    final dates = ordersFor(carpenterId).map((o) => o.createdAt).whereType<DateTime>();
+    final regularDates = ordersFor(carpenterId).map((o) => o.createdAt).whereType<DateTime>();
+    final partyDates = partyOrdersFor(carpenterId).map((o) => o.createdAt).whereType<DateTime>();
+    final dates = [...regularDates, ...partyDates];
     if (dates.isEmpty) return null;
     return dates.reduce((a, b) => a.isAfter(b) ? a : b);
   }

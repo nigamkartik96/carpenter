@@ -52,6 +52,11 @@ devtools/
 # Firebase CLI local deploy cache (machine-specific, regenerated on deploy)
 **/.firebase/
 
+# Local session/deploy working docs -- machine-specific notes used across
+# Claude Code sessions; intentionally NOT part of the product/repo history.
+/SESSION_CONTEXT.md
+/DEPLOY.md
+
 # OS noise
 .DS_Store
 Thumbs.db

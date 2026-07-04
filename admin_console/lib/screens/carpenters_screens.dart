@@ -14,8 +14,10 @@ class CarpentersScreen extends StatefulWidget {
 
 class _CarpentersScreenState extends State<CarpentersScreen> {
   final search = TextEditingController();
-  String statusFilter = 'all'; // all, Pending, Approved, Rejected
-  String tierFilter = 'all'; // all, or one of carpenterTiers
+  String statusFilter = 'all';
+  String tierFilter = 'all';
+  int _page = 0;
+  int _perPage = 25;
 
   static const _statuses = ['all', 'Pending', 'Approved', 'Rejected'];
 
@@ -37,6 +39,8 @@ class _CarpentersScreenState extends State<CarpentersScreen> {
       if (q.isEmpty) return true;
       return c.name.toLowerCase().contains(q) || c.shop.toLowerCase().contains(q) || c.mobile.toLowerCase().contains(q);
     }).toList();
+
+    final paged = pageSlice(filtered, _page, _perPage);
 
     return ListView(
       children: [
@@ -93,7 +97,7 @@ class _CarpentersScreenState extends State<CarpentersScreen> {
         else ...[
           TextField(
             controller: search,
-            onChanged: (_) => setState(() {}),
+            onChanged: (_) => setState(() => _page = 0),
             decoration: const InputDecoration(prefixIcon: Icon(Icons.search, size: 18), hintText: 'Search by name, shop or mobile', isDense: true),
           ),
           const SizedBox(height: 10),
@@ -106,26 +110,33 @@ class _CarpentersScreenState extends State<CarpentersScreen> {
                 FilterChip(
                   label: Text(s == 'all' ? 'All statuses' : s, style: const TextStyle(fontSize: 12)),
                   selected: statusFilter == s,
-                  onSelected: (_) => setState(() => statusFilter = s),
+                  onSelected: (_) => setState(() { statusFilter = s; _page = 0; }),
                   visualDensity: VisualDensity.compact,
                 ),
               const SizedBox(width: 4),
               FilterChip(
                 label: const Text('All tiers', style: TextStyle(fontSize: 12)),
                 selected: tierFilter == 'all',
-                onSelected: (_) => setState(() => tierFilter = 'all'),
+                onSelected: (_) => setState(() { tierFilter = 'all'; _page = 0; }),
                 visualDensity: VisualDensity.compact,
               ),
               for (final t in carpenterTiers)
                 FilterChip(
                   label: Text(t, style: const TextStyle(fontSize: 12)),
                   selected: tierFilter == t,
-                  onSelected: (_) => setState(() => tierFilter = t),
+                  onSelected: (_) => setState(() { tierFilter = t; _page = 0; }),
                   visualDensity: VisualDensity.compact,
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 4),
+          PaginationBar(
+            total: filtered.length,
+            page: _page,
+            perPage: _perPage,
+            onPageChanged: (p) => setState(() => _page = p),
+            onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+          ),
           if (filtered.isEmpty)
             const EmptyState(icon: Icons.filter_alt_off_outlined, message: 'No carpenters match this filter')
           else
@@ -137,7 +148,7 @@ class _CarpentersScreenState extends State<CarpentersScreen> {
                 spacing: spacing,
                 runSpacing: spacing,
                 children: [
-                  for (final c in filtered)
+                  for (final c in paged)
                     SizedBox(
                       width: tileWidth,
                       child: _CarpenterTile(carpenter: c, orderCount: app.ordersFor(c.id).length, onTap: () => context.push('/carpenters/${c.id}')),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../state.dart';
 import '../widgets.dart';
@@ -126,6 +127,7 @@ class _LeadPointsRuleFormState extends State<_LeadPointsRuleForm> {
             child: TextField(
               controller: qualified,
               keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               onChanged: (_) => _edited = true,
               decoration: const InputDecoration(labelText: 'Qualified -> pts'),
             ),
@@ -135,6 +137,7 @@ class _LeadPointsRuleFormState extends State<_LeadPointsRuleForm> {
             child: TextField(
               controller: converted,
               keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               onChanged: (_) => _edited = true,
               decoration: const InputDecoration(labelText: 'Converted -> pts'),
             ),

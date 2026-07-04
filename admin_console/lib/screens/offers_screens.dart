@@ -11,17 +11,23 @@ import '../widgets.dart';
 const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 String fmtDate(DateTime d) => '${d.day.toString().padLeft(2, '0')} ${_months[d.month - 1]} ${d.year}';
 
-class OffersScreen extends StatelessWidget {
+class OffersScreen extends StatefulWidget {
   const OffersScreen({super.key});
+
+  @override
+  State<OffersScreen> createState() => _OffersScreenState();
+}
+
+class _OffersScreenState extends State<OffersScreen> {
+  int _page = 0;
+  int _perPage = 10;
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AdminState>();
     final live = app.offers.where((o) => o.status != 'Withdrawn').toList();
     final past = app.offers.where((o) => o.status == 'Withdrawn').toList();
-    final today = live.where((o) => o.category == 'Today').toList();
-    final weekly = live.where((o) => o.category == 'Weekly').toList();
-    final other = live.where((o) => o.category != 'Today' && o.category != 'Weekly').toList();
+    final all = [...live, ...past];
 
     Widget tile(AdminOffer o) => AppCard(
           onTap: () => context.push('/offers/${o.id}'),
@@ -45,6 +51,8 @@ class OffersScreen extends StatelessWidget {
           ),
         );
 
+    final paged = pageSlice(all, _page, _perPage);
+
     return ListView(
       children: [
         Row(
@@ -59,27 +67,18 @@ class OffersScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        const SubHeading('Today'),
-        const SizedBox(height: 8),
-        if (today.isEmpty) const EmptyState(icon: Icons.local_offer_outlined, message: 'No live offers'),
-        ...today.map(tile),
-        const SizedBox(height: 12),
-        const SubHeading('Weekly'),
-        const SizedBox(height: 8),
-        if (weekly.isEmpty) const EmptyState(icon: Icons.local_offer_outlined, message: 'No live offers'),
-        ...weekly.map(tile),
-        if (other.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          const SubHeading('Other'),
-          const SizedBox(height: 8),
-          ...other.map(tile),
-        ],
-        if (past.isNotEmpty) ...[
-          const SizedBox(height: 20),
-          const SubHeading('Past offers'),
-          const SizedBox(height: 8),
-          ...past.map(tile),
-        ],
+        if (all.isNotEmpty)
+          PaginationBar(
+            total: all.length,
+            page: _page,
+            perPage: _perPage,
+            onPageChanged: (p) => setState(() => _page = p),
+            onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+          ),
+        if (all.isEmpty)
+          const EmptyState(icon: Icons.local_offer_outlined, message: 'No offers yet')
+        else
+          ...paged.map(tile),
       ],
     );
   }

@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../cloudinary_service.dart';
@@ -9,14 +10,23 @@ import '../widgets.dart';
 
 const _lowStockThreshold = 5;
 
-class GiftsScreen extends StatelessWidget {
+class GiftsScreen extends StatefulWidget {
   const GiftsScreen({super.key});
+
+  @override
+  State<GiftsScreen> createState() => _GiftsScreenState();
+}
+
+class _GiftsScreenState extends State<GiftsScreen> {
+  int _page = 0;
+  int _perPage = 25;
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AdminState>();
     final live = app.gifts.where((g) => g.status != 'Withdrawn').toList();
     final past = app.gifts.where((g) => g.status == 'Withdrawn').toList();
+    final all = [...live, ...past];
 
     Widget grid(List<AdminGift> gifts) => GridView.builder(
           shrinkWrap: true,
@@ -69,6 +79,8 @@ class GiftsScreen extends StatelessWidget {
           },
         );
 
+    final paged = pageSlice(all, _page, _perPage);
+
     return ListView(
       children: [
         Row(
@@ -83,13 +95,16 @@ class GiftsScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        if (live.isEmpty) const EmptyState(icon: Icons.card_giftcard_outlined, message: 'No gifts in the catalog yet'),
-        grid(live),
-        if (past.isNotEmpty) ...[
-          const SizedBox(height: 20),
-          const SubHeading('Withdrawn gifts'),
-          const SizedBox(height: 10),
-          grid(past),
+        if (all.isEmpty) const EmptyState(icon: Icons.card_giftcard_outlined, message: 'No gifts in the catalog yet'),
+        if (all.isNotEmpty) ...[
+          PaginationBar(
+            total: all.length,
+            page: _page,
+            perPage: _perPage,
+            onPageChanged: (p) => setState(() => _page = p),
+            onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+          ),
+          grid(paged),
         ],
       ],
     );
@@ -232,7 +247,7 @@ class _NewGiftDialogState extends State<_NewGiftDialog> {
                 child: LabeledField(
                   label: 'Points required',
                   error: submitted && (int.tryParse(points.text) ?? 0) <= 0 ? 'Enter a positive number' : null,
-                  child: TextField(controller: points, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: '0')),
+                  child: TextField(controller: points, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(hintText: '0')),
                 ),
               ),
               const SizedBox(width: spaceSm),
@@ -240,7 +255,7 @@ class _NewGiftDialogState extends State<_NewGiftDialog> {
                 child: LabeledField(
                   label: 'Stock quantity',
                   error: submitted && (int.tryParse(qty.text) ?? -1) < 0 ? 'Enter a valid quantity' : null,
-                  child: TextField(controller: qty, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: '0')),
+                  child: TextField(controller: qty, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(hintText: '0')),
                 ),
               ),
             ],

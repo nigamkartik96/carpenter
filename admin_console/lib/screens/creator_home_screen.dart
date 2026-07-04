@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import '../cloudinary_service.dart';
@@ -10,8 +11,16 @@ import '../widgets.dart';
 /// just the "Create order" action and this creator's own submitted party
 /// orders. Everything else in the console is hidden for this role (see the
 /// router redirect and role-aware sidebar).
-class CreatorHomeScreen extends StatelessWidget {
+class CreatorHomeScreen extends StatefulWidget {
   const CreatorHomeScreen({super.key});
+
+  @override
+  State<CreatorHomeScreen> createState() => _CreatorHomeScreenState();
+}
+
+class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
+  int _page = 0;
+  int _perPage = 10;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +28,7 @@ class CreatorHomeScreen extends StatelessWidget {
     final orders = app.partyOrders;
     return ListView(
       children: [
-        const Heading('Create order', subtitle: 'Log an order taken from a party on a carpenter’s behalf'),
+        const Heading('Create order', subtitle: "Log an order taken from a party on a carpenter's behalf"),
         const SizedBox(height: spaceLg),
         Material(
           color: kBgSurface,
@@ -59,8 +68,16 @@ class CreatorHomeScreen extends StatelessWidget {
         const SizedBox(height: spaceSm),
         if (orders.isEmpty)
           const EmptyState(icon: Icons.receipt_long_outlined, message: 'No orders yet. Create your first one above.')
-        else
-          ...orders.map((o) => _CreatorOrderCard(order: o)),
+        else ...[
+          PaginationBar(
+            total: orders.length,
+            page: _page,
+            perPage: _perPage,
+            onPageChanged: (p) => setState(() => _page = p),
+            onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+          ),
+          ...pageSlice(orders, _page, _perPage).map((o) => _CreatorOrderCard(order: o)),
+        ],
       ],
     );
   }
@@ -271,7 +288,7 @@ class _PartyOrderDialogState extends State<_PartyOrderDialog> {
         LabeledField(
           label: 'Order amount',
           error: submitted && (int.tryParse(amount.text) ?? 0) <= 0 ? 'Enter a valid amount' : null,
-          child: TextField(controller: amount, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: '24000', prefixText: '₹ ')),
+          child: TextField(controller: amount, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(hintText: '24000', prefixText: '₹ ')),
         ),
         const SizedBox(height: spaceMd),
         LabeledField(

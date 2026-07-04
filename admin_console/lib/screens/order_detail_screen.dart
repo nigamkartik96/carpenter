@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -220,9 +221,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     children: [
                       Expanded(flex: 3, child: TextField(controller: r.name, enabled: !itemsLocked, onChanged: (_) => setState(() {}))),
                       const SizedBox(width: 8),
-                      Expanded(child: TextField(controller: r.qty, enabled: !itemsLocked, keyboardType: TextInputType.number, onChanged: (_) => setState(() {}))),
+                      Expanded(child: TextField(controller: r.qty, enabled: !itemsLocked, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], onChanged: (_) => setState(() {}))),
                       const SizedBox(width: 8),
-                      Expanded(flex: 2, child: TextField(controller: r.unitCost, enabled: !itemsLocked, keyboardType: TextInputType.number, onChanged: (_) => setState(() {}))),
+                      Expanded(flex: 2, child: TextField(controller: r.unitCost, enabled: !itemsLocked, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], onChanged: (_) => setState(() {}))),
                       SizedBox(
                         width: 36,
                         child: IconButton(
