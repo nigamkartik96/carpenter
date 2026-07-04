@@ -144,6 +144,62 @@ class Redemption {
   String status; // Pending, Approved, On store, Dispatched, Delivered
 }
 
+/// A single payment the party made against a [PartyOrder]. Each one credits
+/// the carpenter points at the time it's recorded, so [points] is captured
+/// per-payment rather than recomputed from the total.
+class PartyPayment {
+  PartyPayment({required this.amount, required this.points});
+  final int amount;
+  final int points;
+
+  Map<String, dynamic> toMap() => {'amount': amount, 'points': points};
+
+  static PartyPayment fromMap(Map<String, dynamic> m) => PartyPayment(
+        amount: (m['amount'] is int) ? m['amount'] : int.tryParse('${m['amount']}') ?? 0,
+        points: (m['points'] is int) ? m['points'] : int.tryParse('${m['points']}') ?? 0,
+      );
+}
+
+/// An order the order-creator role logs on a carpenter's behalf, taken from
+/// a party. Lives in its own `partyOrders` collection that the carpenter app
+/// never reads -- only the points from each recorded payment reach the
+/// carpenter (via pointsLedger + a notification). Distinct from [AdminOrder],
+/// which is a real order the carpenter placed in the mobile app.
+class PartyOrder {
+  PartyOrder({
+    required this.id,
+    required this.carpenterId,
+    required this.carpenterName,
+    required this.party,
+    required this.amount,
+    this.status = 'pending',
+    this.approvedAmount = 0,
+    this.fileUrl,
+    this.fileType,
+    this.payments = const [],
+    this.createdBy,
+    this.createdAt,
+  });
+
+  final String id;
+  final String carpenterId;
+  final String carpenterName; // denormalized at create time so the list needs no join
+  final String party;
+  final int amount; // amount the creator entered
+  String status; // pending, approved, completed
+  int approvedAmount; // set by the admin on approval
+  final String? fileUrl;
+  final String? fileType; // 'image' or 'pdf'
+  final List<PartyPayment> payments;
+  final String? createdBy; // uid of the order-creator account
+  final DateTime? createdAt;
+
+  int get paid => payments.fold(0, (s, p) => s + p.amount);
+  int get pointsAwarded => payments.fold(0, (s, p) => s + p.points);
+  int get remaining => (approvedAmount - paid).clamp(0, approvedAmount);
+  bool get editable => status == 'pending'; // creator can edit only before approval
+}
+
 class AdminLead {
   AdminLead({
     required this.id,

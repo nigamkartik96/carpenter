@@ -252,170 +252,123 @@ class _NewOfferDialogState extends State<_NewOfferDialog> {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _close();
       },
-      child: Dialog(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 520, maxHeight: 640),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
+      child: FormDialog(
+        title: 'New offer',
+        subtitle: 'Publish a promotion or announcement to carpenters',
+        icon: Icons.local_offer_outlined,
+        onClose: _close,
+        children: [
+          ImagePickerBox(
+            imageUrl: bannerUrl,
+            uploading: uploading,
+            onTap: () => _pickAndUpload(isPdf: false),
+            hint: 'Click to upload a banner image',
+          ),
+          const SizedBox(height: spaceMd),
+          LabeledField(
+            label: 'Title',
+            error: submitted && title.text.trim().isEmpty ? 'Title is required' : null,
+            child: TextField(controller: title, onChanged: (_) => setState(() {}), decoration: const InputDecoration(hintText: 'e.g. आज का ऑफ़र')),
+          ),
+          const SizedBox(height: spaceSm),
+          LabeledField(
+            label: 'Description (optional)',
+            child: TextField(controller: description, maxLines: 2, decoration: const InputDecoration(hintText: 'Shown on the offer detail page')),
+          ),
+          const SizedBox(height: spaceSm),
+          OutlinedButton.icon(
+            onPressed: uploading ? null : () => _pickAndUpload(isPdf: true),
+            icon: const Icon(Icons.picture_as_pdf_outlined, size: 16),
+            label: Text(pdfUrl != null ? 'PDF uploaded' : 'Add PDF (optional)'),
+          ),
+          const SizedBox(height: spaceSm),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  value: category,
+                  items: const [
+                    DropdownMenuItem(value: 'Today', child: Text('Today')),
+                    DropdownMenuItem(value: 'Weekly', child: Text('Weekly')),
+                    DropdownMenuItem(value: 'Other', child: Text('Other')),
+                  ],
+                  onChanged: (v) => setState(() => category = v ?? 'Today'),
+                  decoration: const InputDecoration(labelText: 'Category'),
+                ),
+              ),
+              const SizedBox(width: spaceSm),
+              Expanded(
+                child: category == 'Other'
+                    ? InkWell(
+                        onTap: _pickOtherDate,
+                        child: InputDecorator(
+                          decoration: const InputDecoration(labelText: 'Valid till'),
+                          child: Text(fmtDate(otherDate)),
+                        ),
+                      )
+                    : InputDecorator(
+                        decoration: const InputDecoration(labelText: 'Valid till (auto)'),
+                        child: Text(_computedValidTill),
+                      ),
+              ),
+            ],
+          ),
+          const SizedBox(height: spaceLg),
+          const SubHeading('Send to'),
+          const SizedBox(height: spaceSm),
+          Container(
+            decoration: BoxDecoration(color: kBgApp, borderRadius: BorderRadius.circular(kCardRadius), border: Border.all(color: kBorderSubtle)),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('New offer', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
-                    IconButton(icon: const Icon(Icons.close), onPressed: _close),
-                  ],
+                CheckboxListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: spaceSm),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  dense: true,
+                  value: allCarpenters,
+                  title: const Text('All approved carpenters', style: TextStyle(fontSize: 13)),
+                  onChanged: (v) => setState(() => allCarpenters = v ?? true),
                 ),
-                const SizedBox(height: 8),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        GestureDetector(
-                          onTap: uploading ? null : () => _pickAndUpload(isPdf: false),
-                          child: Container(
-                            height: 140,
-                            width: double.infinity,
-                            decoration: BoxDecoration(color: Colors.black.withOpacity(0.04), borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.black12)),
-                            clipBehavior: Clip.antiAlias,
-                            child: uploading
-                                ? const Center(child: CircularProgressIndicator())
-                                : bannerUrl != null
-                                    ? Stack(
-                                        fit: StackFit.expand,
-                                        children: [
-                                          Image.network(bannerUrl!, fit: BoxFit.cover),
-                                          Positioned(
-                                            right: 6,
-                                            top: 6,
-                                            child: Material(
-                                              color: Colors.black54,
-                                              shape: const CircleBorder(),
-                                              child: IconButton(icon: const Icon(Icons.edit, color: Colors.white, size: 16), onPressed: () => _pickAndUpload(isPdf: false)),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : const Center(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(Icons.image_outlined, color: kMuted, size: 28),
-                                            SizedBox(height: 6),
-                                            Text('Tap to add a banner image', style: TextStyle(color: kMuted, fontSize: 12)),
-                                          ],
-                                        ),
-                                      ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        LabeledField(
-                          label: 'Title',
-                          error: submitted && title.text.trim().isEmpty ? 'Title is required' : null,
-                          child: TextField(controller: title, onChanged: (_) => setState(() {}), decoration: const InputDecoration(hintText: 'e.g. आज का ऑफ़र')),
-                        ),
-                        const SizedBox(height: 10),
-                        LabeledField(
-                          label: 'Description (optional)',
-                          child: TextField(controller: description, maxLines: 2, decoration: const InputDecoration(hintText: 'Shown on the offer detail page')),
-                        ),
-                        const SizedBox(height: 10),
-                        OutlinedButton.icon(
-                          onPressed: uploading ? null : () => _pickAndUpload(isPdf: true),
-                          icon: const Icon(Icons.picture_as_pdf_outlined, size: 16),
-                          label: Text(pdfUrl != null ? 'PDF uploaded' : 'Add PDF (optional)'),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                value: category,
-                                items: const [
-                                  DropdownMenuItem(value: 'Today', child: Text('Today')),
-                                  DropdownMenuItem(value: 'Weekly', child: Text('Weekly')),
-                                  DropdownMenuItem(value: 'Other', child: Text('Other')),
-                                ],
-                                onChanged: (v) => setState(() => category = v ?? 'Today'),
-                                decoration: const InputDecoration(labelText: 'Category'),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: category == 'Other'
-                                  ? InkWell(
-                                      onTap: _pickOtherDate,
-                                      child: InputDecorator(
-                                        decoration: const InputDecoration(labelText: 'Valid till'),
-                                        child: Text(fmtDate(otherDate)),
-                                      ),
-                                    )
-                                  : InputDecorator(
-                                      decoration: const InputDecoration(labelText: 'Valid till (auto)'),
-                                      child: Text(_computedValidTill),
-                                    ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        const SubHeading('Send to'),
-                        const SizedBox(height: 6),
-                        CheckboxListTile(
-                          contentPadding: EdgeInsets.zero,
-                          controlAffinity: ListTileControlAffinity.leading,
-                          dense: true,
-                          value: allCarpenters,
-                          title: const Text('All approved carpenters', style: TextStyle(fontSize: 13)),
-                          onChanged: (v) => setState(() => allCarpenters = v ?? true),
-                        ),
-                        if (!allCarpenters) _CarpenterPicker(app: app, dialog: this),
-                      ],
-                    ),
+                if (!allCarpenters)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(spaceSm, 0, spaceSm, spaceSm),
+                    child: _CarpenterPicker(app: app, dialog: this),
                   ),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(onPressed: _close, child: const Text('Cancel')),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: saving
-                          ? null
-                          : () async {
-                              setState(() => submitted = true);
-                              if (title.text.trim().isEmpty) return;
-                              setState(() => saving = true);
-                              try {
-                                await app.addOffer(
-                                  title.text,
-                                  category,
-                                  _computedValidTill,
-                                  description: description.text.trim(),
-                                  bannerUrl: bannerUrl,
-                                  pdfUrl: pdfUrl,
-                                  targetCarpenterIds: allCarpenters ? null : selectedIds.toList(),
-                                );
-                                if (mounted) Navigator.pop(context);
-                              } catch (e) {
-                                if (mounted) {
-                                  setState(() => saving = false);
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not publish offer: $e')));
-                                }
-                              }
-                            },
-                      child: Text(saving ? 'Publishing...' : 'Publish offer'),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
-        ),
+        ],
+        actions: [
+          TextButton(onPressed: _close, child: const Text('Cancel')),
+          const SizedBox(width: spaceSm),
+          ElevatedButton(
+            onPressed: saving
+                ? null
+                : () async {
+                    setState(() => submitted = true);
+                    if (title.text.trim().isEmpty) return;
+                    setState(() => saving = true);
+                    try {
+                      await app.addOffer(
+                        title.text,
+                        category,
+                        _computedValidTill,
+                        description: description.text.trim(),
+                        bannerUrl: bannerUrl,
+                        pdfUrl: pdfUrl,
+                        targetCarpenterIds: allCarpenters ? null : selectedIds.toList(),
+                      );
+                      if (mounted) Navigator.pop(context);
+                    } catch (e) {
+                      if (mounted) {
+                        setState(() => saving = false);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not publish offer: $e')));
+                      }
+                    }
+                  },
+            child: Text(saving ? 'Publishing...' : 'Publish offer'),
+          ),
+        ],
       ),
     );
   }
@@ -466,12 +419,13 @@ class _CarpenterPickerState extends State<_CarpenterPicker> {
         list.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     }
 
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(color: Colors.black.withOpacity(0.03), borderRadius: BorderRadius.circular(8)),
-      child: Column(
+    // No border/background of its own -- this nests inside the "Send to"
+    // card in the dialog above, so a second box here would just double up
+    // the border for no visual benefit.
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Divider(height: spaceLg, color: kBorderSubtle),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -544,7 +498,6 @@ class _CarpenterPickerState extends State<_CarpenterPicker> {
                   ),
           ),
         ],
-      ),
     );
   }
 }

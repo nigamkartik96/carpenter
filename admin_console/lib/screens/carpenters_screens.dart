@@ -5,13 +5,39 @@ import '../models.dart';
 import '../state.dart';
 import '../widgets.dart';
 
-class CarpentersScreen extends StatelessWidget {
+class CarpentersScreen extends StatefulWidget {
   const CarpentersScreen({super.key});
+
+  @override
+  State<CarpentersScreen> createState() => _CarpentersScreenState();
+}
+
+class _CarpentersScreenState extends State<CarpentersScreen> {
+  final search = TextEditingController();
+  String statusFilter = 'all'; // all, Pending, Approved, Rejected
+  String tierFilter = 'all'; // all, or one of carpenterTiers
+
+  static const _statuses = ['all', 'Pending', 'Approved', 'Rejected'];
+
+  @override
+  void dispose() {
+    search.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AdminState>();
     final pending = app.carpenters.where((c) => c.status == 'Pending').toList();
+
+    final q = search.text.trim().toLowerCase();
+    final filtered = app.carpenters.where((c) {
+      if (statusFilter != 'all' && c.status != statusFilter) return false;
+      if (tierFilter != 'all' && c.tier != tierFilter) return false;
+      if (q.isEmpty) return true;
+      return c.name.toLowerCase().contains(q) || c.shop.toLowerCase().contains(q) || c.mobile.toLowerCase().contains(q);
+    }).toList();
+
     return ListView(
       children: [
         const Heading('Carpenters', subtitle: 'Approve new sign-ups and manage existing carpenters'),
@@ -62,23 +88,64 @@ class CarpentersScreen extends StatelessWidget {
         ],
         const SubHeading('All carpenters'),
         const SizedBox(height: 10),
-        if (app.carpenters.isEmpty) const EmptyState(icon: Icons.people_outline, message: 'No carpenters yet'),
-        LayoutBuilder(builder: (context, constraints) {
-          final perRow = (constraints.maxWidth / 200).floor().clamp(2, 6);
-          final spacing = 12.0;
-          final tileWidth = (constraints.maxWidth - spacing * (perRow - 1)) / perRow;
-          return Wrap(
-            spacing: spacing,
-            runSpacing: spacing,
+        if (app.carpenters.isEmpty)
+          const EmptyState(icon: Icons.people_outline, message: 'No carpenters yet')
+        else ...[
+          TextField(
+            controller: search,
+            onChanged: (_) => setState(() {}),
+            decoration: const InputDecoration(prefixIcon: Icon(Icons.search, size: 18), hintText: 'Search by name, shop or mobile', isDense: true),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              for (final c in app.carpenters)
-                SizedBox(
-                  width: tileWidth,
-                  child: _CarpenterTile(carpenter: c, orderCount: app.ordersFor(c.id).length, onTap: () => context.push('/carpenters/${c.id}')),
+              for (final s in _statuses)
+                FilterChip(
+                  label: Text(s == 'all' ? 'All statuses' : s, style: const TextStyle(fontSize: 12)),
+                  selected: statusFilter == s,
+                  onSelected: (_) => setState(() => statusFilter = s),
+                  visualDensity: VisualDensity.compact,
+                ),
+              const SizedBox(width: 4),
+              FilterChip(
+                label: const Text('All tiers', style: TextStyle(fontSize: 12)),
+                selected: tierFilter == 'all',
+                onSelected: (_) => setState(() => tierFilter = 'all'),
+                visualDensity: VisualDensity.compact,
+              ),
+              for (final t in carpenterTiers)
+                FilterChip(
+                  label: Text(t, style: const TextStyle(fontSize: 12)),
+                  selected: tierFilter == t,
+                  onSelected: (_) => setState(() => tierFilter = t),
+                  visualDensity: VisualDensity.compact,
                 ),
             ],
-          );
-        }),
+          ),
+          const SizedBox(height: 12),
+          if (filtered.isEmpty)
+            const EmptyState(icon: Icons.filter_alt_off_outlined, message: 'No carpenters match this filter')
+          else
+            LayoutBuilder(builder: (context, constraints) {
+              final perRow = (constraints.maxWidth / 200).floor().clamp(2, 6);
+              const spacing = 12.0;
+              final tileWidth = (constraints.maxWidth - spacing * (perRow - 1)) / perRow;
+              return Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
+                children: [
+                  for (final c in filtered)
+                    SizedBox(
+                      width: tileWidth,
+                      child: _CarpenterTile(carpenter: c, orderCount: app.ordersFor(c.id).length, onTap: () => context.push('/carpenters/${c.id}')),
+                    ),
+                ],
+              );
+            }),
+        ],
       ],
     );
   }
@@ -111,6 +178,15 @@ class _CarpenterTile extends StatelessWidget {
               const SizedBox(height: 8),
               Wrap(alignment: WrapAlignment.center, spacing: 6, runSpacing: 6, children: [StatusBadge(carpenter.status), AudienceBadge(carpenter.tier)]),
               const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.stars_rounded, size: 14, color: kAccentPrimary),
+                  const SizedBox(width: 4),
+                  Text('${carpenter.points} pts', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: kAccentPrimary)),
+                ],
+              ),
+              const SizedBox(height: 6),
               Text('$orderCount order${orderCount == 1 ? '' : 's'} · ${carpenter.lastSeen}', textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kTextMuted, fontSize: 11)),
             ],
           ),

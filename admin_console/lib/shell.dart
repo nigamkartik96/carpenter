@@ -15,19 +15,17 @@ class AdminShell extends StatelessWidget {
   final Widget child;
   final String location;
 
-  int get _selectedIndex {
-    final i = adminSections.indexWhere((s) => s.$1 != '/' && location.startsWith(s.$1));
+  List<(String, String, IconData)> _sections(AdminState app) => sectionsFor(app.role);
+
+  int _selectedIndex(AdminState app) {
+    final sections = _sections(app);
+    final i = sections.indexWhere((s) => s.$1 != '/' && location.startsWith(s.$1));
     if (i != -1) return i;
     return location == '/' ? 0 : -1;
   }
 
   Widget _sidebarContent(BuildContext context, AdminState app, int index) {
-    // Grouped into Dashboard (standalone) / Operations (day-to-day field
-    // work) / Engagement (carpenter-facing programs) / Settings
-    // (standalone, bottom) -- purely a visual grouping, indices and
-    // routes are untouched.
-    const operations = [1, 2, 3]; // Carpenters, Locations, Orders
-    const engagement = [4, 5, 6, 7, 8]; // Offers, Gifts, Redemptions, Leads, Notifications
+    final sections = _sections(app);
 
     Widget groupLabel(String text) => Padding(
           padding: const EdgeInsets.fromLTRB(18, 16, 18, 6),
@@ -35,11 +33,11 @@ class AdminShell extends StatelessWidget {
         );
 
     Widget item(int i) => _SidebarItem(
-          icon: adminSections[i].$3,
-          label: adminSections[i].$2,
+          icon: sections[i].$3,
+          label: sections[i].$2,
           selected: i == index,
           onTap: () {
-            context.go(adminSections[i].$1);
+            context.go(sections[i].$1);
             // On mobile this sidebar lives inside a Drawer -- close it
             // after navigating, otherwise the drawer stays open over
             // the newly selected page. Safe no-op on the desktop
@@ -47,6 +45,18 @@ class AdminShell extends StatelessWidget {
             Navigator.maybePop(context);
           },
         );
+
+    // The order-creator role has a single flat destination (Dashboard), so
+    // it skips the grouped Operations/Engagement layout the admin uses.
+    final navItems = app.isCreator
+        ? [for (int i = 0; i < sections.length; i++) item(i)]
+        : <Widget>[
+            item(0),
+            groupLabel('Operations'),
+            for (final i in const [1, 2, 3, 4]) item(i), // Carpenters, Locations, Orders, Party orders
+            groupLabel('Engagement'),
+            for (final i in const [5, 6, 7, 8, 9]) item(i), // Offers, Gifts, Redemptions, Leads, Notifications
+          ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,14 +71,10 @@ class AdminShell extends StatelessWidget {
             ],
           ),
         ),
-        item(0),
-        groupLabel('Operations'),
-        for (final i in operations) item(i),
-        groupLabel('Engagement'),
-        for (final i in engagement) item(i),
+        ...navItems,
         const Spacer(),
         const Divider(color: Colors.white12, height: 1),
-        item(9), // Settings
+        if (!app.isCreator) item(10), // Settings -- admin only
         if (app.adminEmail != null)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
@@ -91,8 +97,8 @@ class AdminShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AdminState>();
-    final index = _selectedIndex;
-    final title = index >= 0 ? adminSections[index].$2 : 'CarpenterHub Admin';
+    final index = _selectedIndex(app);
+    final title = index >= 0 ? _sections(app)[index].$2 : 'CarpenterHub Admin';
 
     return LayoutBuilder(builder: (context, constraints) {
       final isMobile = constraints.maxWidth < 800;

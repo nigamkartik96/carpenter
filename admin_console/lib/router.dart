@@ -17,6 +17,8 @@ import 'screens/redemptions_screen.dart';
 import 'screens/leads_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/party_orders_screen.dart';
+import 'screens/creator_home_screen.dart';
 
 /// Every top-level sidebar destination, in the same order the sidebar
 /// renders them -- path, title, and icon together so AdminShell doesn't
@@ -26,6 +28,7 @@ const List<(String, String, IconData)> adminSections = [
   ('/carpenters', 'Carpenters', Icons.people_outline),
   ('/locations', 'Locations', Icons.map_outlined),
   ('/orders', 'Orders', Icons.inventory_2_outlined),
+  ('/party-orders', 'Party orders', Icons.receipt_long_outlined),
   ('/offers', 'Offers', Icons.local_offer_outlined),
   ('/gifts', 'Gift catalog', Icons.card_giftcard_outlined),
   ('/redemptions', 'Redemptions', Icons.assignment_outlined),
@@ -33,6 +36,15 @@ const List<(String, String, IconData)> adminSections = [
   ('/notifications', 'Notifications', Icons.notifications_outlined),
   ('/settings', 'Settings', Icons.settings_outlined),
 ];
+
+/// The order-creator role sees only its own dashboard -- everything else is
+/// hidden from the sidebar and blocked by the router redirect below.
+const List<(String, String, IconData)> creatorSections = [
+  ('/', 'Dashboard', Icons.dashboard_outlined),
+];
+
+/// Sidebar destinations for the currently signed-in role.
+List<(String, String, IconData)> sectionsFor(String role) => role == 'creator' ? creatorSections : adminSections;
 
 GoRouter buildAdminRouter(AdminState app) {
   return GoRouter(
@@ -50,6 +62,10 @@ GoRouter buildAdminRouter(AdminState app) {
       final onLogin = state.matchedLocation == '/login';
       if (!loggedIn && !onLogin) return '/login';
       if (loggedIn && onLogin) return '/';
+      // Order-creators can only ever be on the dashboard -- any deep link
+      // or manual URL into an admin section bounces back to '/'. Defense in
+      // depth on top of the Firestore rules, which block the data anyway.
+      if (loggedIn && app.isCreator && state.matchedLocation != '/') return '/';
       return null;
     },
     routes: [
@@ -58,7 +74,7 @@ GoRouter buildAdminRouter(AdminState app) {
       ShellRoute(
         builder: (context, state, child) => AdminShell(location: state.matchedLocation, child: child),
         routes: [
-          GoRoute(path: '/', builder: (context, state) => const DashboardScreen()),
+          GoRoute(path: '/', builder: (context, state) => context.read<AdminState>().isCreator ? const CreatorHomeScreen() : const DashboardScreen()),
           GoRoute(
             path: '/carpenters',
             builder: (context, state) => const CarpentersScreen(),
@@ -72,6 +88,13 @@ GoRouter buildAdminRouter(AdminState app) {
             builder: (context, state) => const OrdersScreen(),
             routes: [
               GoRoute(path: ':id', builder: (context, state) => OrderDetailScreen(orderId: state.pathParameters['id']!)),
+            ],
+          ),
+          GoRoute(
+            path: '/party-orders',
+            builder: (context, state) => const PartyOrdersScreen(),
+            routes: [
+              GoRoute(path: ':id', builder: (context, state) => PartyOrderDetailScreen(orderId: state.pathParameters['id']!)),
             ],
           ),
           GoRoute(

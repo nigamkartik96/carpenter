@@ -43,8 +43,125 @@ class AdminFirebaseService {
     }
   }
 
+  /// Same self-read-only allowlist pattern as [checkIsAdmin], for the
+  /// order-creator role (`orderCreators/{uid}`). An order-creator can log
+  /// party orders but sees nothing else in the console.
+  Future<bool> checkIsOrderCreator(String uid) async {
+    try {
+      final doc = await db.collection('orderCreators').doc(uid).get();
+      return doc.exists;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Stream<DocumentSnapshot<Map<String, dynamic>>> watchConfig() =>
       db.collection('config').doc('rules').snapshots();
+
+  // ----- Party orders (order-creator role + admin review) ------------------
+
+  /// All party orders, for the admin review screen.
+  Stream<QuerySnapshot<Map<String, dynamic>>> watchPartyOrders() =>
+      db.collection('partyOrders').orderBy('createdAt', descending: true).snapshots();
+
+  /// Only the party orders this order-creator logged. Sorted client-side
+  /// (see the class-level note in AppState): a where()+orderBy() on
+  /// different fields would need a composite index.
+  Stream<QuerySnapshot<Map<String, dynamic>>> watchPartyOrdersBy(String uid) =>
+      db.collection('partyOrders').where('createdBy', isEqualTo: uid).snapshots();
+
+  Future<void> addPartyOrder({
+    required String carpenterId,
+    required String carpenterName,
+    required String party,
+    required int amount,
+    required String createdBy,
+    String? fileUrl,
+    String? fileType,
+  }) {
+    return db.collection('partyOrders').add({
+      'carpenterId': carpenterId,
+      'carpenterName': carpenterName,
+      'party': party,
+      'amount': amount,
+      'status': 'pending',
+      'approvedAmount': 0,
+      'payments': [],
+      'createdBy': createdBy,
+      if (fileUrl != null) 'fileUrl': fileUrl,
+      if (fileType != null) 'fileType': fileType,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Creator edit, allowed only while still pending (rules enforce this too).
+  Future<void> updatePartyOrder(
+    String id, {
+    required String carpenterId,
+    required String carpenterName,
+    required String party,
+    required int amount,
+    String? fileUrl,
+    String? fileType,
+  }) {
+    return db.collection('partyOrders').doc(id).update({
+      'carpenterId': carpenterId,
+      'carpenterName': carpenterName,
+      'party': party,
+      'amount': amount,
+      if (fileUrl != null) 'fileUrl': fileUrl,
+      if (fileType != null) 'fileType': fileType,
+    });
+  }
+
+  Future<void> approvePartyOrder(String id, int approvedAmount) =>
+      db.collection('partyOrders').doc(id).update({'status': 'approved', 'approvedAmount': approvedAmount});
+
+  Future<void> completePartyOrder(String id) =>
+      db.collection('partyOrders').doc(id).update({'status': 'completed'});
+
+  /// Records a payment the party made and credits the carpenter the
+  /// resulting points in the same transaction -- points, the pointsLedger
+  /// entry, and the notification all land together or not at all, mirroring
+  /// [_recalculatePoints]. Points are computed from the *paid* amount, not
+  /// the order/approved amount, since the party can pay in instalments.
+  Future<void> recordPartyPayment({
+    required String orderId,
+    required String carpenterId,
+    required String party,
+    required int amount,
+    required int pointRuleAmount,
+    required int pointRulePoints,
+  }) async {
+    final points = (pointRuleAmount > 0) ? (amount ~/ pointRuleAmount) * pointRulePoints : 0;
+    final orderRef = db.collection('partyOrders').doc(orderId);
+    await db.runTransaction((tx) async {
+      final snap = await tx.get(orderRef);
+      final existing = (snap.data()?['payments'] as List?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? [];
+      existing.add({'amount': amount, 'points': points});
+      tx.update(orderRef, {'payments': existing});
+      if (points > 0) {
+        tx.update(db.collection('carpenters').doc(carpenterId), {
+          'points': FieldValue.increment(points),
+          'lifetimePoints': FieldValue.increment(points),
+        });
+        tx.set(db.collection('pointsLedger').doc(), {
+          'carpenterId': carpenterId,
+          'type': 'Earned',
+          'desc': 'Payment received from $party',
+          'points': points,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+        tx.set(db.collection('notifications').doc(), {
+          'carpenterId': carpenterId,
+          'title': 'Points credited',
+          'body': '+$points points for payment from $party',
+          'read': false,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+    });
+  }
 
   Future<void> saveConfig({required int pointRuleAmount, required int pointRulePoints, required int minRedeemPoints}) {
     return db.collection('config').doc('rules').set({

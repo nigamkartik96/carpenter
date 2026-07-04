@@ -199,133 +199,77 @@ class _NewGiftDialogState extends State<_NewGiftDialog> {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _close();
       },
-      child: Dialog(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480, maxHeight: 600),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Add gift', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
-                    IconButton(icon: const Icon(Icons.close), onPressed: _close),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        GestureDetector(
-                          onTap: uploading ? null : _pickAndUpload,
-                          child: Container(
-                            height: 140,
-                            width: double.infinity,
-                            decoration: BoxDecoration(color: Colors.black.withOpacity(0.04), borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.black12)),
-                            clipBehavior: Clip.antiAlias,
-                            child: uploading
-                                ? const Center(child: CircularProgressIndicator())
-                                : imageUrl != null
-                                    ? Stack(
-                                        fit: StackFit.expand,
-                                        children: [
-                                          Image.network(imageUrl!, fit: BoxFit.cover),
-                                          Positioned(
-                                            right: 6,
-                                            top: 6,
-                                            child: Material(
-                                              color: Colors.black54,
-                                              shape: const CircleBorder(),
-                                              child: IconButton(icon: const Icon(Icons.edit, color: Colors.white, size: 16), onPressed: _pickAndUpload),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : const Center(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(Icons.image_outlined, color: kMuted, size: 28),
-                                            SizedBox(height: 6),
-                                            Text('Tap to add a gift image', style: TextStyle(color: kMuted, fontSize: 12)),
-                                          ],
-                                        ),
-                                      ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        LabeledField(
-                          label: 'Gift name',
-                          error: submitted && name.text.trim().isEmpty ? 'Gift name is required' : null,
-                          child: TextField(controller: name, onChanged: (_) => setState(() {}), decoration: const InputDecoration(hintText: 'e.g. Steel measuring tape')),
-                        ),
-                        const SizedBox(height: 10),
-                        LabeledField(
-                          label: 'Description (optional)',
-                          child: TextField(controller: description, maxLines: 2, decoration: const InputDecoration(hintText: 'Shown on the gift detail page')),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: LabeledField(
-                                label: 'Points required',
-                                error: submitted && (int.tryParse(points.text) ?? 0) <= 0 ? 'Enter a positive number' : null,
-                                child: TextField(controller: points, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: '0')),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: LabeledField(
-                                label: 'Stock quantity',
-                                error: submitted && (int.tryParse(qty.text) ?? -1) < 0 ? 'Enter a valid quantity' : null,
-                                child: TextField(controller: qty, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: '0')),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(onPressed: _close, child: const Text('Cancel')),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: saving
-                          ? null
-                          : () async {
-                              setState(() => submitted = true);
-                              final valid = name.text.trim().isNotEmpty && (int.tryParse(points.text) ?? 0) > 0 && (int.tryParse(qty.text) ?? -1) >= 0;
-                              if (!valid) return;
-                              setState(() => saving = true);
-                              try {
-                                await app.addGift(name.text, int.tryParse(points.text) ?? 0, int.tryParse(qty.text) ?? 0, imageUrl: imageUrl, description: description.text.trim());
-                                if (mounted) Navigator.pop(context);
-                              } catch (e) {
-                                if (mounted) {
-                                  setState(() => saving = false);
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not add gift: $e')));
-                                }
-                              }
-                            },
-                      child: Text(saving ? 'Adding...' : 'Add to catalog'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+      child: FormDialog(
+        title: 'Add gift',
+        subtitle: 'Add a new item to the redemption catalog',
+        icon: Icons.card_giftcard_outlined,
+        onClose: _close,
+        maxWidth: 480,
+        maxHeight: 600,
+        children: [
+          ImagePickerBox(
+            imageUrl: imageUrl,
+            uploading: uploading,
+            onTap: _pickAndUpload,
+            hint: 'Click to upload a gift image',
           ),
-        ),
+          const SizedBox(height: spaceMd),
+          LabeledField(
+            label: 'Gift name',
+            error: submitted && name.text.trim().isEmpty ? 'Gift name is required' : null,
+            child: TextField(controller: name, onChanged: (_) => setState(() {}), decoration: const InputDecoration(hintText: 'e.g. Steel measuring tape')),
+          ),
+          const SizedBox(height: spaceSm),
+          LabeledField(
+            label: 'Description (optional)',
+            child: TextField(controller: description, maxLines: 2, decoration: const InputDecoration(hintText: 'Shown on the gift detail page')),
+          ),
+          const SizedBox(height: spaceSm),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: LabeledField(
+                  label: 'Points required',
+                  error: submitted && (int.tryParse(points.text) ?? 0) <= 0 ? 'Enter a positive number' : null,
+                  child: TextField(controller: points, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: '0')),
+                ),
+              ),
+              const SizedBox(width: spaceSm),
+              Expanded(
+                child: LabeledField(
+                  label: 'Stock quantity',
+                  error: submitted && (int.tryParse(qty.text) ?? -1) < 0 ? 'Enter a valid quantity' : null,
+                  child: TextField(controller: qty, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: '0')),
+                ),
+              ),
+            ],
+          ),
+        ],
+        actions: [
+          TextButton(onPressed: _close, child: const Text('Cancel')),
+          const SizedBox(width: spaceSm),
+          ElevatedButton(
+            onPressed: saving
+                ? null
+                : () async {
+                    setState(() => submitted = true);
+                    final valid = name.text.trim().isNotEmpty && (int.tryParse(points.text) ?? 0) > 0 && (int.tryParse(qty.text) ?? -1) >= 0;
+                    if (!valid) return;
+                    setState(() => saving = true);
+                    try {
+                      await app.addGift(name.text, int.tryParse(points.text) ?? 0, int.tryParse(qty.text) ?? 0, imageUrl: imageUrl, description: description.text.trim());
+                      if (mounted) Navigator.pop(context);
+                    } catch (e) {
+                      if (mounted) {
+                        setState(() => saving = false);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not add gift: $e')));
+                      }
+                    }
+                  },
+            child: Text(saving ? 'Adding...' : 'Add to catalog'),
+          ),
+        ],
       ),
     );
   }

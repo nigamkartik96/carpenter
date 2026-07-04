@@ -56,7 +56,13 @@ class AdminState extends ChangeNotifier {
   String? lastError;
   bool busy = false;
 
+  // 'admin' -> full console. 'creator' -> order-creator role, sees only the
+  // dashboard + create-order tile. Set on login/resume, cleared on logout.
+  String role = 'admin';
+  bool get isCreator => role == 'creator';
+
   String? get adminEmail => _fb.auth.currentUser?.email;
+  String? get uid => _fb.auth.currentUser?.uid;
 
   void clearError() {
     lastError = null;
@@ -81,6 +87,7 @@ class AdminState extends ChangeNotifier {
   final List<Redemption> redemptions = [];
   final List<AdminLead> leads = [];
   final List<Broadcast> broadcasts = [];
+  final List<PartyOrder> partyOrders = [];
 
   final List<StreamSubscription> _subs = [];
 
@@ -88,18 +95,35 @@ class AdminState extends ChangeNotifier {
   // wait (splash) or commit to redirecting to /login vs the dashboard.
   bool sessionChecked = false;
 
+  /// Resolves which role a signed-in uid has and starts the matching
+  /// listeners. Returns true if the account is authorized (admin OR
+  /// order-creator), false otherwise. Shared by login and resume so the
+  /// gating logic lives in one place.
+  Future<bool> _authorizeAndListen(String uid) async {
+    if (await _fb.checkIsAdmin(uid)) {
+      role = 'admin';
+      loggedIn = true;
+      _startAdminListening();
+      return true;
+    }
+    if (await _fb.checkIsOrderCreator(uid)) {
+      role = 'creator';
+      loggedIn = true;
+      _startCreatorListening(uid);
+      return true;
+    }
+    return false;
+  }
+
   Future<bool> tryResumeSession() async {
     var resumed = _fb.hasSession;
     if (resumed) {
-      // Being authenticated isn't being an admin -- a carpenter's own
+      // Being authenticated isn't being authorized -- a carpenter's own
       // valid login (from the mobile app) authenticates the same way.
-      // Re-check on every resume, not just at login, in case admin
-      // status was revoked (doc removed) since the session started.
+      // Re-check the allowlists on every resume, not just at login, in
+      // case the account's role was revoked since the session started.
       final uid = _fb.auth.currentUser!.uid;
-      if (await _fb.checkIsAdmin(uid)) {
-        loggedIn = true;
-        _startListening();
-      } else {
+      if (!await _authorizeAndListen(uid)) {
         await _fb.logout();
         resumed = false;
       }
@@ -115,16 +139,13 @@ class AdminState extends ChangeNotifier {
     notifyListeners();
     try {
       final cred = await _fb.login(email, password);
-      final uid = cred.user!.uid;
-      if (!await _fb.checkIsAdmin(uid)) {
+      if (!await _authorizeAndListen(cred.user!.uid)) {
         await _fb.logout();
-        loginError = 'This account is not authorized as an admin.';
+        loginError = 'This account is not authorized for the admin console.';
         busy = false;
         notifyListeners();
         return;
       }
-      loggedIn = true;
-      _startListening();
     } catch (e) {
       loginError = 'Login failed. Check email/password.';
     }
@@ -139,6 +160,7 @@ class AdminState extends ChangeNotifier {
     _subs.clear();
     await _fb.logout();
     loggedIn = false;
+    role = 'admin';
     carpenters.clear();
     orders.clear();
     offers.clear();
@@ -146,10 +168,74 @@ class AdminState extends ChangeNotifier {
     redemptions.clear();
     leads.clear();
     broadcasts.clear();
+    partyOrders.clear();
     notifyListeners();
   }
 
-  void _startListening() {
+  /// Maps a party-orders snapshot into the cached list, newest first.
+  /// Shared by both role listeners (admin sees all, creator sees own).
+  void _applyPartyOrders(QuerySnapshot<Map<String, dynamic>> snap) {
+    final docs = snap.docs.toList()
+      ..sort((a, b) {
+        final ta = a.data()['createdAt'];
+        final tb = b.data()['createdAt'];
+        final da = ta is Timestamp ? ta.toDate() : DateTime(0);
+        final db = tb is Timestamp ? tb.toDate() : DateTime(0);
+        return db.compareTo(da);
+      });
+    partyOrders
+      ..clear()
+      ..addAll(docs.map((doc) {
+        final d = doc.data();
+        final rawPayments = d['payments'];
+        return PartyOrder(
+          id: doc.id,
+          carpenterId: d['carpenterId'] ?? '',
+          carpenterName: d['carpenterName'] ?? '',
+          party: d['party'] ?? '',
+          amount: _int(d['amount']),
+          status: d['status'] ?? 'pending',
+          approvedAmount: _int(d['approvedAmount']),
+          fileUrl: d['fileUrl'],
+          fileType: d['fileType'],
+          payments: rawPayments is List ? rawPayments.map((m) => PartyPayment.fromMap(Map<String, dynamic>.from(m as Map))).toList() : const [],
+          createdBy: d['createdBy'],
+          createdAt: d['createdAt'] is Timestamp ? (d['createdAt'] as Timestamp).toDate() : null,
+        );
+      }));
+    notifyListeners();
+  }
+
+  /// Order-creator role: only the carpenters list (for the picker) and this
+  /// account's own party orders. Deliberately does NOT subscribe to orders,
+  /// leads, redemptions, etc. -- the creator has no screens for them.
+  void _startCreatorListening(String uid) {
+    _subs.add(_fb.watchConfig().listen((snap) {
+      final d = snap.data();
+      if (d == null) return;
+      pointRuleAmount = _int(d['pointRuleAmount'], 100);
+      pointRulePoints = _int(d['pointRulePoints'], 1);
+      notifyListeners();
+    }, onError: (e) => _reportError('config', e)));
+
+    _subs.add(_fb.watchCarpenters().listen((snap) {
+      try {
+        carpenters
+          ..clear()
+          ..addAll(snap.docs.map((doc) {
+            final d = doc.data();
+            return Carpenter(id: doc.id, name: d['name'] ?? '', shop: d['shop'] ?? '', mobile: d['mobile'] ?? '', status: d['status'] ?? 'Pending', tier: d['tier'] ?? 'Bronze', photoUrl: d['photoUrl']);
+          }));
+        notifyListeners();
+      } catch (e) {
+        _reportError('carpenters', e);
+      }
+    }, onError: (e) => _reportError('carpenters', e)));
+
+    _subs.add(_fb.watchPartyOrdersBy(uid).listen(_applyPartyOrders, onError: (e) => _reportError('partyOrders', e)));
+  }
+
+  void _startAdminListening() {
     _subs.add(_fb.watchConfig().listen((snap) {
       try {
         final d = snap.data();
@@ -327,6 +413,8 @@ class AdminState extends ChangeNotifier {
         _reportError('leads', e);
       }
     }, onError: (e) => _reportError('leads', e)));
+
+    _subs.add(_fb.watchPartyOrders().listen(_applyPartyOrders, onError: (e) => _reportError('partyOrders', e)));
   }
 
   String _carpenterName(String? carpenterId) {
@@ -416,6 +504,34 @@ class AdminState extends ChangeNotifier {
     final m = offers.where((o) => o.id == id);
     return m.isEmpty ? null : m.first;
   }
+
+  // ----- Party orders ------------------------------------------------------
+
+  PartyOrder? partyOrderById(String id) {
+    final m = partyOrders.where((o) => o.id == id);
+    return m.isEmpty ? null : m.first;
+  }
+
+  Future<void> addPartyOrder({required String carpenterId, required String carpenterName, required String party, required int amount, String? fileUrl, String? fileType}) {
+    return _fb.addPartyOrder(carpenterId: carpenterId, carpenterName: carpenterName, party: party, amount: amount, createdBy: uid!, fileUrl: fileUrl, fileType: fileType);
+  }
+
+  Future<void> updatePartyOrder(String id, {required String carpenterId, required String carpenterName, required String party, required int amount, String? fileUrl, String? fileType}) {
+    return _fb.updatePartyOrder(id, carpenterId: carpenterId, carpenterName: carpenterName, party: party, amount: amount, fileUrl: fileUrl, fileType: fileType);
+  }
+
+  Future<void> approvePartyOrder(PartyOrder o, int approvedAmount) => _fb.approvePartyOrder(o.id, approvedAmount);
+
+  Future<void> recordPartyPayment(PartyOrder o, int amount) => _fb.recordPartyPayment(
+        orderId: o.id,
+        carpenterId: o.carpenterId,
+        party: o.party,
+        amount: amount,
+        pointRuleAmount: pointRuleAmount,
+        pointRulePoints: pointRulePoints,
+      );
+
+  Future<void> completePartyOrder(PartyOrder o) => _fb.completePartyOrder(o.id);
 
   Future<void> addGift(String name, int points, int qty, {String? imageUrl, String description = ''}) {
     return _fb.addGift(name: name, points: points, qty: qty, imageUrl: imageUrl, description: description);

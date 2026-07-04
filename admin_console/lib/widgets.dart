@@ -5,29 +5,35 @@ import 'package:flutter/material.dart';
 // than hardcoding one-off values, so the whole app reads as one product.
 // ---------------------------------------------------------------------------
 
-const kBgApp = Color(0xFFF4F1EC);
+// Cool neutral gray, not the previous warm beige -- the beige+black-opacity
+// combination was reading as dated/institutional ("hospital walls") rather
+// than a modern product. This scale mirrors the neutral grays common across
+// current SaaS admin tools (Linear, Vercel, etc.).
+const kBgApp = Color(0xFFF7F8FA);
 const kBgSurface = Colors.white;
-const kBgSidebar = Color(0xFF1F1A16);
+const kBgSidebar = Color(0xFF14161A);
 
-const kTextPrimary = Color(0xFF211C16);
-const kTextSecondary = Color(0xFF5F5E5A);
-const kTextMuted = Color(0xFF8A8782);
-const kBorderSubtle = Color(0x1F000000); // black, 12% -- same as before
+const kTextPrimary = Color(0xFF111827);
+const kTextSecondary = Color(0xFF6B7280);
+const kTextMuted = Color(0xFF9CA3AF);
+const kBorderSubtle = Color(0xFFE5E7EB); // solid cool gray, not black-opacity -- crisper on both white and kBgApp
 
-const kAccentPrimary = Color(0xFF378ADD);
-const kAccentPrimaryDark = Color(0xFF185FA5);
+const kAccentPrimary = Color(0xFF4F46E5);
+const kAccentPrimaryDark = Color(0xFF4338CA);
 
 // Status-system colors (solid, used with white text for guaranteed AA
-// contrast -- see StatusBadge below).
-const kStatusNeutral = Color(0xFF6B6862); // Submitted/New/Pending: muted gray, not yellow
-const kStatusInfo = Color(0xFF2F6FED); // In progress
-const kStatusAttention = Color(0xFFB4690E); // Needs action
-const kStatusSuccess = Color(0xFF1A8754); // Complete
-const kStatusClosed = Color(0xFF8A3A3A); // Rejected/withdrawn/closed -- muted red
+// contrast -- see StatusBadge below). Each is a standard "600"-weight shade
+// from a widely-used design scale, chosen specifically because that weight
+// is already tuned to clear AA contrast against white text.
+const kStatusNeutral = Color(0xFF6B7280); // Submitted/New/Pending: muted gray, not yellow
+const kStatusInfo = Color(0xFF2563EB); // In progress
+const kStatusAttention = Color(0xFFD97706); // Needs action
+const kStatusSuccess = Color(0xFF16A34A); // Complete
+const kStatusClosed = Color(0xFFB91C1C); // Rejected/withdrawn/closed -- muted red, distinct from a live error state
 
 // Audience tags (Gold/Silver/All on Notifications) use a distinct palette
 // from status, so the two kinds of pill are never visually confusable.
-const kAudienceColor = Color(0xFF6D4FC4);
+const kAudienceColor = Color(0xFF7C3AED);
 
 // Backward-compatible aliases -- lots of existing screens reference these
 // short names directly; keep them pointing at the token system above
@@ -47,7 +53,7 @@ const double spaceLg = 16;
 const double spaceXl = 24;
 const double space2xl = 32;
 
-const double kCardRadius = 10;
+const double kCardRadius = 12;
 const kCardBorder = BorderSide(color: kBorderSubtle);
 
 /// Shared yes/no confirmation dialog so every destructive or
@@ -83,6 +89,28 @@ Future<bool> confirmDialog(
     ),
   );
   return result == true;
+}
+
+/// Single-button acknowledgement dialog (no cancel). Used to announce an
+/// outcome the admin only needs to read, e.g. "order completed". Uses the
+/// dialog's own builder context for the pop, for the same nested-Navigator
+/// reason documented on [confirmDialog].
+Future<void> infoDialog(
+  BuildContext context, {
+  required String title,
+  required String message,
+  String buttonLabel = 'OK',
+}) {
+  return showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(buttonLabel)),
+      ],
+    ),
+  );
 }
 
 ThemeData buildAdminTheme() {
@@ -478,6 +506,220 @@ class EmptyState extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Shared modal shell for "New X" creation forms (offers, gifts, ...) --
+/// header (icon/title/optional subtitle/close), a scrollable body, and an
+/// action bar, separated by whitespace alone rather than hard rules, so the
+/// dialog reads as one soft floating card instead of stacked boxes.
+/// Previously each of these dialogs built its own plain `Dialog` + `Padding`
+/// from scratch with hardcoded spacing, which is why they didn't read as
+/// part of the same product as the rest of the admin console.
+class FormDialog extends StatelessWidget {
+  const FormDialog({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.onClose,
+    required this.children,
+    required this.actions,
+    this.subtitle,
+    this.maxWidth = 520,
+    this.maxHeight = 640,
+  });
+
+  final String title;
+  final String? subtitle;
+  final IconData icon;
+  final VoidCallback onClose;
+  final List<Widget> children;
+  final List<Widget> actions;
+  final double maxWidth;
+  final double maxHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      clipBehavior: Clip.antiAlias,
+      elevation: 12,
+      shadowColor: Colors.black.withOpacity(0.25),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(spaceXl, spaceXl, spaceMd, spaceLg),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: kAccentPrimary.withOpacity(0.10), borderRadius: BorderRadius.circular(10)),
+                    child: Icon(icon, size: 20, color: kAccentPrimary),
+                  ),
+                  const SizedBox(width: spaceMd),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: kTextPrimary)),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 2),
+                          Text(subtitle!, style: const TextStyle(fontSize: 13, color: kTextSecondary)),
+                        ],
+                      ],
+                    ),
+                  ),
+                  IconButton(icon: const Icon(Icons.close, size: 20), onPressed: onClose, splashRadius: 20),
+                ],
+              ),
+            ),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(spaceXl, 0, spaceXl, spaceLg),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(spaceXl, spaceMd, spaceXl, spaceLg),
+              child: Row(mainAxisAlignment: MainAxisAlignment.end, children: actions),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Tap-to-upload image box -- shared visual treatment for every "add an
+/// image" spot (gift photo, offer banner) so they read as the same kind of
+/// control instead of each screen inventing its own flat gray box. Uses a
+/// dashed border (the near-universal "drop zone" signal -- Notion, Figma,
+/// GitHub avatar upload, etc. all use it) and brightens on hover so it
+/// reads as interactive on desktop web, not just a static placeholder.
+class ImagePickerBox extends StatefulWidget {
+  const ImagePickerBox({
+    super.key,
+    required this.imageUrl,
+    required this.uploading,
+    required this.onTap,
+    this.hint = 'Click to upload an image',
+    this.height = 160,
+  });
+
+  final String? imageUrl;
+  final bool uploading;
+  final VoidCallback onTap;
+  final String hint;
+  final double height;
+
+  @override
+  State<ImagePickerBox> createState() => _ImagePickerBoxState();
+}
+
+class _ImagePickerBoxState extends State<ImagePickerBox> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasImage = widget.imageUrl != null;
+    final active = _hovering && !widget.uploading;
+    return MouseRegion(
+      cursor: widget.uploading ? MouseCursor.defer : SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: GestureDetector(
+        onTap: widget.uploading ? null : widget.onTap,
+        child: SizedBox(
+          height: widget.height,
+          width: double.infinity,
+          child: CustomPaint(
+            // kBorderSubtle is too close in value to the box's own fill to
+            // read as a border at rest -- needs a darker gray than the flat
+            // 1px card borders used elsewhere, since this one has to work
+            // as the *only* visual cue that the box is a drop zone.
+            painter: hasImage ? null : _DashedBorderPainter(color: active ? kAccentPrimary : const Color(0xFFB0B5BD), radius: kCardRadius, strokeWidth: 1.75),
+            child: Container(
+              decoration: BoxDecoration(
+                color: active ? kAccentPrimary.withOpacity(0.04) : kBgApp,
+                borderRadius: BorderRadius.circular(kCardRadius),
+                border: hasImage ? Border.all(color: kBorderSubtle) : null,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: widget.uploading
+                  ? const Center(child: CircularProgressIndicator(strokeWidth: 2.5))
+                  : hasImage
+                      ? Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.network(widget.imageUrl!, fit: BoxFit.cover),
+                            Positioned(
+                              right: 8,
+                              top: 8,
+                              child: Material(
+                                color: Colors.black54,
+                                shape: const CircleBorder(),
+                                child: IconButton(icon: const Icon(Icons.edit, color: Colors.white, size: 16), onPressed: widget.onTap),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(color: kAccentPrimary.withOpacity(0.10), shape: BoxShape.circle),
+                                child: Icon(Icons.cloud_upload_outlined, color: kAccentPrimary, size: 24),
+                              ),
+                              const SizedBox(height: spaceSm),
+                              Text(widget.hint, style: const TextStyle(color: kTextPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Even, evenly-spaced dashed rounded-rect border -- Flutter has no built-in
+/// dashed border, and this is the near-universal signal for "drop a file
+/// here" that a plain solid border doesn't communicate as clearly.
+class _DashedBorderPainter extends CustomPainter {
+  _DashedBorderPainter({required this.color, required this.radius, this.dashWidth = 6, this.gapWidth = 4, this.strokeWidth = 1.5});
+  final Color color;
+  final double radius;
+  final double dashWidth;
+  final double gapWidth;
+  final double strokeWidth;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+    final rrect = RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(radius));
+    final path = Path()..addRRect(rrect);
+    for (final metric in path.computeMetrics()) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final next = distance + dashWidth;
+        canvas.drawPath(metric.extractPath(distance, next.clamp(0, metric.length)), paint);
+        distance = next + gapWidth;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedBorderPainter oldDelegate) => oldDelegate.color != color || oldDelegate.radius != radius;
 }
 
 class StatusDropdown extends StatelessWidget {
