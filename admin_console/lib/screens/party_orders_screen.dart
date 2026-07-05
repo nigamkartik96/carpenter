@@ -332,7 +332,16 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
           const Divider(height: 24, color: kBorderSubtle),
           LabeledField(
             label: 'Record payment received from party',
-            child: TextField(controller: payAmt, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(hintText: '10000', prefixText: '₹ ')),
+            child: Row(
+              children: [
+                Expanded(child: TextField(controller: payAmt, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(hintText: '10000', prefixText: '₹ '))),
+                const SizedBox(width: 8),
+                OutlinedButton(
+                  onPressed: () => setState(() => payAmt.text = o.remaining.toString()),
+                  child: const Text('Fill remaining', style: TextStyle(fontSize: 12)),
+                ),
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 6, bottom: 10),
@@ -344,9 +353,12 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
                 onPressed: busy
                     ? null
                     : () async {
-                        var amt = int.tryParse(payAmt.text) ?? 0;
+                        final amt = int.tryParse(payAmt.text) ?? 0;
                         if (amt <= 0) return;
-                        if (amt > o.remaining) amt = o.remaining;
+                        if (amt > o.remaining) {
+                          await infoDialog(context, title: 'Amount too high', message: 'Payment of ${_money(amt)} exceeds the remaining balance of ${_money(o.remaining)}. Please enter an amount up to ${_money(o.remaining)}.');
+                          return;
+                        }
                         final settlesOrder = amt >= o.remaining;
                         final thisPoints = (amt * o.commissionPercent) ~/ 100;
                         final totalCollected = o.paid + amt;
