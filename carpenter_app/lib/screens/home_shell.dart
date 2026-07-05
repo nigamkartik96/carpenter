@@ -154,12 +154,12 @@ class DashboardScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(app.tr('Your points'), style: const TextStyle(fontSize: 11, color: kMuted, fontFamily: 'monospace')),
+                        Text(app.tr('Total Points'), style: const TextStyle(fontSize: 11, color: kMuted, fontFamily: 'monospace')),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.baseline,
                           textBaseline: TextBaseline.alphabetic,
                           children: [
-                            Text('${app.points}', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: kText)),
+                            Text('${app.totalPoints}', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: kText)),
                             const SizedBox(width: 6),
                             Text(app.tr('pts'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: kMuted)),
                           ],
@@ -168,6 +168,20 @@ class DashboardScreen extends StatelessWidget {
                     ),
                   ),
                   const Icon(Icons.emoji_events_outlined, color: kPrimaryDark, size: 32),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(app.tr('Redeemable Points'), style: const TextStyle(fontSize: 10, color: kMuted, fontFamily: 'monospace')),
+                        Text('${app.points} ${app.tr('pts')}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: kText)),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),

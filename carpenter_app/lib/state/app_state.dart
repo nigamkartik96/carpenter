@@ -76,6 +76,8 @@ class AppState extends ChangeNotifier {
   final List<Lead> leads = [];
   final List<AppNotification> notifications = [];
   int get unreadCount => notifications.where((n) => !n.read).length;
+  int get pendingOrderPoints => orders.where((o) => o.status != 'Delivered' && o.status != 'Cancelled').fold(0, (sum, o) => sum + o.points);
+  int get totalPoints => points + pendingOrderPoints;
 
   String tr(String key) => locale.tr(key);
   String trf(String key, Object n) => locale.trf(key, n);
