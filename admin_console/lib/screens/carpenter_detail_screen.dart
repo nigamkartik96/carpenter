@@ -8,6 +8,7 @@ import '../models.dart';
 import '../state.dart';
 import '../widgets.dart';
 import 'orders_screens.dart' show orderAmountLabel;
+import 'party_orders_screen.dart' show PartyStatusChip;
 
 /// Full profile for one carpenter: contact info, last known location, and
 /// every related record (orders, gift redemptions, leads) so an admin
@@ -25,6 +26,7 @@ class CarpenterDetailScreen extends StatelessWidget {
     }
     final c = matches.first;
     final orders = app.ordersFor(carpenterId);
+    final partyOrders = app.partyOrdersFor(carpenterId);
     final redemptions = app.redemptionsFor(carpenterId);
     final leads = app.leadsFor(carpenterId);
 
@@ -100,6 +102,8 @@ class CarpenterDetailScreen extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(child: _MiniStat(icon: Icons.inventory_2_outlined, label: 'Orders', value: '${orders.length}')),
               const SizedBox(width: 10),
+              Expanded(child: _MiniStat(icon: Icons.receipt_long_outlined, label: 'Party', value: '${partyOrders.length}')),
+              const SizedBox(width: 10),
               Expanded(child: _MiniStat(icon: Icons.card_giftcard_outlined, label: 'Redemptions', value: '${redemptions.length}')),
               const SizedBox(width: 10),
               Expanded(child: _MiniStat(icon: Icons.lightbulb_outline, label: 'Leads', value: '${leads.length}')),
@@ -174,6 +178,32 @@ class CarpenterDetailScreen extends StatelessWidget {
                         ),
                       ),
                       StatusBadge(o.status),
+                    ],
+                  ),
+                )),
+          ],
+          if (partyOrders.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            SubHeading('Party orders (${partyOrders.length})'),
+            const SizedBox(height: 8),
+            ...partyOrders.map((o) => AppCard(
+                  onTap: () => context.push('/party-orders/${o.id}'),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Party: ${o.party}', style: const TextStyle(fontSize: 13)),
+                            if (o.status != 'pending')
+                              Text('Paid ₹${o.paid} of ₹${o.approvedAmount} · +${o.pointsAwarded} pts', style: const TextStyle(color: kTextSecondary, fontSize: 11)),
+                          ],
+                        ),
+                      ),
+                      Text('₹${o.amount}', style: const TextStyle(fontSize: 13)),
+                      const SizedBox(width: 8),
+                      PartyStatusChip(status: o.status),
                     ],
                   ),
                 )),

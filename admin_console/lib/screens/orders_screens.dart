@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models.dart';
 import '../state.dart';
 import '../widgets.dart';
+import 'party_orders_screen.dart' show PartyStatusChip;
 
 // Must match every status string the carpenter app actually writes
 // ('Submitted' is the initial status on order creation) -- DropdownButton
@@ -133,18 +134,69 @@ class _OrdersScreenState extends State<OrdersScreen> {
   String sortBy = 'newest';
   int _page = 0;
   int _perPage = 25;
+  bool _showParty = false;
+  String _partyStatusFilter = 'all';
+  String _partySearch = '';
+  int _partyPage = 0;
 
   void _open(BuildContext context, String orderId) => context.push('/orders/$orderId');
 
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AdminState>();
-    final visible = filterAndSortOrders(app.orders, dateFilter: dateFilter, statusFilter: statusFilter, sortBy: sortBy, search: search.text);
 
     return ListView(
       children: [
         const Heading('Orders', subtitle: 'Approve orders to credit carpenter points'),
         const SizedBox(height: 12),
+        _buildToggle(),
+        const SizedBox(height: 16),
+        if (_showParty) _buildPartyOrders(app) else _buildRegularOrders(app),
+      ],
+    );
+  }
+
+  Widget _buildToggle() => Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() { _showParty = false; _page = 0; }),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: !_showParty ? kAccentPrimary : kBgSurface,
+                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(8)),
+                  border: Border.all(color: !_showParty ? kAccentPrimary : kBorderSubtle),
+                ),
+                alignment: Alignment.center,
+                child: Text('Regular orders', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: !_showParty ? Colors.white : kTextSecondary)),
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() { _showParty = true; _partyPage = 0; }),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: _showParty ? kAccentPrimary : kBgSurface,
+                  borderRadius: const BorderRadius.horizontal(right: Radius.circular(8)),
+                  border: Border.all(color: _showParty ? kAccentPrimary : kBorderSubtle),
+                ),
+                alignment: Alignment.center,
+                child: Text('Party orders', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: _showParty ? Colors.white : kTextSecondary)),
+              ),
+            ),
+          ),
+        ],
+      );
+
+  Widget _buildRegularOrders(AdminState app) {
+    final visible = filterAndSortOrders(app.orders, dateFilter: dateFilter, statusFilter: statusFilter, sortBy: sortBy, search: search.text);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(color: kBgSurface, borderRadius: BorderRadius.circular(8), border: Border.all(color: kBorderSubtle)),
@@ -199,10 +251,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ],
               rows: pageSlice(visible, _page, _perPage)
                   .map((o) => DataRow(
-                        // Status changes happen on the order detail screen now --
-                        // a second "Quick update" dropdown here duplicated that
-                        // control and let an admin change status without first
-                        // reviewing/entering line items, bypassing the points logic.
                         onSelectChanged: (_) => _open(context, o.id),
                         cells: [
                           DataCell(Text('${o.orderNumber} · ${o.products.isNotEmpty ? o.products.first : ''}')),
@@ -216,6 +264,80 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ),
             ),
           ),
+        ],
+      ],
+    );
+  }
+
+  static const _partyFilters = [
+    ('all', 'All'),
+    ('pending', 'Pending'),
+    ('approved', 'Collecting payment'),
+    ('completed', 'Completed'),
+  ];
+
+  Widget _buildPartyOrders(AdminState app) {
+    final q = _partySearch.trim().toLowerCase();
+    final visible = app.partyOrders.where((o) {
+      if (_partyStatusFilter != 'all' && o.status != _partyStatusFilter) return false;
+      if (q.isEmpty) return true;
+      return o.carpenterName.toLowerCase().contains(q) || o.party.toLowerCase().contains(q);
+    }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          onChanged: (v) => setState(() { _partySearch = v; _partyPage = 0; }),
+          decoration: const InputDecoration(prefixIcon: Icon(Icons.search, size: 18), hintText: 'Search by carpenter or party', isDense: true),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final (value, label) in _partyFilters)
+              FilterChip(
+                label: Text(label, style: const TextStyle(fontSize: 12)),
+                selected: _partyStatusFilter == value,
+                onSelected: (_) => setState(() { _partyStatusFilter = value; _partyPage = 0; }),
+                visualDensity: VisualDensity.compact,
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (visible.isEmpty)
+          const EmptyState(icon: Icons.receipt_long_outlined, message: 'No party orders match this filter')
+        else ...[
+          PaginationBar(
+            total: visible.length,
+            page: _partyPage,
+            perPage: _perPage,
+            onPageChanged: (p) => setState(() => _partyPage = p),
+            onPerPageChanged: (n) => setState(() { _perPage = n; _partyPage = 0; }),
+          ),
+          ...pageSlice(visible, _partyPage, _perPage).map((o) => AppCard(
+                onTap: () => context.go('/party-orders/${o.id}'),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+                          Text('Party: ${o.party}', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
+                          if (o.status != 'pending')
+                            Text('Paid ₹${o.paid} of ₹${o.approvedAmount} · +${o.pointsAwarded} pts', style: const TextStyle(color: kTextSecondary, fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                    Text('₹${o.amount}', style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+                    const SizedBox(width: 10),
+                    PartyStatusChip(status: o.status),
+                    const Icon(Icons.chevron_right, color: kTextMuted, size: 18),
+                  ],
+                ),
+              )),
         ],
       ],
     );
