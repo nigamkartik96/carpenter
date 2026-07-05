@@ -274,6 +274,9 @@ const Map<String, String> hiStrings = {
   'Discard': 'छोड़ दें',
   'Name cannot be empty': 'नाम खाली नहीं हो सकता',
   "Photo uploaded — tap 'Save changes' below to apply it": "फोटो अपलोड हो गई — इसे लागू करने के लिए नीचे 'बदलाव सेव करें' दबाएं",
+  'Update available': 'अपडेट उपलब्ध है',
+  'Update now': 'अभी अपडेट करें',
+  'Later': 'बाद में',
 };
 
 class AppLocale {

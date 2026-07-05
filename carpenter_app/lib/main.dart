@@ -6,6 +6,7 @@ import 'package:workmanager/workmanager.dart';
 
 import 'firebase_options.dart';
 import 'services/background_location.dart';
+import 'services/update_service.dart';
 import 'state/app_state.dart';
 import 'theme.dart';
 import 'screens/onboarding_screens.dart';
@@ -58,6 +59,7 @@ class CarpenterHubApp extends StatelessWidget {
           '/orderHistory': (_) => const OrderHistoryScreen(),
           '/orderDetails': (_) => const OrderDetailsScreen(),
           '/points': (_) => const PointsScreen(),
+          '/redeem': (_) => const RedeemScreen(),
           '/redeemCash': (_) => const RedeemCashScreen(),
           '/redeemCashDone': (_) => const RedeemCashDoneScreen(),
           '/gifts': (_) => const GiftStoreScreen(),
@@ -104,6 +106,14 @@ class _AuthGateState extends State<AuthGate> {
       Navigator.of(context).pushNamedAndRemoveUntil(target, (r) => false);
     } else {
       setState(() => _checked = true);
+    }
+    _checkForUpdate();
+  }
+
+  Future<void> _checkForUpdate() async {
+    final update = await UpdateService.instance.checkForUpdate();
+    if (update != null && mounted) {
+      UpdateService.showUpdateDialog(context, update);
     }
   }
 

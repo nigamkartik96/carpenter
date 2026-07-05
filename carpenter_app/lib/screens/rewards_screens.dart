@@ -38,7 +38,8 @@ class _PointsScreenState extends State<PointsScreen> {
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
-    final pagedLedger = pageSlice(app.ledger, _page, _perPage);
+    final visible = app.visibleLedger;
+    final pagedLedger = pageSlice(visible, _page, _perPage);
     return Scaffold(
       appBar: AppBar(
         title: Text(app.tr('Points')),
@@ -70,11 +71,11 @@ class _PointsScreenState extends State<PointsScreen> {
           const SizedBox(height: 16),
           Text(app.tr('Points activity'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
           const SizedBox(height: 8),
-          if (app.ledger.isEmpty)
+          if (visible.isEmpty)
             Text(app.tr('No activity yet'), style: TextStyle(color: kMuted, fontSize: 12))
           else ...[
             PaginationBar(
-              total: app.ledger.length,
+              total: visible.length,
               page: _page,
               perPage: _perPage,
               onPageChanged: (p) => setState(() => _page = p),
@@ -126,6 +127,134 @@ class _PointsScreenState extends State<PointsScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class RedeemScreen extends StatefulWidget {
+  const RedeemScreen({super.key});
+
+  @override
+  State<RedeemScreen> createState() => _RedeemScreenState();
+}
+
+class _RedeemScreenState extends State<RedeemScreen> {
+  int _page = 0;
+  int _perPage = 10;
+
+  @override
+  Widget build(BuildContext context) {
+    final app = context.watch<AppState>();
+    final visible = app.visibleLedger;
+    final pagedLedger = pageSlice(visible, _page, _perPage);
+    return Scaffold(
+      appBar: AppBar(title: Text(app.tr('Redeem'))),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _RedeemTile(
+                  icon: Icons.card_giftcard_outlined,
+                  label: app.tr('Redeem a gift'),
+                  color: kPrimaryLight,
+                  onTap: () => Navigator.pushNamed(context, '/gifts'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _RedeemTile(
+                  icon: Icons.account_balance_wallet_outlined,
+                  label: app.tr('Redeem as cash'),
+                  color: kSuccess,
+                  onTap: () => Navigator.pushNamed(context, '/redeemCash'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(app.tr('Points activity'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          const SizedBox(height: 8),
+          if (visible.isEmpty)
+            Text(app.tr('No activity yet'), style: TextStyle(color: kMuted, fontSize: 12))
+          else ...[
+            PaginationBar(
+              total: visible.length,
+              page: _page,
+              perPage: _perPage,
+              onPageChanged: (p) => setState(() => _page = p),
+              onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+            ),
+            ...pagedLedger.map((l) {
+              final linkedOrder = _orderForLedgerEntry(app, l.desc);
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (linkedOrder != null) ...[
+                      OrderThumbnail(order: linkedOrder, size: 36),
+                      const SizedBox(width: 10),
+                    ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(app.trDyn(l.desc), style: const TextStyle(fontSize: 13), maxLines: 2, overflow: TextOverflow.ellipsis),
+                          Text(l.date, style: TextStyle(color: kMuted, fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          l.points >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+                          size: 14,
+                          color: l.points >= 0 ? kSuccess : kDanger,
+                        ),
+                        Text('${l.points >= 0 ? '+' : ''}${l.points}', style: TextStyle(fontWeight: FontWeight.w600, color: l.points >= 0 ? kSuccess : kDanger)),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _RedeemTile extends StatelessWidget {
+  const _RedeemTile({required this.icon, required this.label, required this.color, required this.onTap});
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 32),
+            const SizedBox(height: 8),
+            Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: color), textAlign: TextAlign.center),
+          ],
+        ),
       ),
     );
   }

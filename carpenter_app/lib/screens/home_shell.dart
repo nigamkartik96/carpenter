@@ -154,12 +154,12 @@ class DashboardScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(app.tr('Total Points'), style: const TextStyle(fontSize: 11, color: kMuted, fontFamily: 'monospace')),
+                        Text(app.tr('Redeemable Points'), style: const TextStyle(fontSize: 11, color: kMuted, fontFamily: 'monospace')),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.baseline,
                           textBaseline: TextBaseline.alphabetic,
                           children: [
-                            Text('${app.totalPoints}', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: kText)),
+                            Text('${app.points}', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: kText)),
                             const SizedBox(width: 6),
                             Text(app.tr('pts'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: kMuted)),
                           ],
@@ -177,8 +177,8 @@ class DashboardScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(app.tr('Redeemable Points'), style: const TextStyle(fontSize: 10, color: kMuted, fontFamily: 'monospace')),
-                        Text('${app.points} ${app.tr('pts')}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: kText)),
+                        Text(app.tr('Total Points'), style: const TextStyle(fontSize: 10, color: kMuted, fontFamily: 'monospace')),
+                        Text('${app.totalPoints} ${app.tr('pts')}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: kText)),
                       ],
                     ),
                   ),
@@ -196,8 +196,8 @@ class DashboardScreen extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/redeemCash'),
-                      child: Text(app.tr('Redeem cash')),
+                      onPressed: () => Navigator.pushNamed(context, '/redeem'),
+                      child: Text(app.tr('Redeem')),
                     ),
                   ),
                 ],

@@ -76,8 +76,10 @@ class AppState extends ChangeNotifier {
   final List<Lead> leads = [];
   final List<AppNotification> notifications = [];
   int get unreadCount => notifications.where((n) => !n.read).length;
-  int get pendingOrderPoints => orders.where((o) => o.status != 'Delivered' && o.status != 'Cancelled').fold(0, (sum, o) => sum + o.points);
+  int get pendingOrderPoints => orders.where((o) => o.status != 'Delivered' && o.status != 'Cancelled').fold(0, (s, o) => s + o.points);
   int get totalPoints => points + pendingOrderPoints;
+  static final _partyEntryPattern = RegExp(r'^Payment received from ');
+  List<PointsLedgerEntry> get visibleLedger => ledger.where((l) => !_partyEntryPattern.hasMatch(l.desc)).toList();
 
   String tr(String key) => locale.tr(key);
   String trf(String key, Object n) => locale.trf(key, n);
