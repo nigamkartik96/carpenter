@@ -90,7 +90,10 @@ class _PartyOrdersScreenState extends State<PartyOrdersScreen> {
             onPageChanged: (p) => setState(() => _page = p),
             onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
           ),
-          ...pageSlice(visible, _page, _perPage).map((o) => AppCard(
+          ...pageSlice(visible, _page, _perPage).map((o) {
+            final isPending = o.status == 'pending';
+            final progress = o.approvedAmount > 0 ? o.paid / o.approvedAmount : 0.0;
+            return AppCard(
                 onTap: () => context.go('/party-orders/${o.id}'),
                 child: Row(
                   children: [
@@ -98,20 +101,30 @@ class _PartyOrdersScreenState extends State<PartyOrdersScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+                          Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          const SizedBox(height: 2),
                           Text('Party: ${o.party}', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
-                          if (o.status != 'pending')
+                          if (!isPending) ...[
+                            const SizedBox(height: 2),
                             Text('Paid ${_money(o.paid)} of ${_money(o.approvedAmount)} · +${o.pointsAwarded} pts', style: const TextStyle(color: kTextSecondary, fontSize: 11)),
+                            const SizedBox(height: 6),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(3),
+                              child: LinearProgressIndicator(value: progress.clamp(0.0, 1.0), minHeight: 4, backgroundColor: kBorderSubtle, color: progress >= 1.0 ? const Color(0xFF16A34A) : kAccentPrimary),
+                            ),
+                          ],
                         ],
                       ),
                     ),
-                    Text(_money(o.amount), style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+                    const SizedBox(width: 12),
+                    Text(_money(o.approvedAmount > 0 ? o.approvedAmount : o.amount), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                     const SizedBox(width: 10),
                     PartyStatusChip(status: o.status),
                     const Icon(Icons.chevron_right, color: kTextMuted, size: 18),
                   ],
                 ),
-              )),
+              );
+          }),
         ],
       ],
     );
@@ -283,6 +296,15 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
             padding: const EdgeInsets.only(top: 4, bottom: 10),
             child: Text('Percentage of each payment credited as points to the carpenter', style: const TextStyle(fontSize: 12, color: kTextSecondary)),
           ),
+          Builder(builder: (_) {
+            final amt = int.tryParse(approveAmt.text) ?? o.amount;
+            final commission = (int.tryParse(commissionCtl.text) ?? 10).clamp(0, 100);
+            final expectedPoints = (amt * commission) ~/ 100;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text('Max points if fully paid: +$expectedPoints pts (${commission}% of ${_money(amt)})', style: const TextStyle(fontSize: 12, color: Color(0xFF16A34A), fontWeight: FontWeight.w500)),
+            );
+          }),
           ElevatedButton.icon(
             onPressed: busy
                 ? null
@@ -318,6 +340,7 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
         ),
         const SizedBox(height: spaceSm),
         _kv('Commission', '${o.commissionPercent}%'),
+        _kv('Points (${o.commissionPercent}% of received ${_money(o.paid)})', '${(o.paid * o.commissionPercent) ~/ 100} pts'),
         _kv('Points credited to ${o.carpenterName.split(' ').first}', '+${o.pointsAwarded} pts'),
         if (o.payments.isNotEmpty) ...[
           const SizedBox(height: spaceSm),

@@ -218,14 +218,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
           onSortBy: (v) => setState(() { sortBy = v; _page = 0; }),
         ),
         const SizedBox(height: 8),
-        Row(
-          children: const [
-            Icon(Icons.touch_app_outlined, size: 14, color: kTextMuted),
-            SizedBox(width: 6),
-            Text('Tap a row, or the eye icon, to open the order', style: TextStyle(color: kTextMuted, fontSize: 12)),
-          ],
-        ),
-        const SizedBox(height: 8),
         if (visible.isEmpty) const EmptyState(icon: Icons.inventory_2_outlined, message: 'No orders match this filter'),
         if (visible.isNotEmpty) ...[
           PaginationBar(
@@ -235,35 +227,28 @@ class _OrdersScreenState extends State<OrdersScreen> {
             onPageChanged: (p) => setState(() => _page = p),
             onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
           ),
-          Container(
-            decoration: BoxDecoration(color: kBgSurface, borderRadius: BorderRadius.circular(kCardRadius), border: Border.all(color: kBorderSubtle)),
-            clipBehavior: Clip.antiAlias,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-              showCheckboxColumn: false,
-              columns: const [
-                DataColumn(label: Text('Order')),
-                DataColumn(label: Text('Carpenter')),
-                DataColumn(label: Text('Amount')),
-                DataColumn(label: Text('Status')),
-                DataColumn(label: Text('')),
-              ],
-              rows: pageSlice(visible, _page, _perPage)
-                  .map((o) => DataRow(
-                        onSelectChanged: (_) => _open(context, o.id),
-                        cells: [
-                          DataCell(Text('${o.orderNumber} · ${o.products.isNotEmpty ? o.products.first : ''}')),
-                          DataCell(Text(o.carpenterName)),
-                          DataCell(orderAmountText(o)),
-                          DataCell(StatusBadge(o.status)),
-                          DataCell(IconButton(icon: const Icon(Icons.visibility_outlined, size: 18), tooltip: 'View order', onPressed: () => _open(context, o.id))),
+          ...pageSlice(visible, _page, _perPage).map((o) => AppCard(
+                onTap: () => _open(context, o.id),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          const SizedBox(height: 2),
+                          Text('${o.orderNumber}${o.products.isNotEmpty ? ' · ${o.products.first}' : ''}', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
                         ],
-                      ))
-                  .toList(),
-              ),
-            ),
-          ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    orderAmountText(o, fontSize: 13),
+                    const SizedBox(width: 10),
+                    StatusBadge(o.status),
+                    const Icon(Icons.chevron_right, color: kTextMuted, size: 18),
+                  ],
+                ),
+              )),
         ],
       ],
     );
@@ -316,7 +301,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
             onPageChanged: (p) => setState(() => _partyPage = p),
             onPerPageChanged: (n) => setState(() { _perPage = n; _partyPage = 0; }),
           ),
-          ...pageSlice(visible, _partyPage, _perPage).map((o) => AppCard(
+          ...pageSlice(visible, _partyPage, _perPage).map((o) {
+            final isPending = o.status == 'pending';
+            final progress = o.approvedAmount > 0 ? o.paid / o.approvedAmount : 0.0;
+            return AppCard(
                 onTap: () => context.go('/party-orders/${o.id}'),
                 child: Row(
                   children: [
@@ -324,20 +312,30 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+                          Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          const SizedBox(height: 2),
                           Text('Party: ${o.party}', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
-                          if (o.status != 'pending')
+                          if (!isPending) ...[
+                            const SizedBox(height: 2),
                             Text('Paid ₹${o.paid} of ₹${o.approvedAmount} · +${o.pointsAwarded} pts', style: const TextStyle(color: kTextSecondary, fontSize: 11)),
+                            const SizedBox(height: 6),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(3),
+                              child: LinearProgressIndicator(value: progress.clamp(0.0, 1.0), minHeight: 4, backgroundColor: kBorderSubtle, color: progress >= 1.0 ? const Color(0xFF16A34A) : kAccentPrimary),
+                            ),
+                          ],
                         ],
                       ),
                     ),
-                    Text('₹${o.amount}', style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+                    const SizedBox(width: 12),
+                    Text('₹${o.approvedAmount > 0 ? o.approvedAmount : o.amount}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                     const SizedBox(width: 10),
                     PartyStatusChip(status: o.status),
                     const Icon(Icons.chevron_right, color: kTextMuted, size: 18),
                   ],
                 ),
-              )),
+              );
+          }),
         ],
       ],
     );

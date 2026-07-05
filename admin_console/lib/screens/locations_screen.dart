@@ -122,22 +122,28 @@ class _LocationsScreenState extends State<LocationsScreen> {
         const SizedBox(height: 10),
         if (active.isEmpty) const EmptyState(icon: Icons.people_outline, message: 'No approved carpenters yet'),
         if (active.isNotEmpty)
-          Container(
-            decoration: BoxDecoration(color: kBgSurface, borderRadius: BorderRadius.circular(kCardRadius), border: Border.all(color: kBorderSubtle)),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('Carpenter')),
-                  DataColumn(label: Text('Area')),
-                  DataColumn(label: Text('Last seen')),
-                ],
-                rows: active
-                    .map((c) => DataRow(cells: [DataCell(Text(c.name)), DataCell(Text(c.area)), DataCell(Text(c.lastSeen))]))
-                    .toList(),
-              ),
-            ),
-          ),
+          ...active.map((c) => AppCard(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(c.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          const SizedBox(height: 2),
+                          Text(c.area, style: const TextStyle(color: kTextSecondary, fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(c.lastSeen, style: const TextStyle(color: kTextMuted, fontSize: 12)),
+                    if (c.lat != null && c.lng != null) ...[
+                      const SizedBox(width: 8),
+                      const Icon(Icons.location_on, size: 16, color: kAccentPrimary),
+                    ],
+                  ],
+                ),
+              )),
       ],
     );
   }

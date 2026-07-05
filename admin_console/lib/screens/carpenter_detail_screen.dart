@@ -283,7 +283,7 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                         Text('Party: ${o.party}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                         const SizedBox(height: 2),
                         if (!isPending) ...[
-                          Text('Paid ₹${o.paid} of ₹${o.approvedAmount}', style: const TextStyle(color: kTextSecondary, fontSize: 11)),
+                          Text('Paid ₹${o.paid} of ₹${o.approvedAmount} · Remaining ₹${o.remaining}', style: const TextStyle(color: kTextSecondary, fontSize: 11)),
                           const SizedBox(height: 4),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(3),
@@ -302,6 +302,9 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                       if (!isPending) ...[
                         const SizedBox(height: 4),
                         Text('+${o.pointsAwarded} pts', style: const TextStyle(color: Color(0xFF16A34A), fontSize: 11, fontWeight: FontWeight.w500)),
+                      ] else ...[
+                        const SizedBox(height: 4),
+                        Text('~${(o.amount * o.commissionPercent) ~/ 100} pts', style: const TextStyle(color: kTextMuted, fontSize: 11)),
                       ],
                     ],
                   ),

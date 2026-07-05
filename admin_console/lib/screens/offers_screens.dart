@@ -32,7 +32,6 @@ class _OffersScreenState extends State<OffersScreen> {
     Widget tile(AdminOffer o) => AppCard(
           onTap: () => context.push('/offers/${o.id}'),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               if (o.bannerUrl != null) ...[
                 ClipRRect(borderRadius: BorderRadius.circular(6), child: Image.network(o.bannerUrl!, width: 36, height: 36, fit: BoxFit.cover)),
@@ -41,12 +40,16 @@ class _OffersScreenState extends State<OffersScreen> {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [Text(o.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)), Text('Valid till ${o.validTill}', style: const TextStyle(color: kMuted, fontSize: 12))],
+                  children: [
+                    Text(o.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const SizedBox(height: 2),
+                    Text('${o.category} · Valid till ${o.validTill}', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
+                  ],
                 ),
               ),
+              const SizedBox(width: 12),
               StatusBadge(o.status),
-              const SizedBox(width: 4),
-              const Icon(Icons.chevron_right, color: kMuted),
+              const Icon(Icons.chevron_right, color: kTextMuted, size: 18),
             ],
           ),
         );

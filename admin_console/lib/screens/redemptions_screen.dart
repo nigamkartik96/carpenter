@@ -33,42 +33,36 @@ class _RedemptionsScreenState extends State<RedemptionsScreen> {
             onPageChanged: (p) => setState(() => _page = p),
             onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
           ),
-          Container(
-            decoration: BoxDecoration(color: kBgSurface, borderRadius: BorderRadius.circular(kCardRadius), border: Border.all(color: kBorderSubtle)),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-              columns: const [
-                DataColumn(label: Text('Carpenter')),
-                DataColumn(label: Text('Gift')),
-                DataColumn(label: Text('Points')),
-                DataColumn(label: Text('Status')),
-                DataColumn(label: Text('Update')),
-              ],
-              rows: paged
-                  .map((r) => DataRow(cells: [
-                        DataCell(Text(r.carpenterName)),
-                        DataCell(Text(r.giftName)),
-                        DataCell(Text('${r.points}')),
-                        DataCell(StatusBadge(r.status)),
-                        DataCell(
-                          StatusDropdown(
-                            value: r.status,
-                            options: redemptionStatuses,
-                            enabled: r.status != 'Delivered',
-                            onChanged: (v) async {
-                              final confirmed = await confirmDialog(context, title: 'Update redemption status?', message: 'Mark ${r.carpenterName}\'s redemption of "${r.giftName}" as "$v"?');
-                              if (!confirmed) return;
-                              app.setRedemptionStatus(r, v);
-                              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${r.carpenterName}\'s redemption marked $v')));
-                            },
-                          ),
-                        ),
-                      ]))
-                  .toList(),
-              ),
-            ),
-          ),
+          ...paged.map((r) => AppCard(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(r.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          const SizedBox(height: 2),
+                          Text(r.giftName, style: const TextStyle(color: kTextSecondary, fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text('${r.points} pts', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    const SizedBox(width: 10),
+                    StatusDropdown(
+                      value: r.status,
+                      options: redemptionStatuses,
+                      enabled: r.status != 'Delivered',
+                      onChanged: (v) async {
+                        final confirmed = await confirmDialog(context, title: 'Update redemption status?', message: 'Mark ${r.carpenterName}\'s redemption of "${r.giftName}" as "$v"?');
+                        if (!confirmed) return;
+                        app.setRedemptionStatus(r, v);
+                        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${r.carpenterName}\'s redemption marked $v')));
+                      },
+                    ),
+                  ],
+                ),
+              )),
         ],
       ],
     );

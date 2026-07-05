@@ -453,8 +453,15 @@ class AdminState extends ChangeNotifier {
 
   int totalOrderAmount(String carpenterId) {
     final regular = ordersFor(carpenterId).fold(0, (sum, o) => sum + o.amount);
-    final party = partyOrdersFor(carpenterId).fold(0, (sum, o) => sum + o.amount);
+    final party = partyOrdersFor(carpenterId).fold(0, (sum, o) => sum + (o.approvedAmount > 0 ? o.approvedAmount : o.amount));
     return regular + party;
+  }
+
+  int totalPartyPoints(String carpenterId) {
+    return partyOrdersFor(carpenterId).fold(0, (sum, o) {
+      if (o.approvedAmount > 0) return sum + (o.paid * o.commissionPercent) ~/ 100;
+      return sum;
+    });
   }
 
   DateTime? lastOrderDate(String carpenterId) {

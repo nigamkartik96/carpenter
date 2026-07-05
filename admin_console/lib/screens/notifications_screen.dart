@@ -87,18 +87,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ...pageSlice(app.broadcasts, _page, _perPage).map((b) => AppCard(
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(b.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                        if (b.body.isNotEmpty && b.body != b.title) Text(b.body, style: const TextStyle(color: kMuted, fontSize: 12)),
+                        Text(b.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                        const SizedBox(height: 2),
+                        if (b.body.isNotEmpty && b.body != b.title) Text(b.body, style: const TextStyle(color: kTextSecondary, fontSize: 12)),
                         Text(b.date, style: const TextStyle(color: kTextMuted, fontSize: 11)),
                       ],
                     ),
                   ),
+                  const SizedBox(width: 12),
                   AudienceBadge(b.tier),
                 ],
               ),
