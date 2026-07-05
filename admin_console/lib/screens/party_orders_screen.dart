@@ -164,6 +164,7 @@ class PartyOrderDetailScreen extends StatefulWidget {
 
 class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
   final approveAmt = TextEditingController();
+  final commissionCtl = TextEditingController(text: '10');
   final payAmt = TextEditingController();
   bool busy = false;
   bool _approvePrefilled = false;
@@ -181,6 +182,7 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
     }
     if (!_approvePrefilled) {
       approveAmt.text = (o.approvedAmount > 0 ? o.approvedAmount : o.amount).toString();
+      commissionCtl.text = o.commissionPercent.toString();
       _approvePrefilled = true;
     }
 
@@ -273,14 +275,23 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
             child: TextField(controller: approveAmt, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(prefixText: '₹ ')),
           ),
           const SizedBox(height: spaceMd),
+          LabeledField(
+            label: 'Commission %',
+            child: TextField(controller: commissionCtl, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(suffixText: '%', hintText: '10')),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 4, bottom: 10),
+            child: Text('Percentage of each payment credited as points to the carpenter', style: const TextStyle(fontSize: 12, color: kTextSecondary)),
+          ),
           ElevatedButton.icon(
             onPressed: busy
                 ? null
                 : () async {
                     final amt = int.tryParse(approveAmt.text) ?? o.amount;
+                    final commission = (int.tryParse(commissionCtl.text) ?? 10).clamp(0, 100);
                     setState(() => busy = true);
                     try {
-                      await app.approvePartyOrder(o, amt);
+                      await app.approvePartyOrder(o, amt, commissionPercent: commission);
                     } finally {
                       if (mounted) setState(() => busy = false);
                     }
@@ -306,6 +317,7 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
           ],
         ),
         const SizedBox(height: spaceSm),
+        _kv('Commission', '${o.commissionPercent}%'),
         _kv('Points credited to ${o.carpenterName.split(' ').first}', '+${o.pointsAwarded} pts'),
         if (o.payments.isNotEmpty) ...[
           const SizedBox(height: spaceSm),
@@ -324,7 +336,7 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 6, bottom: 10),
-            child: Text('Adds points at ${app.pointRulePoints} pt per ₹${app.pointRuleAmount} · credited immediately', style: const TextStyle(fontSize: 12, color: kTextSecondary)),
+            child: Text('Commission: ${o.commissionPercent}% of payment added as points · max ${_money(o.remaining)}', style: const TextStyle(fontSize: 12, color: kTextSecondary)),
           ),
           Row(
             children: [
@@ -332,14 +344,11 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
                 onPressed: busy
                     ? null
                     : () async {
-                        final amt = int.tryParse(payAmt.text) ?? 0;
+                        var amt = int.tryParse(payAmt.text) ?? 0;
                         if (amt <= 0) return;
-                        // This payment settles the balance -- once recorded there's
-                        // nothing left to collect, so finalize and announce it.
-                        // Figures are captured here because the streamed `o` is
-                        // replaced (not mutated) after the write, so it stays stale.
+                        if (amt > o.remaining) amt = o.remaining;
                         final settlesOrder = amt >= o.remaining;
-                        final thisPoints = app.pointRuleAmount > 0 ? (amt ~/ app.pointRuleAmount) * app.pointRulePoints : 0;
+                        final thisPoints = (amt * o.commissionPercent) ~/ 100;
                         final totalCollected = o.paid + amt;
                         final totalPoints = o.pointsAwarded + thisPoints;
                         setState(() => busy = true);

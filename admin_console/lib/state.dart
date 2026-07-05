@@ -196,6 +196,7 @@ class AdminState extends ChangeNotifier {
           amount: _int(d['amount']),
           status: d['status'] ?? 'pending',
           approvedAmount: _int(d['approvedAmount']),
+          commissionPercent: _int(d['commissionPercent'], 10),
           fileUrl: d['fileUrl'],
           fileType: d['fileType'],
           payments: rawPayments is List ? rawPayments.map((m) => PartyPayment.fromMap(Map<String, dynamic>.from(m as Map))).toList() : const [],
@@ -528,15 +529,14 @@ class AdminState extends ChangeNotifier {
     return _fb.updatePartyOrder(id, carpenterId: carpenterId, carpenterName: carpenterName, party: party, amount: amount, fileUrl: fileUrl, fileType: fileType);
   }
 
-  Future<void> approvePartyOrder(PartyOrder o, int approvedAmount) => _fb.approvePartyOrder(o.id, approvedAmount);
+  Future<void> approvePartyOrder(PartyOrder o, int approvedAmount, {int commissionPercent = 10}) => _fb.approvePartyOrder(o.id, approvedAmount, commissionPercent: commissionPercent);
 
   Future<void> recordPartyPayment(PartyOrder o, int amount) => _fb.recordPartyPayment(
         orderId: o.id,
         carpenterId: o.carpenterId,
         party: o.party,
         amount: amount,
-        pointRuleAmount: pointRuleAmount,
-        pointRulePoints: pointRulePoints,
+        commissionPercent: o.commissionPercent,
       );
 
   Future<void> completePartyOrder(PartyOrder o) => _fb.completePartyOrder(o.id);

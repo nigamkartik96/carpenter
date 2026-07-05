@@ -114,8 +114,8 @@ class AdminFirebaseService {
     });
   }
 
-  Future<void> approvePartyOrder(String id, int approvedAmount) =>
-      db.collection('partyOrders').doc(id).update({'status': 'approved', 'approvedAmount': approvedAmount});
+  Future<void> approvePartyOrder(String id, int approvedAmount, {int commissionPercent = 10}) =>
+      db.collection('partyOrders').doc(id).update({'status': 'approved', 'approvedAmount': approvedAmount, 'commissionPercent': commissionPercent});
 
   Future<void> completePartyOrder(String id) =>
       db.collection('partyOrders').doc(id).update({'status': 'completed'});
@@ -130,15 +130,20 @@ class AdminFirebaseService {
     required String carpenterId,
     required String party,
     required int amount,
-    required int pointRuleAmount,
-    required int pointRulePoints,
+    required int commissionPercent,
   }) async {
-    final points = (pointRuleAmount > 0) ? (amount ~/ pointRuleAmount) * pointRulePoints : 0;
     final orderRef = db.collection('partyOrders').doc(orderId);
     await db.runTransaction((tx) async {
       final snap = await tx.get(orderRef);
-      final existing = (snap.data()?['payments'] as List?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? [];
-      existing.add({'amount': amount, 'points': points});
+      final data = snap.data() ?? {};
+      final approved = (data['approvedAmount'] is int) ? data['approvedAmount'] as int : 0;
+      final existing = (data['payments'] as List?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? [];
+      final paidSoFar = existing.fold<int>(0, (s, p) => s + ((p['amount'] is int) ? p['amount'] as int : 0));
+      final remaining = (approved - paidSoFar).clamp(0, approved);
+      final capped = amount > remaining ? remaining : amount;
+      if (capped <= 0) return;
+      final points = (capped * commissionPercent) ~/ 100;
+      existing.add({'amount': capped, 'points': points});
       tx.update(orderRef, {'payments': existing});
       if (points > 0) {
         tx.update(db.collection('carpenters').doc(carpenterId), {

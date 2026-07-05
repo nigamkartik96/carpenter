@@ -174,6 +174,7 @@ class PartyOrder {
     required this.amount,
     this.status = 'pending',
     this.approvedAmount = 0,
+    this.commissionPercent = 10,
     this.fileUrl,
     this.fileType,
     this.payments = const [],
@@ -188,6 +189,7 @@ class PartyOrder {
   final int amount; // amount the creator entered
   String status; // pending, approved, completed
   int approvedAmount; // set by the admin on approval
+  int commissionPercent; // % of payment credited as points (set at approval)
   final String? fileUrl;
   final String? fileType; // 'image' or 'pdf'
   final List<PartyPayment> payments;
