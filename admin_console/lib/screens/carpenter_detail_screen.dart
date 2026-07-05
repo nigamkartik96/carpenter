@@ -10,25 +10,37 @@ import '../widgets.dart';
 import 'orders_screens.dart' show orderAmountLabel;
 import 'party_orders_screen.dart' show PartyStatusChip;
 
-/// Full profile for one carpenter: contact info, last known location, and
-/// every related record (orders, gift redemptions, leads) so an admin
-/// doesn't have to cross-reference four separate screens by name.
-class CarpenterDetailScreen extends StatelessWidget {
+class CarpenterDetailScreen extends StatefulWidget {
   const CarpenterDetailScreen({super.key, required this.carpenterId});
   final String carpenterId;
 
   @override
+  State<CarpenterDetailScreen> createState() => _CarpenterDetailScreenState();
+}
+
+class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
+  int _tab = 0;
+
+  static const _tabs = [
+    (Icons.inventory_2_outlined, 'Orders'),
+    (Icons.receipt_long_outlined, 'Party'),
+    (Icons.card_giftcard_outlined, 'Gifts'),
+    (Icons.lightbulb_outline, 'Leads'),
+  ];
+
+  @override
   Widget build(BuildContext context) {
     final app = context.watch<AdminState>();
-    final matches = app.carpenters.where((c) => c.id == carpenterId);
+    final matches = app.carpenters.where((c) => c.id == widget.carpenterId);
     if (matches.isEmpty) {
       return const Scaffold(body: Center(child: Text('Carpenter not found')));
     }
     final c = matches.first;
-    final orders = app.ordersFor(carpenterId);
-    final partyOrders = app.partyOrdersFor(carpenterId);
-    final redemptions = app.redemptionsFor(carpenterId);
-    final leads = app.leadsFor(carpenterId);
+    final orders = app.ordersFor(widget.carpenterId);
+    final partyOrders = app.partyOrdersFor(widget.carpenterId);
+    final redemptions = app.redemptionsFor(widget.carpenterId);
+    final leads = app.leadsFor(widget.carpenterId);
+    final counts = [orders.length, partyOrders.length, redemptions.length, leads.length];
 
     return Scaffold(
       appBar: AppBar(title: Text(c.name), automaticallyImplyLeading: false),
@@ -94,8 +106,6 @@ class CarpenterDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          // One compact stat row instead of four near-identical sparse
-          // blocks -- sections below only expand if they have content.
           Row(
             children: [
               Expanded(child: _MiniStat(icon: Icons.workspace_premium_outlined, label: 'Points', value: '${c.points}')),
@@ -154,92 +164,224 @@ class CarpenterDetailScreen extends StatelessWidget {
             ),
           ] else
             const EmptyState(icon: Icons.location_off_outlined, message: 'No location reported yet'),
-          if (orders.isNotEmpty) ...[
-            const SizedBox(height: 20),
-            SubHeading('Orders (${orders.length})'),
-            const SizedBox(height: 8),
-            ...orders.map((o) => AppCard(
-                  onTap: () => context.push('/orders/${o.id}'),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text.rich(
-                          TextSpan(
-                            style: const TextStyle(fontSize: 13, color: kTextPrimary),
-                            children: [
-                              TextSpan(text: '${o.orderNumber} · '),
-                              TextSpan(
-                                text: orderAmountLabel(o),
-                                style: TextStyle(color: o.amount == 0 && o.items.isEmpty ? kTextMuted : kTextPrimary, fontStyle: o.amount == 0 && o.items.isEmpty ? FontStyle.italic : FontStyle.normal),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      StatusBadge(o.status),
-                    ],
+          const SizedBox(height: 20),
+          Container(
+            decoration: BoxDecoration(
+              color: kBgSurface,
+              borderRadius: BorderRadius.circular(kCardRadius),
+              border: Border.all(color: kBorderSubtle),
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+                  child: Container(
+                    decoration: BoxDecoration(color: kBgApp, borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.all(3),
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < _tabs.length; i++) ...[
+                          if (i > 0) const SizedBox(width: 4),
+                          Expanded(child: _tabChip(i, _tabs[i].$1, _tabs[i].$2, counts[i])),
+                        ],
+                      ],
+                    ),
                   ),
-                )),
-          ],
-          if (partyOrders.isNotEmpty) ...[
-            const SizedBox(height: 20),
-            SubHeading('Party orders (${partyOrders.length})'),
-            const SizedBox(height: 8),
-            ...partyOrders.map((o) => AppCard(
-                  onTap: () => context.push('/party-orders/${o.id}'),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Party: ${o.party}', style: const TextStyle(fontSize: 13)),
-                            if (o.status != 'pending')
-                              Text('Paid ₹${o.paid} of ₹${o.approvedAmount} · +${o.pointsAwarded} pts', style: const TextStyle(color: kTextSecondary, fontSize: 11)),
-                          ],
-                        ),
-                      ),
-                      Text('₹${o.amount}', style: const TextStyle(fontSize: 13)),
-                      const SizedBox(width: 8),
-                      PartyStatusChip(status: o.status),
-                    ],
-                  ),
-                )),
-          ],
-          if (redemptions.isNotEmpty) ...[
-            const SizedBox(height: 20),
-            SubHeading('Gift redemptions (${redemptions.length})'),
-            const SizedBox(height: 8),
-            ...redemptions.map((r) => AppCard(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(child: Text('${r.giftName} · ${r.points} pts', style: const TextStyle(fontSize: 13))),
-                      StatusBadge(r.status),
-                    ],
-                  ),
-                )),
-          ],
-          if (leads.isNotEmpty) ...[
-            const SizedBox(height: 20),
-            SubHeading('Leads (${leads.length})'),
-            const SizedBox(height: 8),
-            ...leads.map((l) => AppCard(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(child: Text('${l.customer} · ${l.phone}', style: const TextStyle(fontSize: 13))),
-                      StatusBadge(l.status),
-                    ],
-                  ),
-                )),
-          ],
+                ),
+                const SizedBox(height: 8),
+                if (_tab == 0) _ordersTab(context, orders),
+                if (_tab == 1) _partyTab(context, partyOrders),
+                if (_tab == 2) _redemptionsTab(context, redemptions),
+                if (_tab == 3) _leadsTab(context, leads),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
+
+  Widget _tabChip(int index, IconData icon, String label, int count) => GestureDetector(
+        onTap: () => setState(() => _tab = index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: _tab == index ? kBgSurface : Colors.transparent,
+            borderRadius: BorderRadius.circular(6),
+            boxShadow: _tab == index ? [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4, offset: const Offset(0, 1))] : null,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 15, color: _tab == index ? kAccentPrimary : kTextMuted),
+              const SizedBox(height: 2),
+              Text('$label ($count)', style: TextStyle(fontSize: 11, fontWeight: _tab == index ? FontWeight.w600 : FontWeight.w400, color: _tab == index ? kTextPrimary : kTextMuted)),
+            ],
+          ),
+        ),
+      );
+
+  Widget _ordersTab(BuildContext context, List<AdminOrder> orders) {
+    if (orders.isEmpty) return const Padding(padding: EdgeInsets.all(16), child: EmptyState(icon: Icons.inventory_2_outlined, message: 'No orders yet'));
+    return Column(
+      children: orders.map((o) => _tileBorder(
+            InkWell(
+              onTap: () => context.push('/orders/${o.id}'),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 34, height: 34,
+                      decoration: BoxDecoration(color: kAccentPrimary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8)),
+                      child: const Icon(Icons.inventory_2_outlined, size: 15, color: kAccentPrimary),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(o.orderNumber, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                          const SizedBox(height: 2),
+                          Text(orderAmountLabel(o), style: TextStyle(fontSize: 12, color: o.amount == 0 && o.items.isEmpty ? kTextMuted : kTextSecondary)),
+                        ],
+                      ),
+                    ),
+                    StatusBadge(o.status),
+                  ],
+                ),
+              ),
+            ),
+          )).toList(),
+    );
+  }
+
+  Widget _partyTab(BuildContext context, List<PartyOrder> orders) {
+    if (orders.isEmpty) return const Padding(padding: EdgeInsets.all(16), child: EmptyState(icon: Icons.receipt_long_outlined, message: 'No party orders yet'));
+    return Column(
+      children: orders.map((o) {
+        final isPending = o.status == 'pending';
+        final progress = o.approvedAmount > 0 ? o.paid / o.approvedAmount : 0.0;
+        return _tileBorder(
+          InkWell(
+            onTap: () => context.push('/party-orders/${o.id}'),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 34, height: 34,
+                    decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(8)),
+                    child: const Icon(Icons.receipt_long_outlined, size: 15, color: Color(0xFF92400E)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Party: ${o.party}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                        const SizedBox(height: 2),
+                        if (!isPending) ...[
+                          Text('Paid ₹${o.paid} of ₹${o.approvedAmount}', style: const TextStyle(color: kTextSecondary, fontSize: 11)),
+                          const SizedBox(height: 4),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: LinearProgressIndicator(value: progress.clamp(0.0, 1.0), minHeight: 4, backgroundColor: kBorderSubtle, color: progress >= 1.0 ? const Color(0xFF16A34A) : kAccentPrimary),
+                          ),
+                        ] else
+                          Text('₹${o.amount}', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      PartyStatusChip(status: o.status),
+                      if (!isPending) ...[
+                        const SizedBox(height: 4),
+                        Text('+${o.pointsAwarded} pts', style: const TextStyle(color: Color(0xFF16A34A), fontSize: 11, fontWeight: FontWeight.w500)),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _redemptionsTab(BuildContext context, List<Redemption> redemptions) {
+    if (redemptions.isEmpty) return const Padding(padding: EdgeInsets.all(16), child: EmptyState(icon: Icons.card_giftcard_outlined, message: 'No gift redemptions yet'));
+    return Column(
+      children: redemptions.map((r) => _tileBorder(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 34, height: 34,
+                    decoration: BoxDecoration(color: const Color(0xFFF3E8FF), borderRadius: BorderRadius.circular(8)),
+                    child: const Icon(Icons.card_giftcard_outlined, size: 15, color: Color(0xFF7C3AED)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(r.giftName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                        const SizedBox(height: 2),
+                        Text('${r.points} pts', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                  StatusBadge(r.status),
+                ],
+              ),
+            ),
+          )).toList(),
+    );
+  }
+
+  Widget _leadsTab(BuildContext context, List<AdminLead> leads) {
+    if (leads.isEmpty) return const Padding(padding: EdgeInsets.all(16), child: EmptyState(icon: Icons.lightbulb_outline, message: 'No leads yet'));
+    return Column(
+      children: leads.map((l) => _tileBorder(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 34, height: 34,
+                    decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(8)),
+                    child: const Icon(Icons.lightbulb_outline, size: 15, color: Color(0xFF166534)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(l.customer, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                        const SizedBox(height: 2),
+                        Text(l.phone, style: const TextStyle(color: kTextSecondary, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                  StatusBadge(l.status),
+                ],
+              ),
+            ),
+          )).toList(),
+    );
+  }
+
+  Widget _tileBorder(Widget child) => Container(
+        decoration: const BoxDecoration(border: Border(top: BorderSide(color: kBorderSubtle, width: 0.5))),
+        child: child,
+      );
 }
 
 class _MiniStat extends StatelessWidget {

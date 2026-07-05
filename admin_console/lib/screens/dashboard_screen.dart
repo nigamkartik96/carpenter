@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../models.dart';
 import '../router.dart';
 import '../state.dart';
 import '../widgets.dart';
@@ -22,6 +23,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _perPage = 10;
   bool _showParty = false;
   int _partyPage = 0;
+  String _partyDateFilter = 'all';
+  String _partyStatusFilter = 'all';
+  String _partySortBy = 'newest';
 
   @override
   Widget build(BuildContext context) {
@@ -81,117 +85,303 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
         }),
         const SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Container(
+          decoration: BoxDecoration(
+            color: kBgSurface,
+            borderRadius: BorderRadius.circular(kCardRadius),
+            border: Border.all(color: kBorderSubtle),
+          ),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 8, 0),
+                child: Row(
+                  children: [
+                    Expanded(child: SubHeading(_showParty ? 'Recent party orders' : 'Recent orders')),
+                    TextButton(
+                      onPressed: () => context.go(_showParty ? '/party-orders' : '/orders'),
+                      child: const Text('View all →', style: TextStyle(fontSize: 12)),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: kBgApp,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.all(3),
+                  child: Row(
+                    children: [
+                      Expanded(child: _tab('Orders', Icons.inventory_2_outlined, !_showParty, () => setState(() { _showParty = false; _page = 0; }))),
+                      const SizedBox(width: 4),
+                      Expanded(child: _tab('Party orders', Icons.receipt_long_outlined, _showParty, () => setState(() { _showParty = true; _partyPage = 0; }))),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (!_showParty) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: OrderFilterBar(
+                    dateFilter: dateFilter,
+                    statusFilter: statusFilter,
+                    sortBy: sortBy,
+                    onDateFilter: (v) => setState(() { dateFilter = v; _page = 0; }),
+                    onStatusFilter: (v) => setState(() { statusFilter = v; _page = 0; }),
+                    onSortBy: (v) => setState(() { sortBy = v; _page = 0; }),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: PaginationBar(
+                    total: allFiltered.length,
+                    page: _page,
+                    perPage: _perPage,
+                    onPageChanged: (p) => setState(() => _page = p),
+                    onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
+                  ),
+                ),
+                if (recent.isEmpty)
+                  const Padding(padding: EdgeInsets.only(bottom: 16), child: EmptyState(icon: Icons.inventory_2_outlined, message: 'No orders match this filter')),
+                ...recent.map((o) => _orderTile(context, o)),
+              ] else ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _PartyFilterBar(
+                    dateFilter: _partyDateFilter,
+                    statusFilter: _partyStatusFilter,
+                    sortBy: _partySortBy,
+                    onDateFilter: (v) => setState(() { _partyDateFilter = v; _partyPage = 0; }),
+                    onStatusFilter: (v) => setState(() { _partyStatusFilter = v; _partyPage = 0; }),
+                    onSortBy: (v) => setState(() { _partySortBy = v; _partyPage = 0; }),
+                  ),
+                ),
+                Builder(builder: (context) {
+                  final filtered = _filterPartyOrders(app.partyOrders);
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: PaginationBar(
+                          total: filtered.length,
+                          page: _partyPage,
+                          perPage: _perPage,
+                          onPageChanged: (p) => setState(() => _partyPage = p),
+                          onPerPageChanged: (n) => setState(() { _perPage = n; _partyPage = 0; }),
+                        ),
+                      ),
+                      if (filtered.isEmpty)
+                        const Padding(padding: EdgeInsets.only(bottom: 16), child: EmptyState(icon: Icons.receipt_long_outlined, message: 'No party orders match this filter')),
+                      ...pageSlice(filtered, _partyPage, _perPage).map((o) => _partyTile(context, o)),
+                    ],
+                  );
+                }),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _tab(String label, IconData icon, bool active, VoidCallback onTap) => GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: active ? kBgSurface : Colors.transparent,
+            borderRadius: BorderRadius.circular(6),
+            boxShadow: active ? [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4, offset: const Offset(0, 1))] : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 15, color: active ? kAccentPrimary : kTextMuted),
+              const SizedBox(width: 6),
+              Text(label, style: TextStyle(fontSize: 12, fontWeight: active ? FontWeight.w600 : FontWeight.w400, color: active ? kTextPrimary : kTextMuted)),
+            ],
+          ),
+        ),
+      );
+
+  Widget _orderTile(BuildContext context, AdminOrder o) => InkWell(
+        onTap: () => context.push('/orders/${o.id}'),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: const BoxDecoration(border: Border(top: BorderSide(color: kBorderSubtle, width: 0.5))),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(color: kAccentPrimary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8)),
+                child: const Icon(Icons.inventory_2_outlined, size: 16, color: kAccentPrimary),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    const SizedBox(height: 2),
+                    Text(o.orderNumber, style: const TextStyle(color: kTextMuted, fontSize: 11)),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  orderAmountText(o, fontSize: 13),
+                  const SizedBox(height: 2),
+                  StatusBadge(o.status),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+
+  Widget _partyTile(BuildContext context, PartyOrder o) {
+    final isPending = o.status == 'pending';
+    final progress = o.approvedAmount > 0 ? o.paid / o.approvedAmount : 0.0;
+    return InkWell(
+      onTap: () => context.push('/party-orders/${o.id}'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: const BoxDecoration(border: Border(top: BorderSide(color: kBorderSubtle, width: 0.5))),
+        child: Row(
           children: [
-            SubHeading(_showParty ? 'Recent party orders' : 'Recent orders'),
-            TextButton(
-              onPressed: () => context.go(_showParty ? '/party-orders' : '/orders'),
-              child: const Text('View all', style: TextStyle(fontSize: 12)),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(8)),
+              child: const Icon(Icons.receipt_long_outlined, size: 16, color: Color(0xFF92400E)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  const SizedBox(height: 2),
+                  Text('Party: ${o.party}', style: const TextStyle(color: kTextMuted, fontSize: 11)),
+                  if (!isPending) ...[
+                    const SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(3),
+                      child: LinearProgressIndicator(value: progress.clamp(0.0, 1.0), minHeight: 4, backgroundColor: kBorderSubtle, color: progress >= 1.0 ? const Color(0xFF16A34A) : kAccentPrimary),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text('₹${o.amount}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                const SizedBox(height: 2),
+                PartyStatusChip(status: o.status),
+                if (!isPending) ...[
+                  const SizedBox(height: 2),
+                  Text('+${o.pointsAwarded} pts', style: const TextStyle(color: Color(0xFF16A34A), fontSize: 11, fontWeight: FontWeight.w500)),
+                ],
+              ],
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () => setState(() { _showParty = false; _page = 0; }),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: !_showParty ? kAccentPrimary : kBgSurface,
-                    borderRadius: const BorderRadius.horizontal(left: Radius.circular(8)),
-                    border: Border.all(color: !_showParty ? kAccentPrimary : kBorderSubtle),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text('Regular orders', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: !_showParty ? Colors.white : kTextSecondary)),
-                ),
-              ),
-            ),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => setState(() { _showParty = true; _partyPage = 0; }),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: _showParty ? kAccentPrimary : kBgSurface,
-                    borderRadius: const BorderRadius.horizontal(right: Radius.circular(8)),
-                    border: Border.all(color: _showParty ? kAccentPrimary : kBorderSubtle),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text('Party orders', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: _showParty ? Colors.white : kTextSecondary)),
-                ),
-              ),
-            ),
+      ),
+    );
+  }
+
+  List<PartyOrder> _filterPartyOrders(List<PartyOrder> orders) {
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    final startOfWeek = startOfDay.subtract(Duration(days: now.weekday - 1));
+
+    var list = orders.where((o) {
+      if (_partyStatusFilter != 'all' && o.status != _partyStatusFilter) return false;
+      if (_partyDateFilter == 'today' && (o.createdAt == null || o.createdAt!.isBefore(startOfDay))) return false;
+      if (_partyDateFilter == 'week' && (o.createdAt == null || o.createdAt!.isBefore(startOfWeek))) return false;
+      return true;
+    }).toList();
+
+    switch (_partySortBy) {
+      case 'oldest':
+        list.sort((a, b) => (a.createdAt ?? DateTime(0)).compareTo(b.createdAt ?? DateTime(0)));
+        break;
+      case 'amountHigh':
+        list.sort((a, b) => b.amount.compareTo(a.amount));
+        break;
+      case 'amountLow':
+        list.sort((a, b) => a.amount.compareTo(b.amount));
+        break;
+      default:
+        list.sort((a, b) => (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0)));
+    }
+    return list;
+  }
+}
+
+class _PartyFilterBar extends StatelessWidget {
+  const _PartyFilterBar({
+    required this.dateFilter,
+    required this.statusFilter,
+    required this.sortBy,
+    required this.onDateFilter,
+    required this.onStatusFilter,
+    required this.onSortBy,
+  });
+  final String dateFilter;
+  final String statusFilter;
+  final String sortBy;
+  final ValueChanged<String> onDateFilter;
+  final ValueChanged<String> onStatusFilter;
+  final ValueChanged<String> onSortBy;
+
+  static const _statuses = [
+    ('all', 'All statuses'),
+    ('pending', 'Pending'),
+    ('approved', 'Collecting payment'),
+    ('completed', 'Completed'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    Widget chip(String label, String value, String current, ValueChanged<String> onSelect) => FilterChip(
+          label: Text(label, style: const TextStyle(fontSize: 12)),
+          selected: current == value,
+          onSelected: (_) => onSelect(value),
+          visualDensity: VisualDensity.compact,
+        );
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        chip('All dates', 'all', dateFilter, onDateFilter),
+        chip('Past day', 'today', dateFilter, onDateFilter),
+        chip('Past week', 'week', dateFilter, onDateFilter),
+        const SizedBox(width: 4),
+        for (final (value, label) in _statuses) chip(label, value, statusFilter, onStatusFilter),
+        const SizedBox(width: 8),
+        DropdownButton<String>(
+          value: sortBy,
+          underline: const SizedBox(),
+          items: const [
+            DropdownMenuItem(value: 'newest', child: Text('Newest first', style: TextStyle(fontSize: 13))),
+            DropdownMenuItem(value: 'oldest', child: Text('Oldest first', style: TextStyle(fontSize: 13))),
+            DropdownMenuItem(value: 'amountHigh', child: Text('Amount: high to low', style: TextStyle(fontSize: 13))),
+            DropdownMenuItem(value: 'amountLow', child: Text('Amount: low to high', style: TextStyle(fontSize: 13))),
           ],
+          onChanged: (v) => onSortBy(v ?? 'newest'),
         ),
-        const SizedBox(height: 12),
-        if (!_showParty) ...[
-          OrderFilterBar(
-            dateFilter: dateFilter,
-            statusFilter: statusFilter,
-            sortBy: sortBy,
-            onDateFilter: (v) => setState(() { dateFilter = v; _page = 0; }),
-            onStatusFilter: (v) => setState(() { statusFilter = v; _page = 0; }),
-            onSortBy: (v) => setState(() { sortBy = v; _page = 0; }),
-          ),
-          PaginationBar(
-            total: allFiltered.length,
-            page: _page,
-            perPage: _perPage,
-            onPageChanged: (p) => setState(() => _page = p),
-            onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
-          ),
-          if (recent.isEmpty) const EmptyState(icon: Icons.inventory_2_outlined, message: 'No orders match this filter'),
-          ...recent.map((o) => AppCard(
-                onTap: () => context.push('/orders/${o.id}'),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('${o.orderNumber} · ${o.carpenterName}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                          orderAmountText(o, fontSize: 12),
-                        ],
-                      ),
-                    ),
-                    StatusBadge(o.status),
-                  ],
-                ),
-              )),
-        ] else ...[
-          PaginationBar(
-            total: app.partyOrders.length,
-            page: _partyPage,
-            perPage: _perPage,
-            onPageChanged: (p) => setState(() => _partyPage = p),
-            onPerPageChanged: (n) => setState(() { _perPage = n; _partyPage = 0; }),
-          ),
-          if (app.partyOrders.isEmpty) const EmptyState(icon: Icons.receipt_long_outlined, message: 'No party orders yet'),
-          ...pageSlice(app.partyOrders, _partyPage, _perPage).map((o) => AppCard(
-                onTap: () => context.push('/party-orders/${o.id}'),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('${o.carpenterName} · ${o.party}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                          if (o.status != 'pending')
-                            Text('Paid ₹${o.paid} of ₹${o.approvedAmount} · +${o.pointsAwarded} pts', style: const TextStyle(color: kTextSecondary, fontSize: 11))
-                          else
-                            Text('₹${o.amount}', style: const TextStyle(fontSize: 12)),
-                        ],
-                      ),
-                    ),
-                    PartyStatusChip(status: o.status),
-                  ],
-                ),
-              )),
-        ],
       ],
     );
   }
