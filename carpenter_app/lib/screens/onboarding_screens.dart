@@ -141,7 +141,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _pickPhoto() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1080, imageQuality: 85);
+    final picked = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1080, imageQuality: 70);
     if (picked == null) return;
     setState(() => uploadingPhoto = true);
     try {

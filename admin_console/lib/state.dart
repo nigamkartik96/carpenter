@@ -80,6 +80,12 @@ class AdminState extends ChangeNotifier {
   int leadPointsQualified = 0;
   int leadPointsConverted = 0;
 
+  String appVersion = '';
+  int appBuildNumber = 0;
+  String appDownloadUrl = '';
+  String appReleaseNotes = '';
+  bool appForceUpdate = false;
+
   final List<Carpenter> carpenters = [];
   final List<AdminOrder> orders = [];
   final List<AdminOffer> offers = [];
@@ -416,6 +422,21 @@ class AdminState extends ChangeNotifier {
     }, onError: (e) => _reportError('leads', e)));
 
     _subs.add(_fb.watchPartyOrders().listen(_applyPartyOrders, onError: (e) => _reportError('partyOrders', e)));
+
+    _subs.add(_fb.watchAppVersion().listen((snap) {
+      try {
+        final d = snap.data();
+        if (d == null) return;
+        appVersion = d['version'] as String? ?? '';
+        appBuildNumber = _int(d['buildNumber']);
+        appDownloadUrl = d['downloadUrl'] as String? ?? '';
+        appReleaseNotes = d['releaseNotes'] as String? ?? '';
+        appForceUpdate = d['forceUpdate'] == true;
+        notifyListeners();
+      } catch (e) {
+        _reportError('appVersion', e);
+      }
+    }, onError: (e) => _reportError('appVersion', e)));
   }
 
   String _carpenterName(String? carpenterId) {
@@ -562,5 +583,27 @@ class AdminState extends ChangeNotifier {
 
   Future<void> broadcastNotification(String title, String body, String tier) async {
     await _fb.broadcastNotification(title, body.isEmpty ? title : body, tier);
+  }
+
+  Future<void> saveAppVersion({
+    required String version,
+    required int buildNumber,
+    required String downloadUrl,
+    String releaseNotes = '',
+    bool forceUpdate = false,
+  }) async {
+    appVersion = version;
+    appBuildNumber = buildNumber;
+    appDownloadUrl = downloadUrl;
+    appReleaseNotes = releaseNotes;
+    appForceUpdate = forceUpdate;
+    notifyListeners();
+    await _fb.saveAppVersion(
+      version: version,
+      buildNumber: buildNumber,
+      downloadUrl: downloadUrl,
+      releaseNotes: releaseNotes,
+      forceUpdate: forceUpdate,
+    );
   }
 }

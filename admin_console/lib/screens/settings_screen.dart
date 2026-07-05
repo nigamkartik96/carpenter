@@ -25,6 +25,12 @@ class SettingsScreen extends StatelessWidget {
         const Text('How many points a carpenter earns when a lead they submitted reaches each stage.', style: TextStyle(color: kMuted, fontSize: 12)),
         const SizedBox(height: 10),
         _LeadPointsRuleForm(app: app),
+        const SizedBox(height: 24),
+        const SubHeading('App version (OTA update)'),
+        const SizedBox(height: 8),
+        const Text('Set the latest APK version info. Carpenters will see an update prompt when their installed build is older.', style: TextStyle(color: kMuted, fontSize: 12)),
+        const SizedBox(height: 10),
+        _AppVersionForm(app: app),
       ],
     );
   }
@@ -155,6 +161,96 @@ class _LeadPointsRuleFormState extends State<_LeadPointsRuleForm> {
               if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lead points rule saved')));
             },
             child: const Text('Save rule'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AppVersionForm extends StatefulWidget {
+  const _AppVersionForm({required this.app});
+  final AdminState app;
+
+  @override
+  State<_AppVersionForm> createState() => _AppVersionFormState();
+}
+
+class _AppVersionFormState extends State<_AppVersionForm> {
+  late final version = TextEditingController(text: widget.app.appVersion);
+  late final buildNumber = TextEditingController(text: '${widget.app.appBuildNumber}');
+  late final downloadUrl = TextEditingController(text: widget.app.appDownloadUrl);
+  late final releaseNotes = TextEditingController(text: widget.app.appReleaseNotes);
+  late bool forceUpdate = widget.app.appForceUpdate;
+  bool _edited = false;
+
+  @override
+  void didUpdateWidget(_AppVersionForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_edited) {
+      version.text = widget.app.appVersion;
+      buildNumber.text = '${widget.app.appBuildNumber}';
+      downloadUrl.text = widget.app.appDownloadUrl;
+      releaseNotes.text = widget.app.appReleaseNotes;
+      forceUpdate = widget.app.appForceUpdate;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              SizedBox(width: 140, child: TextField(controller: version, onChanged: (_) => _edited = true, decoration: const InputDecoration(labelText: 'Version (e.g. 1.1.0)'))),
+              SizedBox(width: 120, child: TextField(controller: buildNumber, onChanged: (_) => _edited = true, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(labelText: 'Build number'))),
+            ],
+          ),
+          const SizedBox(height: 10),
+          TextField(controller: downloadUrl, onChanged: (_) => _edited = true, decoration: const InputDecoration(labelText: 'APK download URL (Firebase Storage or any public link)')),
+          const SizedBox(height: 10),
+          TextField(controller: releaseNotes, onChanged: (_) => _edited = true, maxLines: 2, decoration: const InputDecoration(labelText: 'Release notes (optional)')),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Checkbox(
+                value: forceUpdate,
+                onChanged: (v) => setState(() { forceUpdate = v ?? false; _edited = true; }),
+              ),
+              const Text('Force update (users cannot skip)'),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () async {
+              final v = version.text.trim();
+              final b = int.tryParse(buildNumber.text) ?? 0;
+              final url = downloadUrl.text.trim();
+              if (v.isEmpty || b == 0 || url.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Version, build number, and download URL are required')));
+                return;
+              }
+              final confirmed = await confirmDialog(
+                context,
+                title: 'Publish app version?',
+                message: 'Carpenters with build < $b will be prompted to update to v$v.${forceUpdate ? ' This is a FORCED update — they cannot dismiss.' : ''}',
+              );
+              if (!confirmed) return;
+              _edited = false;
+              await widget.app.saveAppVersion(
+                version: v,
+                buildNumber: b,
+                downloadUrl: url,
+                releaseNotes: releaseNotes.text.trim(),
+                forceUpdate: forceUpdate,
+              );
+              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('App version published')));
+            },
+            child: const Text('Publish version'),
           ),
         ],
       ),

@@ -131,7 +131,7 @@ class AppState extends ChangeNotifier {
     if (user == null) return false;
     final approved = await _refreshStatusOnce();
     if (approved) {
-      await _startListening();
+      _startListening();
       startLocationReporting();
     }
     return true;
@@ -166,14 +166,19 @@ class AppState extends ChangeNotifier {
     try {
       final cred = await _fb.login(email, password);
       uid = cred.user!.uid;
+      // Fetch status inline so we know which screen to route to, but
+      // start listeners and location in the background so the user isn't
+      // blocked on Firestore round-trips after a successful auth.
       await _refreshStatusOnce();
       if (isApproved) {
-        await _startListening();
+        _startListening();
         startLocationReporting();
       }
       return 'ok';
     } on FirebaseAuthException catch (e) {
       return e.message ?? 'Login failed';
+    } catch (e) {
+      return 'Login failed. Check your internet connection.';
     }
   }
 
@@ -210,7 +215,7 @@ class AppState extends ChangeNotifier {
   /// pending screen). Starts live listeners once approved.
   Future<bool> checkApproval() async {
     final approved = await _refreshStatusOnce();
-    if (approved && _subs.isEmpty) await _startListening();
+    if (approved && _subs.isEmpty) _startListening();
     return approved;
   }
 
@@ -282,7 +287,7 @@ class AppState extends ChangeNotifier {
     scheduleBackgroundLocation().catchError((_) {});
   }
 
-  Future<void> _startListening() async {
+  void _startListening() {
     final id = uid!;
 
     _subs.add(_fb.watchCarpenter(id).listen((snap) {
@@ -587,19 +592,14 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> markNotificationsRead() async {
-    final unread = notifications.where((n) => !n.read).toList();
-    if (unread.isEmpty) return;
-    // Clear the bell badge immediately rather than waiting on the
-    // Firestore round-trip -- the live listener reconciles this with
-    // server state moments later anyway.
-    for (final n in unread) {
-      n.read = true;
-    }
+    if (notifications.isEmpty) return;
+    final ids = notifications.map((n) => n.id).toList();
+    notifications.clear();
     notifyListeners();
     try {
-      await _fb.markNotificationsRead(unread.map((n) => n.id).toList());
+      await _fb.deleteNotifications(ids);
     } catch (e) {
-      _reportError('markNotificationsRead', e);
+      _reportError('deleteNotifications', e);
     }
   }
 

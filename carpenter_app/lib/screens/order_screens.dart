@@ -202,7 +202,7 @@ class _UploadOrderScreenState extends State<UploadOrderScreen> {
 
   Future<void> _pick(ImageSource source) async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: source, maxWidth: 1440, imageQuality: 85);
+    final picked = await picker.pickImage(source: source, maxWidth: 1080, imageQuality: 70);
     if (picked == null) return;
     setState(() => uploading = true);
     try {

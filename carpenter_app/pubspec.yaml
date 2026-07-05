@@ -87,6 +87,9 @@ dependencies:
   flutter_contacts: ^1.1.9+2
   mobile_scanner: ^6.0.6
 
+  # In-app update: reads current build number to compare against Firestore
+  package_info_plus: ^8.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -181,11 +181,11 @@ class FirebaseService {
   Stream<QuerySnapshot<Map<String, dynamic>>> watchNotifications(String carpenterId) =>
       db.collection('notifications').where('carpenterId', isEqualTo: carpenterId).snapshots();
 
-  Future<void> markNotificationsRead(List<String> notificationIds) async {
+  Future<void> deleteNotifications(List<String> notificationIds) async {
     if (notificationIds.isEmpty) return;
     final batch = db.batch();
     for (final id in notificationIds) {
-      batch.update(db.collection('notifications').doc(id), {'read': true});
+      batch.delete(db.collection('notifications').doc(id));
     }
     await batch.commit();
   }

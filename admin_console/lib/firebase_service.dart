@@ -157,13 +157,6 @@ class AdminFirebaseService {
           'points': points,
           'createdAt': FieldValue.serverTimestamp(),
         });
-        tx.set(db.collection('notifications').doc(), {
-          'carpenterId': carpenterId,
-          'title': 'Points credited',
-          'body': '+$points points for payment from $party',
-          'read': false,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
       }
     });
   }
@@ -469,4 +462,24 @@ class AdminFirebaseService {
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchBroadcasts() =>
       db.collection('broadcasts').orderBy('createdAt', descending: true).limit(50).snapshots();
+
+  Stream<DocumentSnapshot<Map<String, dynamic>>> watchAppVersion() =>
+      db.collection('config').doc('appVersion').snapshots();
+
+  Future<void> saveAppVersion({
+    required String version,
+    required int buildNumber,
+    required String downloadUrl,
+    String releaseNotes = '',
+    bool forceUpdate = false,
+  }) {
+    return db.collection('config').doc('appVersion').set({
+      'version': version,
+      'buildNumber': buildNumber,
+      'downloadUrl': downloadUrl,
+      'releaseNotes': releaseNotes,
+      'forceUpdate': forceUpdate,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
 }
