@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'models.dart';
 
 // ---------------------------------------------------------------------------
 // Design tokens. Every screen should pull colors/spacing from here rather
@@ -112,6 +113,70 @@ Future<void> infoDialog(
     ),
   );
 }
+
+void showPaymentDetailsDialog(BuildContext context, Carpenter c) {
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text('${c.name} — Payment details'),
+      content: SizedBox(
+        width: 360,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _payRow(Icons.phone_outlined, 'Phone', c.mobile),
+            if (c.upiId.isNotEmpty) _payRow(Icons.account_balance_wallet_outlined, 'UPI ID', c.upiId),
+            if (c.bankName.isNotEmpty) _payRow(Icons.account_balance_outlined, 'Bank', c.bankName),
+            if (c.qrUrl != null) ...[
+              const SizedBox(height: 12),
+              const Text('QR Code', style: TextStyle(fontSize: 12, color: kTextSecondary)),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  c.qrUrl!,
+                  width: 200,
+                  height: 200,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (_, child, progress) => progress == null
+                      ? child
+                      : const SizedBox(width: 200, height: 200, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 200,
+                    height: 200,
+                    alignment: Alignment.center,
+                    color: kBgApp,
+                    child: const Text('Could not load QR', style: TextStyle(color: kTextMuted, fontSize: 12)),
+                  ),
+                ),
+              ),
+            ],
+            if (!c.hasPaymentInfo) const Text('No payment details added yet.', style: TextStyle(color: kTextMuted, fontSize: 13)),
+          ],
+        ),
+      ),
+      actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close'))],
+    ),
+  );
+}
+
+Widget _payRow(IconData icon, String label, String value) => Padding(
+  padding: const EdgeInsets.symmetric(vertical: 6),
+  child: Row(
+    children: [
+      Icon(icon, size: 18, color: kTextSecondary),
+      const SizedBox(width: 10),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 11, color: kTextSecondary)),
+          Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+        ],
+      ),
+    ],
+  ),
+);
 
 ThemeData buildAdminTheme() {
   return ThemeData(

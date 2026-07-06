@@ -14,6 +14,9 @@ class Carpenter {
     this.lat,
     this.lng,
     this.photoUrl,
+    this.upiId = '',
+    this.bankName = '',
+    this.qrUrl,
   });
 
   final String id;
@@ -31,6 +34,11 @@ class Carpenter {
   final double? lat;
   final double? lng;
   final String? photoUrl;
+  final String upiId;
+  final String bankName;
+  final String? qrUrl;
+
+  bool get hasPaymentInfo => upiId.isNotEmpty || bankName.isNotEmpty || qrUrl != null;
 }
 
 class Broadcast {

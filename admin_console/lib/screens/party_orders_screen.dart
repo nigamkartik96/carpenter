@@ -141,6 +141,7 @@ class _PartyOrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPending = order.status == 'pending';
+    final isCompleted = order.status == 'completed';
     final progress = order.approvedAmount > 0 ? order.paid / order.approvedAmount : 0.0;
     final amount = order.approvedAmount > 0 ? order.approvedAmount : order.amount;
 
@@ -171,10 +172,10 @@ class _PartyOrderCard extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(3),
                       child: LinearProgressIndicator(
-                        value: progress.clamp(0.0, 1.0),
+                        value: isCompleted ? 1.0 : progress.clamp(0.0, 1.0),
                         minHeight: 5,
                         backgroundColor: kBorderSubtle,
-                        color: progress >= 1.0 ? const Color(0xFF16A34A) : kAccentPrimary,
+                        color: (isCompleted || progress >= 1.0) ? const Color(0xFF16A34A) : kAccentPrimary,
                       ),
                     ),
                   ],

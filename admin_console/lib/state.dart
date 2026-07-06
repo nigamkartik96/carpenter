@@ -265,6 +265,7 @@ class AdminState extends ChangeNotifier {
           ..addAll(snap.docs.map((doc) {
             final d = doc.data();
             final location = d['location'] as Map<String, dynamic>?;
+            final payout = d['payout'] as Map<String, dynamic>?;
             return Carpenter(
               id: doc.id,
               name: d['name'] ?? '',
@@ -278,6 +279,9 @@ class AdminState extends ChangeNotifier {
               lat: location != null ? _double(location['lat']) : null,
               lng: location != null ? _double(location['lng']) : null,
               photoUrl: d['photoUrl'],
+              upiId: payout?['upiId'] ?? '',
+              bankName: payout?['bankName'] ?? '',
+              qrUrl: payout?['qrUrl'],
             );
           }));
         notifyListeners();
@@ -443,6 +447,11 @@ class AdminState extends ChangeNotifier {
     if (carpenterId == null) return '-';
     final c = carpenters.where((c) => c.id == carpenterId);
     return c.isEmpty ? carpenterId : c.first.name;
+  }
+
+  Carpenter? carpenterById(String id) {
+    final matches = carpenters.where((c) => c.id == id);
+    return matches.isEmpty ? null : matches.first;
   }
 
   List<AdminOrder> ordersFor(String carpenterId) => orders.where((o) => o.carpenterId == carpenterId).toList();

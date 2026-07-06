@@ -81,6 +81,11 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                               if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${c.name} moved to $v tier')));
                             },
                           ),
+                          OutlinedButton.icon(
+                            onPressed: () => showPaymentDetailsDialog(context, c),
+                            icon: const Icon(Icons.account_balance_wallet_outlined, size: 16),
+                            label: const Text('Payment details'),
+                          ),
                           if (c.status == 'Pending') ...[
                             ElevatedButton(
                               onPressed: () async {
