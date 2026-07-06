@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:workmanager/workmanager.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'firebase_options.dart';
 import 'services/background_location.dart';
 import 'services/update_service.dart';
@@ -18,6 +20,10 @@ import 'screens/profile_screens.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
   await Workmanager().initialize(backgroundLocationCallbackDispatcher, isInDebugMode: kDebugMode);
   runApp(const CarpenterHubApp());
 }

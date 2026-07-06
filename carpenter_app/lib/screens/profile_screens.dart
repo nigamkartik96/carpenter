@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -24,15 +25,7 @@ class ProfileScreen extends StatelessWidget {
                 radius: 36,
                 backgroundColor: kCard2,
                 child: app.photoUrl != null
-                    ? ClipOval(
-                        child: Image.network(
-                          app.photoUrl!,
-                          width: 72,
-                          height: 72,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Text(app.initials, style: const TextStyle(fontSize: 20, color: kPrimaryDark, fontWeight: FontWeight.w600)),
-                        ),
-                      )
+                    ? ClipOval(child: CachedImg(app.photoUrl!, width: 72, height: 72, errorWidget: Text(app.initials, style: const TextStyle(fontSize: 20, color: kPrimaryDark, fontWeight: FontWeight.w600))))
                     : Text(app.initials, style: const TextStyle(fontSize: 20, color: kPrimaryDark, fontWeight: FontWeight.w600)),
               ),
               const SizedBox(height: 10),
@@ -255,7 +248,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(color: Colors.white, border: Border.all(color: kBorder), borderRadius: BorderRadius.circular(8)),
                 child: app.qrUrl != null
-                    ? ClipRRect(borderRadius: BorderRadius.circular(4), child: Image.network(app.qrUrl!, fit: BoxFit.contain))
+                    ? ClipRRect(borderRadius: BorderRadius.circular(4), child: CachedImg(app.qrUrl!, fit: BoxFit.contain))
                     : const Icon(Icons.qr_code_2, size: 100, color: Colors.black54),
               ),
             ),
@@ -350,7 +343,7 @@ void _openFullScreenQr(BuildContext context, String url) {
       appBar: AppBar(backgroundColor: Colors.black, iconTheme: const IconThemeData(color: Colors.white)),
       body: Center(
         child: InteractiveViewer(
-          child: Image.network(url, fit: BoxFit.contain),
+          child: CachedImg(url, fit: BoxFit.contain),
         ),
       ),
     ),
@@ -464,15 +457,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   radius: 44,
                   backgroundColor: kCard2,
                   child: photoUrl != null
-                      ? ClipOval(
-                          child: Image.network(
-                            photoUrl!,
-                            width: 88,
-                            height: 88,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Text(initialsOf(name.text.isEmpty ? app.carpenterName : name.text), style: const TextStyle(fontSize: 22, color: kPrimaryDark, fontWeight: FontWeight.w600)),
-                          ),
-                        )
+                      ? ClipOval(child: CachedImg(photoUrl!, width: 88, height: 88, errorWidget: Text(initialsOf(name.text.isEmpty ? app.carpenterName : name.text), style: const TextStyle(fontSize: 22, color: kPrimaryDark, fontWeight: FontWeight.w600))))
                       : Text(initialsOf(name.text.isEmpty ? app.carpenterName : name.text), style: const TextStyle(fontSize: 22, color: kPrimaryDark, fontWeight: FontWeight.w600)),
                 ),
                 const SizedBox(height: 10),

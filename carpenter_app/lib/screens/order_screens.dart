@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -37,7 +38,7 @@ class _OffersScreenState extends State<OffersScreen> {
         child: Row(
           children: [
             o.bannerUrl != null
-                ? ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.network(o.bannerUrl!, width: 40, height: 40, fit: BoxFit.cover))
+                ? ClipRRect(borderRadius: BorderRadius.circular(10), child: CachedImg(o.bannerUrl!, width: 40, height: 40))
                 : Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(10)),
@@ -102,7 +103,7 @@ class OfferDetailsScreen extends StatelessWidget {
             offer.bannerUrl != null
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(14),
-                    child: Image.network(offer.bannerUrl!, height: 140, width: double.infinity, fit: BoxFit.cover),
+                    child: CachedImg(offer.bannerUrl!, height: 140, width: double.infinity),
                   )
                 : Container(
                     height: 110,
@@ -228,7 +229,7 @@ class _UploadOrderScreenState extends State<UploadOrderScreen> {
             if (imageUrl != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.network(imageUrl!, height: 140, fit: BoxFit.cover)),
+                child: ClipRRect(borderRadius: BorderRadius.circular(10), child: CachedImg(imageUrl!, height: 140)),
               ),
             if (uploading)
               Padding(
@@ -654,13 +655,7 @@ class OrderThumbnail extends StatelessWidget {
     if (order.imageUrl != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          order.imageUrl!,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _fallbackIcon(),
-        ),
+        child: CachedImg(order.imageUrl!, width: size, height: size, errorWidget: _fallbackIcon()),
       );
     }
     return _fallbackIcon();
@@ -758,13 +753,7 @@ class OrderDetailsScreen extends StatelessWidget {
     final app = context.watch<AppState>();
     final args = ModalRoute.of(context)?.settings.arguments;
     final orderId = args is String ? args : (args is CarpenterOrder ? args.id : null);
-    CarpenterOrder? order;
-    for (final o in app.orders) {
-      if (o.id == orderId) {
-        order = o;
-        break;
-      }
-    }
+    final order = orderId != null ? app.orderById(orderId) : null;
     if (order == null) {
       return Scaffold(
         appBar: AppBar(title: Text(app.tr('Order history'))),
@@ -782,7 +771,7 @@ class OrderDetailsScreen extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 12),
             child: GestureDetector(
               onTap: () => _openFullScreenImage(context, o.imageUrl!),
-              child: ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.network(o.imageUrl!, height: 160, fit: BoxFit.cover, width: double.infinity)),
+              child: ClipRRect(borderRadius: BorderRadius.circular(10), child: CachedImg(o.imageUrl!, height: 160, width: double.infinity)),
             ),
           ),
         Text(_orderDetailLabel(app, o.detail), style: const TextStyle(fontSize: 14)),
@@ -887,7 +876,7 @@ void _openFullScreenImage(BuildContext context, String url) {
       appBar: AppBar(backgroundColor: Colors.black, iconTheme: const IconThemeData(color: Colors.white)),
       body: Center(
         child: InteractiveViewer(
-          child: Image.network(url, fit: BoxFit.contain),
+          child: CachedImg(url, fit: BoxFit.contain),
         ),
       ),
     ),

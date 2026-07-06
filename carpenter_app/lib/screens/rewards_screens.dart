@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
@@ -17,11 +18,7 @@ import 'order_screens.dart' show OrderThumbnail;
 CarpenterOrder? _orderForLedgerEntry(AppState app, String desc) {
   final match = RegExp(r'^Order #(\S+?)(?: \(price corrected\))?$').firstMatch(desc);
   if (match == null) return null;
-  final id = match.group(1)!;
-  for (final o in app.orders) {
-    if (o.id == id) return o;
-  }
-  return null;
+  return app.orderById(match.group(1)!);
 }
 
 class PointsScreen extends StatefulWidget {
@@ -437,13 +434,7 @@ class _GiftStoreScreenState extends State<GiftStoreScreen> {
                   g.imageUrl != null
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            g.imageUrl!,
-                            height: 70,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(Icons.card_giftcard, color: kPrimary, size: 26),
-                          ),
+                          child: CachedImg(g.imageUrl!, height: 70, width: double.infinity, errorWidget: const Icon(Icons.card_giftcard, color: kPrimary, size: 26)),
                         )
                       : const Icon(Icons.card_giftcard, color: kPrimary, size: 26),
                   const SizedBox(height: 6),
@@ -812,8 +803,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
           ),
           ...paged.map((n) {
-            final linkedOffer = n.type == 'offer' ? app.offers.where((o) => o.id == n.refId) : const Iterable<Offer>.empty();
-            final offer = linkedOffer.isEmpty ? null : linkedOffer.first;
+            final offer = (n.type == 'offer' && n.refId != null) ? app.offerById(n.refId!) : null;
             return SectionCard(
               onTap: offer == null ? null : () => Navigator.pushNamed(context, '/offerDetails', arguments: offer),
               child: Row(

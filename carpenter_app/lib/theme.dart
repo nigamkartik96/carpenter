@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'state/app_state.dart';
@@ -290,6 +291,26 @@ class PaginationBar extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class CachedImg extends StatelessWidget {
+  const CachedImg(this.url, {super.key, this.width, this.height, this.fit = BoxFit.cover, this.errorWidget});
+  final String url;
+  final double? width;
+  final double? height;
+  final BoxFit fit;
+  final Widget? errorWidget;
+
+  @override
+  Widget build(BuildContext context) {
+    return CachedNetworkImage(
+      imageUrl: url,
+      width: width,
+      height: height,
+      fit: fit,
+      errorWidget: (_, __, ___) => errorWidget ?? const Icon(Icons.broken_image, color: kMuted, size: 24),
     );
   }
 }

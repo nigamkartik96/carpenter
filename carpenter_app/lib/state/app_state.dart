@@ -70,6 +70,10 @@ class AppState extends ChangeNotifier {
   final List<LeaderboardEntry> leaderboard = [];
   final List<Offer> offers = [];
   final List<CarpenterOrder> orders = [];
+  Map<String, CarpenterOrder> _orderMap = {};
+  Map<String, Offer> _offerMap = {};
+  CarpenterOrder? orderById(String id) => _orderMap[id];
+  Offer? offerById(String id) => _offerMap[id];
   final List<Gift> gifts = [];
   final List<GiftRedemption> redemptions = [];
   final List<PointsLedgerEntry> ledger = [];
@@ -352,6 +356,7 @@ class AppState extends ChangeNotifier {
         offers
           ..clear()
           ..addAll(list);
+        _offerMap = {for (final o in offers) o.id: o};
         notifyListeners();
       } catch (e) {
         _reportError('offers', e);
@@ -380,6 +385,7 @@ class AppState extends ChangeNotifier {
               items: rawItems is List ? rawItems.map((m) => OrderItem.fromMap(Map<String, dynamic>.from(m as Map))).toList() : const [],
             );
           }));
+        _orderMap = {for (final o in orders) o.id: o};
         notifyListeners();
       } catch (e) {
         _reportError('orders', e);
@@ -496,7 +502,7 @@ class AppState extends ChangeNotifier {
 
     _subs.add(_fb.watchLeaderboard().listen((snap) {
       try {
-        final docs = snap.docs.toList()..sort((a, b) => _int(b.data()['points']).compareTo(_int(a.data()['points'])));
+        final docs = snap.docs;
         leaderboard
           ..clear()
           ..addAll(docs.take(5).map((doc) {

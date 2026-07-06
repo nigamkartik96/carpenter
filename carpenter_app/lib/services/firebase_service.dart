@@ -53,7 +53,7 @@ class FirebaseService {
       carpenterDoc(uid).snapshots();
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchOffers() =>
-      db.collection('offers').orderBy('createdAt', descending: true).snapshots();
+      db.collection('offers').orderBy('createdAt', descending: true).limit(200).snapshots();
 
   // NOTE: deliberately no .orderBy() chained onto these where() queries.
   // Firestore requires a manual composite index for where+orderBy on
@@ -87,7 +87,7 @@ class FirebaseService {
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchGifts() =>
-      db.collection('gifts').snapshots();
+      db.collection('gifts').limit(200).snapshots();
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchRedemptions(String carpenterId) =>
       db.collection('giftRedemptions').where('carpenterId', isEqualTo: carpenterId).snapshots();
@@ -161,10 +161,10 @@ class FirebaseService {
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchPointsLedger(String carpenterId) =>
-      db.collection('pointsLedger').where('carpenterId', isEqualTo: carpenterId).snapshots();
+      db.collection('pointsLedger').where('carpenterId', isEqualTo: carpenterId).limit(500).snapshots();
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchLeaderboard() =>
-      db.collection('carpenters').where('status', isEqualTo: 'Approved').snapshots();
+      db.collection('carpenters').where('status', isEqualTo: 'Approved').orderBy('points', descending: true).limit(10).snapshots();
 
   Future<void> addLead(String carpenterId, Map<String, dynamic> data) {
     return db.collection('leads').add({
@@ -179,7 +179,7 @@ class FirebaseService {
       db.collection('leads').where('carpenterId', isEqualTo: carpenterId).snapshots();
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchNotifications(String carpenterId) =>
-      db.collection('notifications').where('carpenterId', isEqualTo: carpenterId).snapshots();
+      db.collection('notifications').where('carpenterId', isEqualTo: carpenterId).limit(200).snapshots();
 
   Future<void> deleteNotifications(List<String> notificationIds) async {
     if (notificationIds.isEmpty) return;

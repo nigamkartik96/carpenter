@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state/app_state.dart';
@@ -21,12 +22,6 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
-    final pages = [
-      const DashboardScreen(),
-      const OrderHistoryScreen(embedded: true),
-      const GiftStoreScreen(embedded: true),
-      const ProfileScreen(embedded: true),
-    ];
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -45,7 +40,17 @@ class _HomeShellState extends State<HomeShell> {
                   ],
                 ),
               ),
-            Expanded(child: pages[_index]),
+            Expanded(
+              child: IndexedStack(
+                index: _index,
+                children: const [
+                  DashboardScreen(),
+                  OrderHistoryScreen(embedded: true),
+                  GiftStoreScreen(embedded: true),
+                  ProfileScreen(embedded: true),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -81,15 +86,7 @@ class DashboardScreen extends StatelessWidget {
               // impossible to guarantee, and orange is reserved for CTAs.
               backgroundColor: kCard2,
               child: app.photoUrl != null
-                  ? ClipOval(
-                      child: Image.network(
-                        app.photoUrl!,
-                        width: 42,
-                        height: 42,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Text(app.initials, style: const TextStyle(color: kPrimaryDark, fontWeight: FontWeight.w600)),
-                      ),
-                    )
+                  ? ClipOval(child: CachedImg(app.photoUrl!, width: 42, height: 42, errorWidget: Text(app.initials, style: const TextStyle(color: kPrimaryDark, fontWeight: FontWeight.w600))))
                   : Text(app.initials, style: const TextStyle(color: kPrimaryDark, fontWeight: FontWeight.w600)),
             ),
             const SizedBox(width: 12),
@@ -278,15 +275,7 @@ class DashboardScreen extends StatelessWidget {
                           radius: 23,
                           backgroundColor: (you ? kPrimary : kCard2),
                           child: e.photoUrl != null
-                              ? ClipOval(
-                                  child: Image.network(
-                                    e.photoUrl!,
-                                    width: 46,
-                                    height: 46,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Text(e.initials, style: TextStyle(color: you ? kOnPrimary : kText, fontWeight: FontWeight.w600)),
-                                  ),
-                                )
+                              ? ClipOval(child: CachedImg(e.photoUrl!, width: 46, height: 46, errorWidget: Text(e.initials, style: TextStyle(color: you ? kOnPrimary : kText, fontWeight: FontWeight.w600))))
                               : Text(e.initials, style: TextStyle(color: you ? kOnPrimary : kText, fontWeight: FontWeight.w600)),
                         ),
                         Positioned(

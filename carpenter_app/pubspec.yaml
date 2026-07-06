@@ -90,6 +90,9 @@ dependencies:
   # In-app update: reads current build number to compare against Firestore
   package_info_plus: ^8.0.0
 
+  # Disk-cached network images for profile photos, banners, gift images etc.
+  cached_network_image: ^3.4.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
