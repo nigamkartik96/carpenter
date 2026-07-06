@@ -95,6 +95,48 @@ class AdminState extends ChangeNotifier {
   final List<Broadcast> broadcasts = [];
   final List<PartyOrder> partyOrders = [];
 
+  Map<String, Carpenter> _carpenterMap = {};
+  Map<String, List<AdminOrder>> _ordersByCarpenter = {};
+  Map<String, List<PartyOrder>> _partyOrdersByCarpenter = {};
+  Map<String, List<Redemption>> _redemptionsByCarpenter = {};
+  Map<String, List<AdminLead>> _leadsByCarpenter = {};
+
+  void _rebuildCarpenterMap() {
+    _carpenterMap = {for (final c in carpenters) c.id: c};
+  }
+
+  void _rebuildOrderMaps() {
+    final map = <String, List<AdminOrder>>{};
+    for (final o in orders) {
+      (map[o.carpenterId] ??= []).add(o);
+    }
+    _ordersByCarpenter = map;
+  }
+
+  void _rebuildPartyOrderMaps() {
+    final map = <String, List<PartyOrder>>{};
+    for (final o in partyOrders) {
+      (map[o.carpenterId] ??= []).add(o);
+    }
+    _partyOrdersByCarpenter = map;
+  }
+
+  void _rebuildRedemptionMaps() {
+    final map = <String, List<Redemption>>{};
+    for (final r in redemptions) {
+      (map[r.carpenterId] ??= []).add(r);
+    }
+    _redemptionsByCarpenter = map;
+  }
+
+  void _rebuildLeadMaps() {
+    final map = <String, List<AdminLead>>{};
+    for (final l in leads) {
+      (map[l.carpenterId] ??= []).add(l);
+    }
+    _leadsByCarpenter = map;
+  }
+
   final List<StreamSubscription> _subs = [];
 
   // Set once tryResumeSession finishes, so the router knows whether to
@@ -210,6 +252,7 @@ class AdminState extends ChangeNotifier {
           createdAt: d['createdAt'] is Timestamp ? (d['createdAt'] as Timestamp).toDate() : null,
         );
       }));
+    _rebuildPartyOrderMaps();
     notifyListeners();
   }
 
@@ -284,6 +327,7 @@ class AdminState extends ChangeNotifier {
               qrUrl: payout?['qrUrl'],
             );
           }));
+        _rebuildCarpenterMap();
         notifyListeners();
       } catch (e) {
         _reportError('carpenters', e);
@@ -333,6 +377,7 @@ class AdminState extends ChangeNotifier {
               createdAt: d['createdAt'] is Timestamp ? (d['createdAt'] as Timestamp).toDate() : null,
             );
           }));
+        _rebuildOrderMaps();
         notifyListeners();
       } catch (e) {
         _reportError('orders', e);
@@ -392,6 +437,7 @@ class AdminState extends ChangeNotifier {
               status: d['status'] ?? 'Pending',
             );
           }));
+        _rebuildRedemptionMaps();
         notifyListeners();
       } catch (e) {
         _reportError('redemptions', e);
@@ -419,6 +465,7 @@ class AdminState extends ChangeNotifier {
               pointsAwarded: _int(d['pointsAwarded']),
             );
           }));
+        _rebuildLeadMaps();
         notifyListeners();
       } catch (e) {
         _reportError('leads', e);
@@ -445,31 +492,28 @@ class AdminState extends ChangeNotifier {
 
   String _carpenterName(String? carpenterId) {
     if (carpenterId == null) return '-';
-    final c = carpenters.where((c) => c.id == carpenterId);
-    return c.isEmpty ? carpenterId : c.first.name;
+    return _carpenterMap[carpenterId]?.name ?? carpenterId;
   }
 
-  Carpenter? carpenterById(String id) {
-    final matches = carpenters.where((c) => c.id == id);
-    return matches.isEmpty ? null : matches.first;
-  }
+  Carpenter? carpenterById(String id) => _carpenterMap[id];
 
-  List<AdminOrder> ordersFor(String carpenterId) => orders.where((o) => o.carpenterId == carpenterId).toList();
-  List<Redemption> redemptionsFor(String carpenterId) => redemptions.where((r) => r.carpenterId == carpenterId).toList();
-  List<AdminLead> leadsFor(String carpenterId) => leads.where((l) => l.carpenterId == carpenterId).toList();
+  List<AdminOrder> ordersFor(String carpenterId) => _ordersByCarpenter[carpenterId] ?? const [];
+  List<Redemption> redemptionsFor(String carpenterId) => _redemptionsByCarpenter[carpenterId] ?? const [];
+  List<AdminLead> leadsFor(String carpenterId) => _leadsByCarpenter[carpenterId] ?? const [];
+  List<PartyOrder> partyOrdersFor(String carpenterId) => _partyOrdersByCarpenter[carpenterId] ?? const [];
 
-  List<PartyOrder> partyOrdersFor(String carpenterId) => partyOrders.where((o) => o.carpenterId == carpenterId).toList();
+  int orderCountFor(String carpenterId) => _ordersByCarpenter[carpenterId]?.length ?? 0;
 
   int totalOrderAmount(String carpenterId) {
-    final regular = ordersFor(carpenterId).fold(0, (sum, o) => sum + o.amount);
-    final party = partyOrdersFor(carpenterId).fold(0, (sum, o) => sum + (o.approvedAmount > 0 ? o.approvedAmount : o.amount));
+    final regular = ordersFor(carpenterId).fold(0, (s, o) => s + o.amount);
+    final party = partyOrdersFor(carpenterId).fold(0, (s, o) => s + (o.approvedAmount > 0 ? o.approvedAmount : o.amount));
     return regular + party;
   }
 
   int totalPartyPoints(String carpenterId) {
-    return partyOrdersFor(carpenterId).fold(0, (sum, o) {
-      if (o.approvedAmount > 0) return sum + (o.paid * o.commissionPercent) ~/ 100;
-      return sum;
+    return partyOrdersFor(carpenterId).fold(0, (s, o) {
+      if (o.approvedAmount > 0) return s + (o.paid * o.commissionPercent) ~/ 100;
+      return s;
     });
   }
 

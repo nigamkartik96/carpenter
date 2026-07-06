@@ -151,7 +151,7 @@ class _CarpentersScreenState extends State<CarpentersScreen> {
                   for (final c in paged)
                     SizedBox(
                       width: tileWidth,
-                      child: _CarpenterTile(carpenter: c, orderCount: app.ordersFor(c.id).length, onTap: () => context.push('/carpenters/${c.id}')),
+                      child: _CarpenterTile(carpenter: c, orderCount: app.orderCountFor(c.id), onTap: () => context.push('/carpenters/${c.id}')),
                     ),
                 ],
               );

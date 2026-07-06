@@ -177,7 +177,7 @@ class AdminFirebaseService {
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchCarpenters() =>
-      db.collection('carpenters').snapshots();
+      db.collection('carpenters').limit(500).snapshots();
 
   Future<void> approveCarpenter(String id) =>
       db.collection('carpenters').doc(id).update({'status': 'Approved'});
@@ -191,6 +191,7 @@ class AdminFirebaseService {
   Stream<QuerySnapshot<Map<String, dynamic>>> watchOrders() => db
       .collection('orders')
       .orderBy('createdAt', descending: true)
+      .limit(500)
       .snapshots();
 
   Future<void> setOrderAmount(String orderId, int amount) =>
@@ -297,7 +298,7 @@ class AdminFirebaseService {
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchOffers() =>
-      db.collection('offers').orderBy('createdAt', descending: true).snapshots();
+      db.collection('offers').orderBy('createdAt', descending: true).limit(200).snapshots();
 
   Future<void> addOffer({
     required String title,
@@ -346,7 +347,7 @@ class AdminFirebaseService {
   /// don't 404. The carpenter app's offer list filters out non-Live offers.
   Future<void> withdrawOffer(String id) => db.collection('offers').doc(id).update({'status': 'Withdrawn'});
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> watchGifts() => db.collection('gifts').snapshots();
+  Stream<QuerySnapshot<Map<String, dynamic>>> watchGifts() => db.collection('gifts').limit(200).snapshots();
 
   Future<void> addGift({required String name, required int points, required int qty, String? imageUrl, String description = ''}) {
     return db.collection('gifts').add({
@@ -367,6 +368,7 @@ class AdminFirebaseService {
   Stream<QuerySnapshot<Map<String, dynamic>>> watchRedemptions() => db
       .collection('giftRedemptions')
       .orderBy('createdAt', descending: true)
+      .limit(500)
       .snapshots();
 
   Future<void> setRedemptionStatus({required String id, required String carpenterId, required String status}) async {
@@ -383,7 +385,7 @@ class AdminFirebaseService {
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchLeads() =>
-      db.collection('leads').orderBy('createdAt', descending: true).snapshots();
+      db.collection('leads').orderBy('createdAt', descending: true).limit(500).snapshots();
 
   /// Awards points for a lead reaching Qualified or Converted, tracked via
   /// `pointsAwarded` on the lead doc. `pointsAwarded` always reflects the
