@@ -800,6 +800,61 @@ List<T> pageSlice<T>(List<T> items, int page, int perPage) {
   return items.sublist(start, (start + perPage).clamp(0, items.length));
 }
 
+// ---------------------------------------------------------------------------
+// DataListView — consistent table component for all list screens
+// ---------------------------------------------------------------------------
+
+class DataListRow {
+  final List<Widget> cells;
+  final VoidCallback? onTap;
+  const DataListRow({required this.cells, this.onTap});
+}
+
+class DataListView extends StatelessWidget {
+  const DataListView({super.key, required this.columns, required this.rows});
+  final List<(String label, {bool expanded})> columns;
+  final List<DataListRow> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget headerCell(String label, {bool expanded = false}) {
+      final text = Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: kTextSecondary));
+      return expanded ? Expanded(child: text) : Padding(padding: const EdgeInsets.only(right: 16), child: text);
+    }
+
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: kBgSurface,
+        borderRadius: BorderRadius.circular(kCardRadius),
+        border: Border.all(color: kBorderSubtle),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: kBorderSubtle))),
+            child: Row(
+              children: [
+                for (final (label, :expanded) in columns) headerCell(label, expanded: expanded),
+              ],
+            ),
+          ),
+          for (var i = 0; i < rows.length; i++)
+            InkWell(
+              onTap: rows[i].onTap,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: i < rows.length - 1 ? const BoxDecoration(border: Border(bottom: BorderSide(color: kBorderSubtle, width: 0.5))) : null,
+                child: Row(children: rows[i].cells),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class StatusDropdown extends StatelessWidget {
   const StatusDropdown({super.key, required this.value, required this.options, required this.onChanged, this.enabled = true});
   final String value;

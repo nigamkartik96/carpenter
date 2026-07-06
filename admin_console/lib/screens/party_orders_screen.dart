@@ -90,41 +90,7 @@ class _PartyOrdersScreenState extends State<PartyOrdersScreen> {
             onPageChanged: (p) => setState(() => _page = p),
             onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
           ),
-          ...pageSlice(visible, _page, _perPage).map((o) {
-            final isPending = o.status == 'pending';
-            final progress = o.approvedAmount > 0 ? o.paid / o.approvedAmount : 0.0;
-            return AppCard(
-                onTap: () => context.go('/party-orders/${o.id}'),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                          const SizedBox(height: 2),
-                          Text('Party: ${o.party}', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
-                          if (!isPending) ...[
-                            const SizedBox(height: 2),
-                            Text('Paid ${_money(o.paid)} of ${_money(o.approvedAmount)} · +${o.pointsAwarded} pts', style: const TextStyle(color: kTextSecondary, fontSize: 11)),
-                            const SizedBox(height: 6),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(3),
-                              child: LinearProgressIndicator(value: progress.clamp(0.0, 1.0), minHeight: 4, backgroundColor: kBorderSubtle, color: progress >= 1.0 ? const Color(0xFF16A34A) : kAccentPrimary),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(_money(o.approvedAmount > 0 ? o.approvedAmount : o.amount), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                    const SizedBox(width: 10),
-                    PartyStatusChip(status: o.status),
-                    const Icon(Icons.chevron_right, color: kTextMuted, size: 18),
-                  ],
-                ),
-              );
-          }),
+          ...pageSlice(visible, _page, _perPage).map((o) => _PartyOrderCard(order: o, onTap: () => context.go('/party-orders/${o.id}'))),
         ],
       ],
     );
@@ -163,6 +129,72 @@ class PartyStatusChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
       child: Text(label, style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.w500)),
+    );
+  }
+}
+
+class _PartyOrderCard extends StatelessWidget {
+  const _PartyOrderCard({required this.order, this.onTap});
+  final PartyOrder order;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isPending = order.status == 'pending';
+    final progress = order.approvedAmount > 0 ? order.paid / order.approvedAmount : 0.0;
+    final amount = order.approvedAmount > 0 ? order.approvedAmount : order.amount;
+
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: kBorderSubtle, width: 0.5))),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              margin: const EdgeInsets.only(right: 14),
+              decoration: BoxDecoration(color: kBgApp, borderRadius: BorderRadius.circular(8)),
+              child: const Icon(Icons.receipt_long_outlined, size: 18, color: kTextSecondary),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(order.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  const SizedBox(height: 2),
+                  Text('Party: ${order.party}', style: const TextStyle(fontSize: 12, color: kTextSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  if (!isPending) ...[
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(3),
+                      child: LinearProgressIndicator(
+                        value: progress.clamp(0.0, 1.0),
+                        minHeight: 5,
+                        backgroundColor: kBorderSubtle,
+                        color: progress >= 1.0 ? const Color(0xFF16A34A) : kAccentPrimary,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(_money(amount), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                const SizedBox(height: 6),
+                PartyStatusChip(status: order.status),
+                const SizedBox(height: 4),
+                Text('+${order.pointsAwarded} pts', style: const TextStyle(fontSize: 12, color: kTextSecondary)),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

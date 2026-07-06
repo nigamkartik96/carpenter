@@ -33,36 +33,34 @@ class _RedemptionsScreenState extends State<RedemptionsScreen> {
             onPageChanged: (p) => setState(() => _page = p),
             onPerPageChanged: (n) => setState(() { _perPage = n; _page = 0; }),
           ),
-          ...paged.map((r) => AppCard(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(r.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                          const SizedBox(height: 2),
-                          Text(r.giftName, style: const TextStyle(color: kTextSecondary, fontSize: 12)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text('${r.points} pts', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                    const SizedBox(width: 10),
-                    StatusDropdown(
-                      value: r.status,
-                      options: redemptionStatuses,
-                      enabled: r.status != 'Delivered',
-                      onChanged: (v) async {
-                        final confirmed = await confirmDialog(context, title: 'Update redemption status?', message: 'Mark ${r.carpenterName}\'s redemption of "${r.giftName}" as "$v"?');
-                        if (!confirmed) return;
-                        app.setRedemptionStatus(r, v);
-                        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${r.carpenterName}\'s redemption marked $v')));
-                      },
-                    ),
-                  ],
+          DataListView(
+            columns: const [
+              ('Carpenter', expanded: true),
+              ('Gift', expanded: true),
+              ('Points', expanded: false),
+              ('Status', expanded: false),
+              ('Update', expanded: false),
+            ],
+            rows: paged.map((r) => DataListRow(
+              cells: [
+                Expanded(child: Text(r.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
+                Expanded(child: Text(r.giftName, style: const TextStyle(fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                Padding(padding: const EdgeInsets.only(right: 16), child: Text('${r.points}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
+                Padding(padding: const EdgeInsets.only(right: 10), child: StatusBadge(r.status)),
+                StatusDropdown(
+                  value: r.status,
+                  options: redemptionStatuses,
+                  enabled: r.status != 'Delivered',
+                  onChanged: (v) async {
+                    final confirmed = await confirmDialog(context, title: 'Update redemption status?', message: 'Mark ${r.carpenterName}\'s redemption of "${r.giftName}" as "$v"?');
+                    if (!confirmed) return;
+                    app.setRedemptionStatus(r, v);
+                    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${r.carpenterName}\'s redemption marked $v')));
+                  },
                 ),
-              )),
+              ],
+            )).toList(),
+          ),
         ],
       ],
     );

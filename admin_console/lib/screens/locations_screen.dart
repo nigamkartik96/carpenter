@@ -122,28 +122,29 @@ class _LocationsScreenState extends State<LocationsScreen> {
         const SizedBox(height: 10),
         if (active.isEmpty) const EmptyState(icon: Icons.people_outline, message: 'No approved carpenters yet'),
         if (active.isNotEmpty)
-          ...active.map((c) => AppCard(
-                child: Row(
+          DataListView(
+            columns: const [
+              ('Carpenter', expanded: true),
+              ('Area', expanded: true),
+              ('Last seen', expanded: false),
+            ],
+            rows: active.map((c) => DataListRow(
+              cells: [
+                Expanded(child: Text(c.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
+                Expanded(child: Text(c.area, style: const TextStyle(fontSize: 13))),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(c.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                          const SizedBox(height: 2),
-                          Text(c.area, style: const TextStyle(color: kTextSecondary, fontSize: 12)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
                     Text(c.lastSeen, style: const TextStyle(color: kTextMuted, fontSize: 12)),
                     if (c.lat != null && c.lng != null) ...[
-                      const SizedBox(width: 8),
-                      const Icon(Icons.location_on, size: 16, color: kAccentPrimary),
+                      const SizedBox(width: 6),
+                      const Icon(Icons.location_on, size: 14, color: kAccentPrimary),
                     ],
                   ],
                 ),
-              )),
+              ],
+            )).toList(),
+          ),
       ],
     );
   }
