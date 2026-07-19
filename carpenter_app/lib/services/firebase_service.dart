@@ -86,6 +86,20 @@ class FirebaseService {
     });
   }
 
+  /// Per-order comment thread with the admin. Rules only allow reading /
+  /// replying on the carpenter's own orders, and replies must carry
+  /// authorRole 'carpenter'.
+  Stream<QuerySnapshot<Map<String, dynamic>>> watchOrderComments(String orderId) =>
+      db.collection('orders').doc(orderId).collection('comments').orderBy('createdAt').snapshots();
+
+  Future<void> addOrderComment(String orderId, {required String authorName, required String text}) =>
+      db.collection('orders').doc(orderId).collection('comments').add({
+        'text': text,
+        'authorRole': 'carpenter',
+        'authorName': authorName,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
   Stream<QuerySnapshot<Map<String, dynamic>>> watchGifts() =>
       db.collection('gifts').limit(200).snapshots();
 

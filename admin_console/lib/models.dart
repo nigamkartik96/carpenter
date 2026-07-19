@@ -99,6 +99,18 @@ class AdminOrder {
   final DateTime? createdAt;
 }
 
+/// One message in an order's admin <-> carpenter comment thread
+/// (`orders/{id}/comments`). Same shape on the carpenter-app side.
+class OrderComment {
+  OrderComment({required this.text, required this.authorRole, this.authorName = '', this.createdAt});
+  final String text;
+  final String authorRole; // 'admin' | 'carpenter'
+  final String authorName;
+  final DateTime? createdAt; // null while the server timestamp is pending
+
+  bool get fromAdmin => authorRole == 'admin';
+}
+
 class AdminOffer {
   AdminOffer({
     required this.id,

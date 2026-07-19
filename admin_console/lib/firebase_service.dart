@@ -245,6 +245,36 @@ class AdminFirebaseService {
     );
   }
 
+  Stream<QuerySnapshot<Map<String, dynamic>>> watchOrderComments(String orderId) =>
+      db.collection('orders').doc(orderId).collection('comments').orderBy('createdAt').snapshots();
+
+  /// Posts an admin comment on an order and notifies the carpenter in the
+  /// same batch, so the thread entry and its notification land together.
+  Future<void> addOrderComment({
+    required String orderId,
+    required String carpenterId,
+    required String orderNumber,
+    required String text,
+  }) {
+    final batch = db.batch();
+    batch.set(db.collection('orders').doc(orderId).collection('comments').doc(), {
+      'text': text,
+      'authorRole': 'admin',
+      'authorName': 'Admin',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+    batch.set(db.collection('notifications').doc(), {
+      'carpenterId': carpenterId,
+      'title': 'New comment on your order',
+      'body': 'Admin commented on order $orderNumber',
+      'type': 'order',
+      'refId': orderId,
+      'read': false,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+    return batch.commit();
+  }
+
   /// Single source of truth for order points. Tracks how many points an
   /// order has already credited (`creditedPoints` on the order doc) and
   /// applies only the *difference* between that and what the order

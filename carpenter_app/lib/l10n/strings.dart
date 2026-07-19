@@ -277,6 +277,12 @@ const Map<String, String> hiStrings = {
   'Update available': 'अपडेट उपलब्ध है',
   'Update now': 'अभी अपडेट करें',
   'Later': 'बाद में',
+  'Comments': 'टिप्पणियां',
+  'No comments yet': 'अभी कोई टिप्पणी नहीं',
+  'Admin': 'एडमिन',
+  'Write a reply...': 'जवाब लिखें...',
+  'Could not send comment': 'टिप्पणी नहीं भेजी जा सकी',
+  'Could not load comments': 'टिप्पणियां लोड नहीं हो सकीं',
 };
 
 class AppLocale {
@@ -319,6 +325,11 @@ String translateDynamicText(AppLocale locale, String text) {
 
   final pointsForLead = RegExp(r'^\+(\d+) points for your lead reaching (\w+)$').firstMatch(text);
   if (pointsForLead != null) return '+${pointsForLead.group(1)} पॉइंट्स — आपकी लीड ${trStatus(pointsForLead.group(2)!)} होने पर';
+
+  if (text == 'New comment on your order') return 'आपके ऑर्डर पर नई टिप्पणी';
+
+  final orderComment = RegExp(r'^Admin commented on order (.+)$').firstMatch(text);
+  if (orderComment != null) return 'एडमिन ने ऑर्डर ${orderComment.group(1)} पर टिप्पणी की है';
 
   if (text == 'New offer') return 'नया ऑफर';
 

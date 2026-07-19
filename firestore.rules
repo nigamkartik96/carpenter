@@ -94,6 +94,22 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.carpenterId == request.auth.uid;
       allow update: if isAdmin();
       allow delete: if isAdmin();
+
+      // Per-order comment thread between the admin and the carpenter who
+      // placed the order. Tighter than the parent order's read rule: only
+      // the two participants can see it. Neither side can edit or delete
+      // a comment after posting (admin aside), so the thread stays an
+      // honest record on disputes.
+      function isOrderOwner() {
+        return isSignedIn() &&
+          get(/databases/$(database)/documents/orders/$(orderId)).data.carpenterId == request.auth.uid;
+      }
+      match /comments/{commentId} {
+        allow read: if isAdmin() || isOrderOwner();
+        allow create: if (isAdmin() && request.resource.data.authorRole == 'admin') ||
+          (isOrderOwner() && request.resource.data.authorRole == 'carpenter');
+        allow update, delete: if isAdmin();
+      }
     }
 
     match /offers/{offerId} {

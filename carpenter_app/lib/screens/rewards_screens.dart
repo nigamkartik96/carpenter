@@ -804,8 +804,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
           ...paged.map((n) {
             final offer = (n.type == 'offer' && n.refId != null) ? app.offerById(n.refId!) : null;
+            final order = (n.type == 'order' && n.refId != null) ? app.orderById(n.refId!) : null;
             return SectionCard(
-              onTap: offer == null ? null : () => Navigator.pushNamed(context, '/offerDetails', arguments: offer),
+              onTap: offer != null
+                  ? () => Navigator.pushNamed(context, '/offerDetails', arguments: offer)
+                  : order != null
+                      ? () => Navigator.pushNamed(context, '/orderDetails', arguments: order.id)
+                      : null,
               child: Row(
                 children: [
                   Icon(Icons.notifications_outlined, color: n.read ? kMuted : kPrimary, size: 20),

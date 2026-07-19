@@ -432,6 +432,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           _lineItemsCard(order, app, itemsLocked),
                           const SizedBox(height: 16),
                           _invoiceCard(order, app),
+                          const SizedBox(height: 16),
+                          _CommentsCard(order: order),
                         ],
                       ),
                     ),
@@ -465,6 +467,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           _lineItemsCard(order, app, itemsLocked),
           const SizedBox(height: 16),
           _invoiceCard(order, app),
+          const SizedBox(height: 16),
+          _CommentsCard(order: order),
         ],
       );
     }
@@ -617,6 +621,159 @@ class _StatusActions extends StatelessWidget {
         break;
     }
     return Wrap(spacing: 8, runSpacing: 8, children: buttons);
+  }
+}
+
+/// Comment thread between the admin and the carpenter who placed the
+/// order. Live-updates via the comments subcollection stream, so a reply
+/// sent from the carpenter app shows up here without a refresh. Posting
+/// also drops a notification for the carpenter (see
+/// AdminFirebaseService.addOrderComment).
+class _CommentsCard extends StatefulWidget {
+  const _CommentsCard({required this.order});
+  final AdminOrder order;
+
+  @override
+  State<_CommentsCard> createState() => _CommentsCardState();
+}
+
+class _CommentsCardState extends State<_CommentsCard> {
+  // Captured once in initState -- rebuilding the parent screen (every
+  // keystroke in the line-items fields calls setState there) must not
+  // tear down and re-subscribe the Firestore listener.
+  late final Stream<List<OrderComment>> _comments;
+  final TextEditingController _input = TextEditingController();
+  bool _sending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _comments = context.read<AdminState>().watchOrderComments(widget.order.id);
+  }
+
+  @override
+  void dispose() {
+    _input.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    final text = _input.text.trim();
+    if (text.isEmpty || _sending) return;
+    setState(() => _sending = true);
+    try {
+      await context.read<AdminState>().addOrderComment(widget.order, text);
+      _input.clear();
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not send comment: $e')));
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  String _fmtWhen(DateTime? d) {
+    if (d == null) return 'sending...';
+    final date = '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+    final time = '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+    return '$date $time';
+  }
+
+  Widget _bubble(OrderComment c) {
+    final mine = c.fromAdmin;
+    return Align(
+      alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        constraints: const BoxConstraints(maxWidth: 420),
+        decoration: BoxDecoration(
+          color: mine ? kAccentPrimary.withOpacity(0.08) : kBgSurface,
+          border: Border.all(color: mine ? kAccentPrimary.withOpacity(0.25) : kBorderSubtle),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              mine ? 'Admin' : (c.authorName.isEmpty ? widget.order.carpenterName : c.authorName),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: mine ? kAccentPrimaryDark : kTextSecondary),
+            ),
+            const SizedBox(height: 2),
+            Text(c.text, style: const TextStyle(fontSize: 13)),
+            const SizedBox(height: 2),
+            Text(_fmtWhen(c.createdAt), style: const TextStyle(fontSize: 10, color: kTextMuted)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SubHeading('Comments'),
+        const SizedBox(height: 4),
+        const Text(
+          'Messages here are visible to the carpenter in the app, and they can reply.',
+          style: TextStyle(color: kTextSecondary, fontSize: 12),
+        ),
+        const SizedBox(height: 10),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              StreamBuilder<List<OrderComment>>(
+                stream: _comments,
+                builder: (context, snap) {
+                  if (snap.hasError) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text('Could not load comments: ${snap.error}', style: const TextStyle(color: kStatusClosed, fontSize: 12)),
+                    );
+                  }
+                  final comments = snap.data;
+                  if (comments == null) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))),
+                    );
+                  }
+                  if (comments.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.only(bottom: 8),
+                      child: Text('No comments yet. Start the conversation below.', style: TextStyle(color: kMuted, fontSize: 13)),
+                    );
+                  }
+                  return Column(children: comments.map(_bubble).toList());
+                },
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _input,
+                      decoration: const InputDecoration(hintText: 'Write a comment for the carpenter...'),
+                      onSubmitted: (_) => _send(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: _sending ? null : _send,
+                    icon: _sending
+                        ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.send, size: 16),
+                    label: const Text('Send'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 

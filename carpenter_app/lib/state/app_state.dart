@@ -541,6 +541,26 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  Stream<List<OrderComment>> watchOrderComments(String orderId) =>
+      _fb.watchOrderComments(orderId).map((snap) => snap.docs.map((d) {
+            final m = d.data();
+            return OrderComment(
+              text: '${m['text'] ?? ''}',
+              authorRole: '${m['authorRole'] ?? ''}',
+              authorName: '${m['authorName'] ?? ''}',
+              createdAt: m['createdAt'] is Timestamp ? (m['createdAt'] as Timestamp).toDate() : null,
+            );
+          }).toList());
+
+  Future<void> addOrderComment(String orderId, String text) async {
+    try {
+      await _fb.addOrderComment(orderId, authorName: carpenterName, text: text);
+    } catch (e) {
+      _reportError('addOrderComment', e);
+      rethrow;
+    }
+  }
+
   /// Lets the carpenter self-confirm a gift/cash redemption was received.
   Future<void> markRedemptionDelivered(String redemptionId) async {
     try {

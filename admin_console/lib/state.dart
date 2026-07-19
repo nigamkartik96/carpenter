@@ -557,6 +557,24 @@ class AdminState extends ChangeNotifier {
     );
   }
 
+  Stream<List<OrderComment>> watchOrderComments(String orderId) =>
+      _fb.watchOrderComments(orderId).map((snap) => snap.docs.map((d) {
+            final m = d.data();
+            return OrderComment(
+              text: '${m['text'] ?? ''}',
+              authorRole: '${m['authorRole'] ?? ''}',
+              authorName: '${m['authorName'] ?? ''}',
+              createdAt: m['createdAt'] is Timestamp ? (m['createdAt'] as Timestamp).toDate() : null,
+            );
+          }).toList());
+
+  Future<void> addOrderComment(AdminOrder o, String text) => _fb.addOrderComment(
+        orderId: o.id,
+        carpenterId: o.carpenterId,
+        orderNumber: o.orderNumber,
+        text: text,
+      );
+
   Future<void> setRedemptionStatus(Redemption r, String status) {
     return _fb.setRedemptionStatus(id: r.id, carpenterId: r.carpenterId, status: status);
   }

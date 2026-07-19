@@ -826,6 +826,8 @@ class OrderDetailsScreen extends StatelessWidget {
             child: Row(children: [Icon(statusIcon(steps[i]), size: 18, color: done ? kPrimary : kMuted), const SizedBox(width: 8), Text(app.tr(steps[i]), style: TextStyle(fontSize: 13, color: done ? kText : kMuted))]),
           );
         }),
+        const SizedBox(height: 8),
+        _OrderCommentsSection(orderId: o.id),
       ];
     } catch (e) {
       children = [
@@ -856,6 +858,154 @@ class OrderDetailsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: children,
       ),
+    );
+  }
+}
+
+/// Comment thread with the admin about this order. The admin starts a
+/// conversation from the console's order detail page; the carpenter reads
+/// and replies here. Live Firestore stream, so both sides see new
+/// messages without refreshing.
+class _OrderCommentsSection extends StatefulWidget {
+  const _OrderCommentsSection({required this.orderId});
+  final String orderId;
+
+  @override
+  State<_OrderCommentsSection> createState() => _OrderCommentsSectionState();
+}
+
+class _OrderCommentsSectionState extends State<_OrderCommentsSection> {
+  // Captured once so parent rebuilds don't re-subscribe the listener.
+  late final Stream<List<OrderComment>> _comments;
+  final TextEditingController _input = TextEditingController();
+  bool _sending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _comments = context.read<AppState>().watchOrderComments(widget.orderId);
+  }
+
+  @override
+  void dispose() {
+    _input.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    final text = _input.text.trim();
+    if (text.isEmpty || _sending) return;
+    setState(() => _sending = true);
+    try {
+      await context.read<AppState>().addOrderComment(widget.orderId, text);
+      _input.clear();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('${context.read<AppState>().tr('Could not send comment')}: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  String _fmtWhen(DateTime? d) {
+    if (d == null) return '...';
+    final date = '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+    final time = '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+    return '$date $time';
+  }
+
+  Widget _bubble(AppState app, OrderComment c) {
+    final mine = !c.fromAdmin;
+    return Align(
+      alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        constraints: const BoxConstraints(maxWidth: 280),
+        decoration: BoxDecoration(
+          color: mine ? kPrimary.withOpacity(0.08) : kMuted.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              mine ? app.tr('You') : app.tr('Admin'),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: mine ? kPrimary : kMuted),
+            ),
+            const SizedBox(height: 2),
+            Text(c.text, style: const TextStyle(fontSize: 13)),
+            const SizedBox(height: 2),
+            Text(_fmtWhen(c.createdAt), style: TextStyle(fontSize: 10, color: kMuted)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final app = context.watch<AppState>();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(app.tr('Comments'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+        const SizedBox(height: 8),
+        SectionCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              StreamBuilder<List<OrderComment>>(
+                stream: _comments,
+                builder: (context, snap) {
+                  if (snap.hasError) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text('${app.tr('Could not load comments')}: ${snap.error}',
+                          style: const TextStyle(color: kDanger, fontSize: 12)),
+                    );
+                  }
+                  final comments = snap.data;
+                  if (comments == null) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))),
+                    );
+                  }
+                  if (comments.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(app.tr('No comments yet'), style: TextStyle(color: kMuted, fontSize: 13)),
+                    );
+                  }
+                  return Column(children: comments.map((c) => _bubble(app, c)).toList());
+                },
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _input,
+                      decoration: InputDecoration(hintText: app.tr('Write a reply...')),
+                      onSubmitted: (_) => _send(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    onPressed: _sending ? null : _send,
+                    icon: _sending
+                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.send, color: kPrimary),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
