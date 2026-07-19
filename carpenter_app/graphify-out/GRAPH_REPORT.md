@@ -1,89 +1,78 @@
-# Graph Report - carpenter_app  (2026-07-06)
+# Graph Report - carpenter_app  (2026-07-19)
 
 ## Corpus Check
-- 73 files · ~45,860 words
+- 58 files · ~34,481 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 842 nodes · 1129 edges · 60 communities (39 shown, 21 thin omitted)
+- 767 nodes · 1048 edges · 50 communities (35 shown, 15 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 18 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `62827ce3`
+- Built from commit: `533515b7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_app_state.dart|app_state.dart]]
-- [[_COMMUNITY_AppState|AppState]]
-- [[_COMMUNITY_Win32Window|Win32Window]]
-- [[_COMMUNITY_GeneratedPluginRegistrant.swift|GeneratedPluginRegistrant.swift]]
-- [[_COMMUNITY_models.dart|models.dart]]
-- [[_COMMUNITY_order_screens.dart|order_screens.dart]]
-- [[_COMMUNITY_main.dart|main.dart]]
-- [[_COMMUNITY_firebase_service.dart|firebase_service.dart]]
-- [[_COMMUNITY_theme.dart|theme.dart]]
-- [[_COMMUNITY_my_application.cc|my_application.cc]]
-- [[_COMMUNITY_profile_screens.dart|profile_screens.dart]]
-- [[_COMMUNITY_build|build]]
-- [[_COMMUNITY_onboarding_screens.dart|onboarding_screens.dart]]
-- [[_COMMUNITY_wWinMain|wWinMain]]
-- [[_COMMUNITY_cloudinary_service.dart|cloudinary_service.dart]]
-- [[_COMMUNITY_manifest.json|manifest.json]]
-- [[_COMMUNITY_home_shell.dart|home_shell.dart]]
-- [[_COMMUNITY_strings.dart|strings.dart]]
-- [[_COMMUNITY_handle_new_rx_page|handle_new_rx_page]]
-- [[_COMMUNITY_packagefluttermaterial.dart|package:flutter/material.dart]]
-- [[_COMMUNITY_build|build]]
-- [[_COMMUNITY_MainActivity|MainActivity]]
-- [[_COMMUNITY_carpenter_app|carpenter_app]]
-- [[_COMMUNITY_CLAUDE|CLAUDE.md]]
-- [[_COMMUNITY_flutter_export_environment.sh|flutter_export_environment.sh]]
-- [[_COMMUNITY_README|README.md]]
-- [[_COMMUNITY_flutter_export_environment.sh|flutter_export_environment.sh]]
-- [[_COMMUNITY_@bank|@bank]]
-- [[_COMMUNITY_String|String?]]
-- [[_COMMUNITY_What You Must Do When Invoked|What You Must Do When Invoked]]
-- [[_COMMUNITY_rewards_screens.dart|rewards_screens.dart]]
-- [[_COMMUNITY_AppState|AppState]]
-- [[_COMMUNITY_speech_service.dart|speech_service.dart]]
-- [[_COMMUNITY_mic_button.dart|mic_button.dart]]
-- [[_COMMUNITY_tts_service.dart|tts_service.dart]]
-- [[_COMMUNITY_qr_scan_screen.dart|qr_scan_screen.dart]]
-- [[_COMMUNITY_graphify reference extra exports and benchmark|graphify reference: extra exports and benchmark]]
-- [[_COMMUNITY_speaker_button.dart|speaker_button.dart]]
-- [[_COMMUNITY_graphify reference query, path, explain|graphify reference: query, path, explain]]
-- [[_COMMUNITY_graphify reference add a URL and watch a folder|graphify reference: add a URL and watch a folder]]
-- [[_COMMUNITY_graphify reference commit hook and native CLAUDE.md integration|graphify reference: commit hook and native CLAUDE.md integration]]
-- [[_COMMUNITY_graphify reference incremental update and cluster-only|graphify reference: incremental update and cluster-only]]
-- [[_COMMUNITY_graphify reference GitHub clone and cross-repo merge|graphify reference: GitHub clone and cross-repo merge]]
-- [[_COMMUNITY_graphify reference transcribe video and audio|graphify reference: transcribe video and audio]]
-- [[_COMMUNITY_contact_picker.dart|contact_picker.dart]]
-- [[_COMMUNITY_CLAUDE|CLAUDE.md]]
-- [[_COMMUNITY_extraction-spec|extraction-spec.md]]
-- [[_COMMUNITY_AppDelegate|AppDelegate]]
-- [[_COMMUNITY_RegisterGeneratedPlugins|RegisterGeneratedPlugins]]
-- [[_COMMUNITY__ManualOrderScreenState|_ManualOrderScreenState]]
-- [[_COMMUNITY__OffersScreenState|_OffersScreenState]]
-- [[_COMMUNITY__OrderHistoryScreenState|_OrderHistoryScreenState]]
-- [[_COMMUNITY__OrderSuccessScreenState|_OrderSuccessScreenState]]
-- [[_COMMUNITY__UploadOrderScreenState|_UploadOrderScreenState]]
-- [[_COMMUNITY__VoiceNotePlayerState|_VoiceNotePlayerState]]
-- [[_COMMUNITY__VoiceOrderScreenState|_VoiceOrderScreenState]]
-- [[_COMMUNITY__PointsScreenState|_PointsScreenState]]
+- app_state.dart
+- Win32Window
+- models.dart
+- qr_scan_screen.dart
+- theme.dart
+- order_screens.dart
+- main.dart
+- rewards_screens.dart
+- firebase_service.dart
+- profile_screens.dart
+- State
+- onboarding_screens.dart
+- my_application.cc
+- GeneratedPluginRegistrant.swift
+- build
+- strings.dart
+- speech_service.dart
+- StatelessWidget
+- update_service.dart
+- AppState
+- wWinMain
+- cloudinary_service.dart
+- tts_service.dart
+- manifest.json
+- .application
+- RunnerTests.swift
+- FlutterMacOS
+- RegisterGeneratedPlugins
+- MainActivity
+- contact_picker.dart
+- _OrderHistoryScreenState
+- _UploadOrderScreenState
+- _VoiceNotePlayerState
+- _VoiceOrderScreenState
+- List
+- @bank
+- String?
+- firebase_options.dart
+- package:flutter/material.dart
+- carpenter_app
+- CLAUDE.md
+- CLAUDE.md
+- README.md
+- _ManualOrderScreenState
+- _OffersScreenState
+- _OrderSuccessScreenState
 
 ## God Nodes (most connected - your core abstractions)
 1. `AppState` - 67 edges
 2. `Win32Window` - 22 edges
 3. `MessageHandler` - 12 edges
-4. `What You Must Do When Invoked` - 12 edges
-5. `build` - 11 edges
-6. `FlutterWindow` - 10 edges
-7. `Create` - 10 edges
-8. `WndProc` - 10 edges
-9. `/graphify` - 10 edges
-10. `build` - 9 edges
+4. `build` - 11 edges
+5. `FlutterWindow` - 10 edges
+6. `Create` - 10 edges
+7. `WndProc` - 10 edges
+8. `build` - 9 edges
+9. `MessageHandler` - 9 edges
+10. `OnCreate` - 7 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `_check` --references--> `AppState`  [EXTRACTED]
@@ -100,168 +89,148 @@
 ## Import Cycles
 - None detected.
 
-## Communities (60 total, 21 thin omitted)
+## Communities (50 total, 15 thin omitted)
 
 ### Community 0 - "app_state.dart"
 Cohesion: 0.02
 Nodes (82): dart:async, ../l10n/strings.dart, accountNumber, addLead, addOrder, address, bankName, carpenterName (+74 more)
 
-### Community 1 - "AppState"
-Cohesion: 0.17
-Nodes (16): HomeShell, _HomeShellState, GiftStoreScreen, _GiftStoreScreenState, LeadNewScreen, _LeadNewScreenState, LeadsScreen, _LeadsScreenState (+8 more)
-
-### Community 2 - "Win32Window"
+### Community 1 - "Win32Window"
 Cohesion: 0.06
 Nodes (53): PluginRegistry, Point, RECT, Size, unique_ptr, RegisterPlugins(), DartProject, HWND (+45 more)
 
-### Community 3 - "GeneratedPluginRegistrant.swift"
-Cohesion: 0.16
-Nodes (19): audioplayers_darwin, cloud_firestore, file_selector_macos, firebase_auth, firebase_core, firebase_messaging, firebase_storage, flutter_tts (+11 more)
-
-### Community 4 - "models.dart"
+### Community 2 - "models.dart"
 Cohesion: 0.04
 Nodes (47): double?, int get, AppNotification, audioUrl, bannerUrl, body, CarpenterOrder, category (+39 more)
+
+### Community 3 - "qr_scan_screen.dart"
+Cohesion: 0.06
+Nodes (38): build, contains, _controller, createState, dispose, extractUpiId, _FirstOrNull, _handled (+30 more)
+
+### Community 4 - "theme.dart"
+Cohesion: 0.04
+Nodes (44): BoxFit, buildAppTheme, child, color, _defaultPageSizes, errorWidget, fit, height (+36 more)
 
 ### Community 5 - "order_screens.dart"
 Cohesion: 0.05
 Nodes (41): AudioPlayer?, AudioPlayer get, dart:io, _addRow, audioUrl, createState, detail, dispose (+33 more)
 
 ### Community 6 - "main.dart"
-Cohesion: 0.06
-Nodes (34): @pragma, ../firebase_options.dart, android, DefaultFirebaseOptions, web, AuthGate, _AuthGateState, build (+26 more)
-
-### Community 7 - "firebase_service.dart"
-Cohesion: 0.06
-Nodes (32): FirebaseAuth, FirebaseFirestore, addLead, addOrder, auth, carpenterDoc, currentUser, db (+24 more)
-
-### Community 8 - "theme.dart"
-Cohesion: 0.04
-Nodes (44): BoxFit, buildAppTheme, child, color, _defaultPageSizes, errorWidget, fit, height (+36 more)
-
-### Community 9 - "my_application.cc"
-Cohesion: 0.10
-Nodes (20): FlPluginRegistry, GApplication, gboolean, gchar, GObject, GtkApplication, fl_register_plugins(), main() (+12 more)
-
-### Community 10 - "profile_screens.dart"
-Cohesion: 0.07
-Nodes (31): _openFullScreenImage, accountNumber, AccountScreen, _AccountScreenState, address, bankName, _changeQr, _confirmDiscard (+23 more)
-
-### Community 11 - "build"
 Cohesion: 0.12
-Nodes (20): build, build, build, build, Route /account, Route /createOrder, Route /editProfile, Route /gifts (+12 more)
+Nodes (16): build, CarpenterHubApp, _check, _checked, _checkForUpdate, createState, initializeApp, initState (+8 more)
 
-### Community 12 - "onboarding_screens.dart"
-Cohesion: 0.08
-Nodes (26): address, build, busy, checking, createState, email, error, LoginScreen (+18 more)
-
-### Community 13 - "wWinMain"
-Cohesion: 0.24
-Nodes (9): _In_, _In_opt_, vector, wWinMain(), string, wchar_t, CreateAndAttachConsole(), GetCommandLineArguments() (+1 more)
-
-### Community 14 - "cloudinary_service.dart"
-Cohesion: 0.18
-Nodes (10): dart:convert, dart:typed_data, CloudinaryService, cloudName, instance, uploadBytes, uploadPreset, package:http/http.dart (+2 more)
-
-### Community 15 - "manifest.json"
-Cohesion: 0.18
-Nodes (10): background_color, description, display, icons, name, orientation, prefer_related_applications, short_name (+2 more)
-
-### Community 16 - "home_shell.dart"
-Cohesion: 0.22
-Nodes (8): createState, DashboardScreen, _index, order_screens.dart, package:cached_network_image/cached_network_image.dart, profile_screens.dart, rewards_screens.dart, ../widgets/speaker_button.dart
-
-### Community 17 - "strings.dart"
-Cohesion: 0.11
-Nodes (18): AppLocale, giftRedemption, hiStrings, isHindi, leadBonus, offerLive, order, pointsForLead (+10 more)
-
-### Community 18 - "handle_new_rx_page"
-Cohesion: 0.33
-Nodes (5): handle_new_rx_page(), __lldb_init_module(), Intercept NOTIFY_DEBUGGER_ABOUT_RX_PAGES and touch the pages., SBDebugger, SBFrame
-
-### Community 19 - "package:flutter/material.dart"
-Cohesion: 0.10
-Nodes (18): buildNumber, checkForUpdate, downloadUrl, forceUpdate, instance, launchDownload, releaseNotes, showUpdateDialog (+10 more)
-
-### Community 20 - "build"
-Cohesion: 0.22
-Nodes (6): Any, Bool, GeneratedPluginRegistrant, +registerWithRegistry, NSObject, UIApplication
-
-### Community 32 - "What You Must Do When Invoked"
-Cohesion: 0.08
-Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
-
-### Community 33 - "rewards_screens.dart"
+### Community 7 - "rewards_screens.dart"
 Cohesion: 0.06
 Nodes (34): Color, IconData, color, controller, createState, embedded, error, _giftPage (+26 more)
 
-### Community 34 - "AppState"
-Cohesion: 0.10
-Nodes (25): ChangeNotifier, ConsentScreen, CreateOrderScreen, initState, OfferDetailsScreen, OrderDetailsScreen, OrderThumbnail, _pick (+17 more)
+### Community 8 - "firebase_service.dart"
+Cohesion: 0.06
+Nodes (32): FirebaseAuth, FirebaseFirestore, addLead, addOrder, auth, carpenterDoc, currentUser, db (+24 more)
 
-### Community 35 - "speech_service.dart"
+### Community 9 - "profile_screens.dart"
+Cohesion: 0.07
+Nodes (31): _openFullScreenImage, accountNumber, AccountScreen, _AccountScreenState, address, bankName, _changeQr, _confirmDiscard (+23 more)
+
+### Community 10 - "State"
+Cohesion: 0.16
+Nodes (18): AuthGate, _AuthGateState, GiftStoreScreen, _GiftStoreScreenState, LeadNewScreen, _LeadNewScreenState, LeadsScreen, _LeadsScreenState (+10 more)
+
+### Community 11 - "onboarding_screens.dart"
+Cohesion: 0.08
+Nodes (26): address, build, busy, checking, ConsentScreen, createState, email, error (+18 more)
+
+### Community 12 - "my_application.cc"
+Cohesion: 0.10
+Nodes (20): FlPluginRegistry, GApplication, gboolean, gchar, GObject, GtkApplication, fl_register_plugins(), main() (+12 more)
+
+### Community 13 - "GeneratedPluginRegistrant.swift"
+Cohesion: 0.10
+Nodes (19): audioplayers_darwin, cloud_firestore, file_selector_macos, firebase_auth, firebase_core, firebase_messaging, firebase_storage, flutter_tts (+11 more)
+
+### Community 14 - "build"
+Cohesion: 0.12
+Nodes (20): build, build, build, build, Route /account, Route /createOrder, Route /editProfile, Route /gifts (+12 more)
+
+### Community 15 - "strings.dart"
+Cohesion: 0.11
+Nodes (18): AppLocale, giftRedemption, hiStrings, isHindi, leadBonus, offerLive, order, pointsForLead (+10 more)
+
+### Community 16 - "speech_service.dart"
 Cohesion: 0.13
 Nodes (14): bool get, _available, cancel, _ensureInit, _initTried, instance, isListening, listen (+6 more)
 
-### Community 36 - "mic_button.dart"
-Cohesion: 0.25
-Nodes (5): Flutter, RunnerTests, RunnerTests, UIKit, XCTestCase
+### Community 17 - "StatelessWidget"
+Cohesion: 0.10
+Nodes (25): ChangeNotifier, SplashScreen, CreateOrderScreen, initState, OfferDetailsScreen, OrderDetailsScreen, OrderThumbnail, _pick (+17 more)
 
-### Community 37 - "tts_service.dart"
+### Community 18 - "update_service.dart"
+Cohesion: 0.13
+Nodes (14): buildNumber, checkForUpdate, downloadUrl, forceUpdate, instance, launchDownload, releaseNotes, showUpdateDialog (+6 more)
+
+### Community 19 - "AppState"
+Cohesion: 0.18
+Nodes (10): @pragma, ../firebase_options.dart, backgroundLocationCallbackDispatcher, backgroundLocationTaskName, cancelBackgroundLocation, scheduleBackgroundLocation, package:cloud_firestore/cloud_firestore.dart, package:firebase_auth/firebase_auth.dart (+2 more)
+
+### Community 20 - "wWinMain"
+Cohesion: 0.24
+Nodes (9): _In_, _In_opt_, vector, wWinMain(), string, wchar_t, CreateAndAttachConsole(), GetCommandLineArguments() (+1 more)
+
+### Community 21 - "cloudinary_service.dart"
+Cohesion: 0.18
+Nodes (10): dart:convert, dart:typed_data, CloudinaryService, cloudName, instance, uploadBytes, uploadPreset, package:http/http.dart (+2 more)
+
+### Community 22 - "tts_service.dart"
 Cohesion: 0.18
 Nodes (10): FlutterTts, _configured, _ensureConfigured, instance, speak, stop, _tts, TtsService (+2 more)
 
-### Community 38 - "qr_scan_screen.dart"
-Cohesion: 0.06
-Nodes (38): build, contains, _controller, createState, dispose, extractUpiId, _FirstOrNull, _handled (+30 more)
+### Community 23 - "manifest.json"
+Cohesion: 0.18
+Nodes (10): background_color, description, display, icons, name, orientation, prefer_related_applications, short_name (+2 more)
 
-### Community 39 - "graphify reference: extra exports and benchmark"
-Cohesion: 0.22
-Nodes (8): graphify reference: extra exports and benchmark, Step 6b - Wiki (only if --wiki flag), Step 7 - Neo4j export (only if --neo4j or --neo4j-push flag), Step 7a - FalkorDB export (only if --falkordb or --falkordb-push flag), Step 7b - SVG export (only if --svg flag), Step 7c - GraphML export (only if --graphml flag), Step 7d - MCP server (only if --mcp flag), Step 8 - Token reduction benchmark (only if total_words > 5000)
+### Community 24 - ".application"
+Cohesion: 0.20
+Nodes (8): Any, FlutterAppDelegate, AppDelegate, Bool, AppDelegate, Bool, NSApplication, UIApplication
 
-### Community 40 - "speaker_button.dart"
+### Community 25 - "RunnerTests.swift"
+Cohesion: 0.25
+Nodes (5): Flutter, RunnerTests, RunnerTests, UIKit, XCTestCase
+
+### Community 26 - "FlutterMacOS"
 Cohesion: 0.47
 Nodes (3): Cocoa, FlutterMacOS, XCTest
 
-### Community 41 - "graphify reference: query, path, explain"
-Cohesion: 0.33
-Nodes (5): For /graphify explain, For /graphify path, graphify reference: query, path, explain, Step 0 — Constrained query expansion (REQUIRED before traversal), Step 1 — Traversal
-
-### Community 42 - "graphify reference: add a URL and watch a folder"
-Cohesion: 0.50
-Nodes (3): For /graphify add, For --watch, graphify reference: add a URL and watch a folder
-
-### Community 43 - "graphify reference: commit hook and native CLAUDE.md integration"
-Cohesion: 0.50
-Nodes (3): For git commit hook, For native CLAUDE.md integration, graphify reference: commit hook and native CLAUDE.md integration
-
-### Community 44 - "graphify reference: incremental update and cluster-only"
-Cohesion: 0.50
-Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
-
-### Community 50 - "AppDelegate"
-Cohesion: 0.33
-Nodes (5): FlutterAppDelegate, AppDelegate, AppDelegate, Bool, NSApplication
-
-### Community 51 - "RegisterGeneratedPlugins"
+### Community 27 - "RegisterGeneratedPlugins"
 Cohesion: 0.33
 Nodes (5): FlutterPluginRegistry, FlutterViewController, RegisterGeneratedPlugins(), MainFlutterWindow, NSWindow
 
+### Community 34 - "List"
+Cohesion: 0.20
+Nodes (10): createState, DashboardScreen, HomeShell, _HomeShellState, _index, order_screens.dart, package:cached_network_image/cached_network_image.dart, profile_screens.dart (+2 more)
+
+### Community 41 - "firebase_options.dart"
+Cohesion: 0.29
+Nodes (6): android, DefaultFirebaseOptions, web, package:firebase_core/firebase_core.dart, package:flutter/foundation.dart, static const FirebaseOptions
+
+### Community 42 - "package:flutter/material.dart"
+Cohesion: 0.40
+Nodes (4): package:carpenter_app/main.dart, package:flutter/material.dart, package:flutter_test/flutter_test.dart, main
+
 ## Knowledge Gaps
-- **436 isolated node(s):** `flutter_export_environment.sh script`, `+registerWithRegistry`, `DefaultFirebaseOptions`, `android`, `web` (+431 more)
+- **407 isolated node(s):** `DefaultFirebaseOptions`, `android`, `web`, `hiStrings`, `isHindi` (+402 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **21 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **15 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AppState` connect `AppState` to `app_state.dart`, `AppState`, `order_screens.dart`, `main.dart`, `theme.dart`, `profile_screens.dart`, `build`, `onboarding_screens.dart`, `home_shell.dart`, `rewards_screens.dart`, `qr_scan_screen.dart`, `_ManualOrderScreenState`, `_OffersScreenState`, `_OrderHistoryScreenState`, `_OrderSuccessScreenState`, `_UploadOrderScreenState`, `_VoiceNotePlayerState`, `_VoiceOrderScreenState`, `_PointsScreenState`?**
-  _High betweenness centrality (0.142) - this node is a cross-community bridge._
+- **Why does `AppState` connect `StatelessWidget` to `_VoiceNotePlayerState`, `_VoiceOrderScreenState`, `List`, `qr_scan_screen.dart`, `app_state.dart`, `order_screens.dart`, `main.dart`, `rewards_screens.dart`, `theme.dart`, `profile_screens.dart`, `State`, `onboarding_screens.dart`, `build`, `_ManualOrderScreenState`, `_OffersScreenState`, `_OrderSuccessScreenState`, `_OrderHistoryScreenState`, `_UploadOrderScreenState`?**
+  _High betweenness centrality (0.172) - this node is a cross-community bridge._
 - **Why does `CarpenterOrder` connect `models.dart` to `order_screens.dart`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+  _High betweenness centrality (0.018) - this node is a cross-community bridge._
 - **Why does `FlutterWindow` connect `Win32Window` to `RegisterGeneratedPlugins`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
-- **What connects `Intercept NOTIFY_DEBUGGER_ABOUT_RX_PAGES and touch the pages.`, `flutter_export_environment.sh script`, `+registerWithRegistry` to the rest of the system?**
-  _437 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _High betweenness centrality (0.014) - this node is a cross-community bridge._
+- **What connects `DefaultFirebaseOptions`, `android`, `web` to the rest of the system?**
+  _407 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `app_state.dart` be split into smaller, more focused modules?**
   _Cohesion score 0.024096385542168676 - nodes in this community are weakly interconnected._
 - **Should `Win32Window` be split into smaller, more focused modules?**
