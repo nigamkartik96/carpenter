@@ -8,12 +8,32 @@ import '../l10n/strings.dart';
 import '../models/models.dart';
 import '../services/background_location.dart';
 import '../services/firebase_service.dart';
+import '../services/push_service.dart';
 
 String initialsOf(String name) {
   final n = name.trim();
   if (n.isEmpty) return '?';
   return n.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).map((w) => w[0]).take(2).join().toUpperCase();
 }
+
+/// Mobile numbers get typed with spaces, dashes and sometimes a +91
+/// prefix. Reducing to the last 10 digits means the same number always
+/// maps to the same account whichever way the carpenter enters it.
+String normalizeMobile(String mobile) {
+  final digits = mobile.replaceAll(RegExp(r'\D'), '');
+  return digits.length > 10 ? digits.substring(digits.length - 10) : digits;
+}
+
+/// Firebase Auth has no password-based mobile sign-in, so an account
+/// registered without an email address gets a synthetic one derived from
+/// the carpenter's mobile number, used purely as the login ID. The
+/// `.invalid` TLD is reserved by RFC 2606 and can never receive mail,
+/// which is exactly the point: nothing is ever sent here, the carpenter
+/// is never shown it, and their profile's `email` field stays empty.
+/// Two consequences worth knowing: two accounts can't share a mobile
+/// number (Firebase rejects the duplicate), and these accounts have no
+/// email to send a password reset to.
+String mobileAuthEmail(String mobile) => '${normalizeMobile(mobile)}@carpenterhub.invalid';
 
 /// Firestore documents are untyped at the SDK level -- a document created
 /// by hand in the console (or by a future app version) can easily store a
@@ -140,18 +160,23 @@ class AppState extends ChangeNotifier {
     return true;
   }
 
+  /// [email] is optional -- carpenters who don't have one register with
+  /// just their mobile number, which then doubles as their login ID (see
+  /// [mobileAuthEmail]). A supplied email is used for auth as before.
   Future<String> register({
     required String name,
     required String mobileNum,
-    required String email,
     required String password,
     required String shop,
     required String addr,
+    String email = '',
     String? photoUrl,
   }) async {
+    final realEmail = email.trim();
     try {
       await _fb.registerCarpenter(
-        email: email,
+        authEmail: realEmail.isEmpty ? mobileAuthEmail(mobileNum) : realEmail,
+        email: realEmail,
         password: password,
         name: name,
         mobile: mobileNum,
@@ -161,11 +186,21 @@ class AppState extends ChangeNotifier {
       );
       return 'ok';
     } on FirebaseAuthException catch (e) {
+      // Without an email of their own, "that address is taken" reads as
+      // nonsense -- what it actually means is this mobile number already
+      // has an account.
+      if (e.code == 'email-already-in-use' && realEmail.isEmpty) {
+        return 'An account already exists for this mobile number';
+      }
       return e.message ?? 'Registration failed';
     }
   }
 
-  Future<String> login(String email, String password) async {
+  /// [identifier] is either an email address or a mobile number --
+  /// carpenters registered without an email sign in with the latter.
+  Future<String> login(String identifier, String password) async {
+    final id = identifier.trim();
+    final email = id.contains('@') ? id : mobileAuthEmail(id);
     try {
       final cred = await _fb.login(email, password);
       uid = cred.user!.uid;
@@ -179,6 +214,14 @@ class AppState extends ChangeNotifier {
       }
       return 'ok';
     } on FirebaseAuthException catch (e) {
+      // Firebase's own wording talks about email addresses, which is
+      // confusing for someone who signed up with only a mobile number.
+      if (e.code == 'user-not-found') {
+        return 'No account found for that mobile number or email';
+      }
+      if (e.code == 'invalid-credential' || e.code == 'wrong-password') {
+        return 'Wrong mobile number, email or password';
+      }
       return e.message ?? 'Login failed';
     } catch (e) {
       return 'Login failed. Check your internet connection.';
@@ -223,6 +266,9 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    // Before _fb.logout(), while the carpenter still has permission to
+    // write their own doc.
+    if (uid != null) await PushService.instance.unregisterToken(uid!);
     for (final s in _subs) {
       s.cancel();
     }
@@ -292,6 +338,12 @@ class AppState extends ChangeNotifier {
 
   void _startListening() {
     final id = uid!;
+
+    // Only approved carpenters reach here, which is also when push
+    // becomes useful -- there's nothing to notify a pending account
+    // about. Fire-and-forget: a failed token save must not stop the
+    // Firestore listeners below from starting.
+    PushService.instance.registerToken(id);
 
     _subs.add(_fb.watchCarpenter(id).listen((snap) {
       try {

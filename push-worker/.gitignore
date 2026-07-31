@@ -1,0 +1,9 @@
+node_modules/
+.wrangler/
+# Never commit the service-account key -- it grants full project access.
+# It belongs in `wrangler secret put`, not in the repo. Firebase names
+# these files <project>-firebase-adminsdk-<hash>.json.
+*adminsdk*.json
+*serviceAccount*.json
+*service-account*.json
+*.key.json

@@ -16,7 +16,10 @@ class SettingsScreen extends StatelessWidget {
         const SizedBox(height: 20),
         const SubHeading('Order points rule'),
         const SizedBox(height: 8),
-        Text('How many points a carpenter earns per rupee spent, and the minimum points balance needed to redeem.', style: const TextStyle(color: kMuted, fontSize: 12)),
+        const Text(
+          'How many points a carpenter earns per rupee spent on party orders, and the minimum points balance needed to redeem. Regular orders are credited with the points the admin enters by hand on the order.',
+          style: TextStyle(color: kMuted, fontSize: 12),
+        ),
         const SizedBox(height: 10),
         _PointsRuleForm(app: app),
         const SizedBox(height: 24),

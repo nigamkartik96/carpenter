@@ -15,8 +15,8 @@
     "semantic_hash": "8a39671c094a3a971edbb3074f5e5aaa"
   },
   "lib/firebase_service.dart": {
-    "mtime": 1784455549.793091,
-    "ast_hash": "dfd582d7c75106c552bec473cf6c6265",
+    "mtime": 1785519877.5020435,
+    "ast_hash": "f5290c0f0426de13d355e7439da25991",
     "semantic_hash": ""
   },
   "lib/login_screen.dart": {
@@ -30,8 +30,8 @@
     "semantic_hash": "03c6e9fac2e17817dfcf57298954a61b"
   },
   "lib/models.dart": {
-    "mtime": 1784455552.7010915,
-    "ast_hash": "f56839167962efa7ce92d4438ee786bf",
+    "mtime": 1785503573.149227,
+    "ast_hash": "dba6b1f724d916a6675945ac047ac77c",
     "semantic_hash": ""
   },
   "lib/router.dart": {
@@ -80,8 +80,8 @@
     "semantic_hash": "239c3fbf84b2ce9ee3faf5947b431feb"
   },
   "lib/screens/order_detail_screen.dart": {
-    "mtime": 1784455595.498922,
-    "ast_hash": "21ad63d58ce108f7043942bc42a5bbcf",
+    "mtime": 1785503709.6213899,
+    "ast_hash": "52f015e53d7317f6177bb43e0caf9acd",
     "semantic_hash": ""
   },
   "lib/screens/orders_screens.dart": {
@@ -95,9 +95,9 @@
     "semantic_hash": "a2803bdb5503e9610e5127e6cc887eaf"
   },
   "lib/screens/settings_screen.dart": {
-    "mtime": 1783270889.9988358,
-    "ast_hash": "cfa71691c216def923c4fafe3185822d",
-    "semantic_hash": "cfa71691c216def923c4fafe3185822d"
+    "mtime": 1785503815.7847047,
+    "ast_hash": "b5dd498feaf1ea0cbb2ac3359bc9722e",
+    "semantic_hash": ""
   },
   "lib/shell.dart": {
     "mtime": 1783169166.986207,
@@ -105,8 +105,8 @@
     "semantic_hash": "1f7e83ffeb8f0cf61278eba2912fd777"
   },
   "lib/state.dart": {
-    "mtime": 1784455561.977179,
-    "ast_hash": "fca6d445342a906d955700ec55671094",
+    "mtime": 1785503622.2140994,
+    "ast_hash": "ede34a5ec3f5159bef74a8bea8f136d3",
     "semantic_hash": ""
   },
   "lib/widgets.dart": {
@@ -203,5 +203,10 @@
     "mtime": 1783312197.3522193,
     "ast_hash": "f8725b15c2de0edafc159a96f47c6ab2",
     "semantic_hash": "f8725b15c2de0edafc159a96f47c6ab2"
+  },
+  "lib/push_service.dart": {
+    "mtime": 1785519810.0048761,
+    "ast_hash": "9b997fb95b1f09a01b77794232ca458c",
+    "semantic_hash": ""
   }
 }

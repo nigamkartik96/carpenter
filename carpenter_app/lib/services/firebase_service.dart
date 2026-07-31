@@ -14,16 +14,24 @@ class FirebaseService {
 
   User? get currentUser => auth.currentUser;
 
+  /// [authEmail] is the address Firebase Auth signs the account in with;
+  /// [email] is the carpenter's own address for their profile, which is
+  /// empty when they didn't give one. The two differ for mobile-only
+  /// accounts, where authEmail is synthesized from the mobile number
+  /// (see mobileAuthEmail in app_state.dart) -- storing that synthetic
+  /// address on the profile would show the admin console a contact
+  /// address that doesn't exist.
   Future<UserCredential> registerCarpenter({
-    required String email,
+    required String authEmail,
     required String password,
     required String name,
     required String mobile,
     required String shop,
     required String address,
+    String email = '',
     String? photoUrl,
   }) async {
-    final cred = await auth.createUserWithEmailAndPassword(email: email, password: password);
+    final cred = await auth.createUserWithEmailAndPassword(email: authEmail, password: password);
     await db.collection('carpenters').doc(cred.user!.uid).set({
       'name': name,
       'mobile': mobile,
@@ -51,6 +59,15 @@ class FirebaseService {
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> watchCarpenter(String uid) =>
       carpenterDoc(uid).snapshots();
+
+  /// Device tokens for push, kept as a list because one carpenter can
+  /// have the app on more than one handset. arrayUnion means re-saving
+  /// the same token on every launch is a no-op.
+  Future<void> addFcmToken(String carpenterId, String token) => carpenterDoc(carpenterId)
+      .set({'fcmTokens': FieldValue.arrayUnion([token])}, SetOptions(merge: true));
+
+  Future<void> removeFcmToken(String carpenterId, String token) => carpenterDoc(carpenterId)
+      .set({'fcmTokens': FieldValue.arrayRemove([token])}, SetOptions(merge: true));
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchOffers() =>
       db.collection('offers').orderBy('createdAt', descending: true).limit(200).snapshots();

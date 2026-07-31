@@ -22,19 +22,12 @@ class OrderDetailScreen extends StatefulWidget {
   State<OrderDetailScreen> createState() => _OrderDetailScreenState();
 }
 
-class _ItemRow {
-  _ItemRow({String name = '', String qty = '1', String unitCost = '0'})
-      : name = TextEditingController(text: name),
-        qty = TextEditingController(text: qty),
-        unitCost = TextEditingController(text: unitCost);
-  final TextEditingController name;
-  final TextEditingController qty;
-  final TextEditingController unitCost;
-}
-
 class _OrderDetailScreenState extends State<OrderDetailScreen> {
-  List<_ItemRow>? rows;
-  bool savingItems = false;
+  TextEditingController? amountCtrl;
+  TextEditingController? pointsCtrl;
+  TextEditingController? partyNameCtrl;
+  TextEditingController? partyPhoneCtrl;
+  bool savingDetails = false;
   bool uploadingInvoice = false;
 
   // Status changes are staged locally until "Save changes" is pressed --
@@ -43,40 +36,38 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   String? pendingStatus;
   List<String> fulfilledGateErrors = [];
 
-  void _initRowsIfNeeded(AdminOrder order) {
-    if (rows != null) return;
-    rows = order.items.isEmpty
-        ? [_ItemRow()]
-        : order.items.map((i) => _ItemRow(name: i.name, qty: '${i.qty}', unitCost: '${i.unitCost}')).toList();
+  void _initFieldsIfNeeded(AdminOrder order) {
+    if (amountCtrl != null) return;
+    amountCtrl = TextEditingController(text: order.amount == 0 ? '' : '${order.amount}');
+    pointsCtrl = TextEditingController(text: order.points == 0 ? '' : '${order.points}');
+    partyNameCtrl = TextEditingController(text: order.partyName);
+    partyPhoneCtrl = TextEditingController(text: order.partyPhone);
   }
 
-  int get _computedTotal {
-    int total = 0;
-    for (final r in rows ?? []) {
-      final qty = int.tryParse(r.qty.text) ?? 0;
-      final cost = int.tryParse(r.unitCost.text) ?? 0;
-      total += qty * cost;
-    }
-    return total;
+  @override
+  void dispose() {
+    amountCtrl?.dispose();
+    pointsCtrl?.dispose();
+    partyNameCtrl?.dispose();
+    partyPhoneCtrl?.dispose();
+    super.dispose();
   }
 
-  Future<void> _saveItems(AdminState app, AdminOrder order) async {
-    setState(() => savingItems = true);
+  Future<void> _saveDetails(AdminState app, AdminOrder order) async {
+    setState(() => savingDetails = true);
     try {
-      final items = (rows ?? [])
-          .where((r) => r.name.text.trim().isNotEmpty)
-          .map((r) => OrderItem(
-                name: r.name.text.trim(),
-                qty: int.tryParse(r.qty.text) ?? 0,
-                unitCost: int.tryParse(r.unitCost.text) ?? 0,
-              ))
-          .toList();
-      await app.setOrderItems(order, items);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Items saved')));
+      await app.setOrderDetails(
+        order,
+        amount: int.tryParse(amountCtrl!.text.trim()) ?? 0,
+        points: int.tryParse(pointsCtrl!.text.trim()) ?? 0,
+        partyName: partyNameCtrl!.text.trim(),
+        partyPhone: partyPhoneCtrl!.text.trim(),
+      );
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order details saved')));
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not save: $e')));
     } finally {
-      if (mounted) setState(() => savingItems = false);
+      if (mounted) setState(() => savingDetails = false);
     }
   }
 
@@ -96,12 +87,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   /// Section 4.5 -- both conditions checked against the order's already
-  /// *persisted* items/invoice (the "Save items" / "Upload invoice"
+  /// *persisted* details/invoice (the "Save details" / "Upload invoice"
   /// actions above already commit independently of this status flow),
-  /// not the in-progress unsaved row edits.
+  /// not the in-progress unsaved field edits.
   List<String> _fulfilledGateErrors(AdminOrder order) {
     final errors = <String>[];
-    if (order.items.isEmpty) errors.add('At least one item must be added before fulfilling this order.');
+    if (order.amount <= 0) errors.add('Enter and save the order amount before fulfilling this order.');
     if (order.invoiceUrl == null) errors.add('Please upload an invoice before marking this order as Fulfilled.');
     return errors;
   }
@@ -187,81 +178,101 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 
-  Widget _lineItemsCard(AdminOrder order, AdminState app, bool itemsLocked) {
+  Widget _field({
+    required String label,
+    required TextEditingController controller,
+    required bool locked,
+    String? hint,
+    bool numeric = false,
+    bool phone = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SubHeading('Line items'),
+        Text(label, style: const TextStyle(color: kMuted, fontSize: 12)),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          enabled: !locked,
+          keyboardType: numeric || phone ? TextInputType.number : TextInputType.text,
+          inputFormatters: [
+            if (numeric) FilteringTextInputFormatter.digitsOnly,
+            if (phone) FilteringTextInputFormatter.digitsOnly,
+            if (phone) LengthLimitingTextInputFormatter(10),
+          ],
+          decoration: InputDecoration(hintText: hint),
+          onChanged: (_) => setState(() {}),
+        ),
+      ],
+    );
+  }
+
+  /// Amount, hand-calculated points, and the party the material came
+  /// from. Replaces the old per-product line-item editor -- for the MVP
+  /// the admin works the points out off-system and types them in, so no
+  /// amount -> points rule is applied to regular orders here.
+  Widget _orderDetailsCard(AdminOrder order, AdminState app, bool detailsLocked, bool isNarrow) {
+    final amountField = _field(label: 'Amount (Rs)', controller: amountCtrl!, locked: detailsLocked, hint: '0', numeric: true);
+    final pointsField = _field(label: 'Points', controller: pointsCtrl!, locked: detailsLocked, hint: '0', numeric: true);
+    final partyNameField = _field(label: 'Party name', controller: partyNameCtrl!, locked: detailsLocked, hint: 'e.g. Sharma Timber Mart');
+    final partyPhoneField = _field(label: 'Party phone number', controller: partyPhoneCtrl!, locked: detailsLocked, hint: '10-digit number', phone: true);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SubHeading('Order details'),
         const SizedBox(height: 4),
         Text(
-          itemsLocked
-              ? 'This order is ${order.status} -- points were already credited against this total, so line items are locked.'
-              : 'Enter the products and prices from the physical invoice -- the total below feeds point crediting.',
-          style: TextStyle(color: itemsLocked ? kWarning : kTextSecondary, fontSize: 12),
+          detailsLocked
+              ? 'This order is ${order.status} -- points were already credited against this order, so these details are locked.'
+              : 'Enter the invoice amount, the points to credit, and the party this order was billed through.',
+          style: TextStyle(color: detailsLocked ? kWarning : kTextSecondary, fontSize: 12),
         ),
         const SizedBox(height: 10),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: const [
-                  Expanded(flex: 3, child: Text('Product', style: TextStyle(color: kMuted, fontSize: 12))),
-                  Expanded(child: Text('Qty', style: TextStyle(color: kMuted, fontSize: 12))),
-                  Expanded(flex: 2, child: Text('Unit cost (Rs)', style: TextStyle(color: kMuted, fontSize: 12))),
-                  SizedBox(width: 36),
-                ],
-              ),
-              const SizedBox(height: 6),
-              ...List.generate(rows!.length, (i) {
-                final r = rows![i];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    children: [
-                      Expanded(flex: 3, child: TextField(controller: r.name, enabled: !itemsLocked, onChanged: (_) => setState(() {}))),
-                      const SizedBox(width: 8),
-                      Expanded(child: TextField(controller: r.qty, enabled: !itemsLocked, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], onChanged: (_) => setState(() {}))),
-                      const SizedBox(width: 8),
-                      Expanded(flex: 2, child: TextField(controller: r.unitCost, enabled: !itemsLocked, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], onChanged: (_) => setState(() {}))),
-                      SizedBox(
-                        width: 36,
-                        child: IconButton(
-                          icon: const Icon(Icons.close, size: 16),
-                          onPressed: (!itemsLocked && rows!.length > 1) ? () => setState(() => rows!.removeAt(i)) : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: itemsLocked ? null : () => setState(() => rows!.add(_ItemRow())),
-                icon: const Icon(Icons.add, size: 16),
-                label: const Text('Add line'),
-              ),
-              const Divider(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Total amount', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
-                  Text('Rs $_computedTotal', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: kPrimaryDark)),
-                ],
-              ),
-              const SizedBox(height: 6),
+              if (isNarrow) ...[
+                amountField,
+                const SizedBox(height: 12),
+                pointsField,
+                const SizedBox(height: 12),
+                partyNameField,
+                const SizedBox(height: 12),
+                partyPhoneField,
+              ] else ...[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: amountField),
+                    const SizedBox(width: 12),
+                    Expanded(child: pointsField),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: partyNameField),
+                    const SizedBox(width: 12),
+                    Expanded(child: partyPhoneField),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 10),
               Text(
-                'At ${app.pointRuleAmount} = ${app.pointRulePoints} pt(s), this order earns ${app.pointRuleAmount > 0 ? (_computedTotal ~/ app.pointRuleAmount) * app.pointRulePoints : 0} points once marked Fulfilled.',
+                'These points are credited to ${order.carpenterName} as-is once the order is marked Fulfilled -- calculate them manually, the ${app.pointRuleAmount} = ${app.pointRulePoints} pt(s) rule does not apply to these orders.',
                 style: const TextStyle(color: kTextSecondary, fontSize: 12),
               ),
-              if (fulfilledGateErrors.isNotEmpty && order.items.isEmpty) ...[
+              if (fulfilledGateErrors.isNotEmpty && order.amount <= 0) ...[
                 const SizedBox(height: 10),
-                const Text('At least one item must be added before fulfilling this order.', style: TextStyle(color: kStatusClosed, fontSize: 12, fontWeight: FontWeight.w600)),
+                const Text('Enter and save the order amount before fulfilling this order.', style: TextStyle(color: kStatusClosed, fontSize: 12, fontWeight: FontWeight.w600)),
               ],
               const SizedBox(height: 12),
               ElevatedButton(
-                onPressed: (itemsLocked || savingItems) ? null : () => _saveItems(app, order),
-                child: Text(savingItems ? 'Saving...' : 'Save items'),
+                onPressed: (detailsLocked || savingDetails) ? null : () => _saveDetails(app, order),
+                child: Text(savingDetails ? 'Saving...' : 'Save details'),
               ),
             ],
           ),
@@ -391,16 +402,16 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     if (order == null) {
       return Scaffold(appBar: AppBar(title: const Text('Order')), body: const Center(child: Text('Order not found')));
     }
-    _initRowsIfNeeded(order);
+    _initFieldsIfNeeded(order);
 
     final width = MediaQuery.of(context).size.width;
     final isMobile = width < 700;
     final isTwoColumn = width >= 1024;
-    // Once an order is Fulfilled or Delivered, its price has already been
-    // used to credit points -- editing line items after that would let the
-    // total silently drift from what was actually charged. Delivered is
+    // Once an order is Fulfilled or Delivered, its points have already
+    // been credited -- editing the details after that would let the
+    // record silently drift from what was actually credited. Delivered is
     // also fully terminal: status can't move at all from there.
-    final itemsLocked = order.status == 'Fulfilled' || order.status == 'Delivered';
+    final detailsLocked = order.status == 'Fulfilled' || order.status == 'Delivered';
 
     final backLink = BackLink(label: 'Back to Orders', onTap: () => context.go('/orders'));
 
@@ -408,8 +419,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     if (isTwoColumn) {
       // Right column isn't itself scrollable -- it sits outside the left
       // column's SingleChildScrollView, so as the admin scrolls through
-      // line items it stays pinned in place (the desktop-CSS-"sticky"
-      // equivalent for a Flutter Row layout).
+      // the order details it stays pinned in place (the desktop-CSS-
+      // "sticky" equivalent for a Flutter Row layout).
       body = Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -429,7 +440,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         children: [
                           _headerCard(order, context),
                           const SizedBox(height: 16),
-                          _lineItemsCard(order, app, itemsLocked),
+                          _orderDetailsCard(order, app, detailsLocked, false),
                           const SizedBox(height: 16),
                           _invoiceCard(order, app),
                           const SizedBox(height: 16),
@@ -464,7 +475,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           const SizedBox(height: 16),
           _headerCard(order, context),
           const SizedBox(height: 16),
-          _lineItemsCard(order, app, itemsLocked),
+          _orderDetailsCard(order, app, detailsLocked, isMobile),
           const SizedBox(height: 16),
           _invoiceCard(order, app),
           const SizedBox(height: 16),
@@ -639,7 +650,7 @@ class _CommentsCard extends StatefulWidget {
 
 class _CommentsCardState extends State<_CommentsCard> {
   // Captured once in initState -- rebuilding the parent screen (every
-  // keystroke in the line-items fields calls setState there) must not
+  // keystroke in the order-details fields calls setState there) must not
   // tear down and re-subscribe the Firestore listener.
   late final Stream<List<OrderComment>> _comments;
   final TextEditingController _input = TextEditingController();

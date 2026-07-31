@@ -1,0 +1,7 @@
+name = "carpenterhub-push"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+# Secrets are NOT set here -- they'd end up in git. Set them once with:
+#   npx wrangler secret put SERVICE_ACCOUNT_JSON
+#   npx wrangler secret put FIREBASE_API_KEY

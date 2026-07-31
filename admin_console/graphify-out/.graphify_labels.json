@@ -22,14 +22,11 @@
   "20": "shell.dart",
   "21": "redemptions_screen.dart",
   "22": "locations_screen.dart",
-  "23": "notifications_screen.dart",
   "24": "AdminState",
   "25": "manifest.json",
   "26": "package:provider/provider.dart",
   "27": "package:flutter/material.dart",
   "28": "_DashedBorderPainter",
   "29": "build",
-  "30": "StatChip",
-  "31": "State",
-  "32": "build"
+  "31": "State"
 }

@@ -6,8 +6,11 @@ import 'package:workmanager/workmanager.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'firebase_options.dart';
 import 'services/background_location.dart';
+import 'services/push_service.dart';
 import 'services/update_service.dart';
 import 'state/app_state.dart';
 import 'theme.dart';
@@ -25,6 +28,10 @@ void main() async {
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
   await Workmanager().initialize(backgroundLocationCallbackDispatcher, isInDebugMode: kDebugMode);
+  // Must be registered before runApp, and outside PushService, so
+  // Firebase can find it when a message wakes a killed app.
+  FirebaseMessaging.onBackgroundMessage(pushBackgroundHandler);
+  await PushService.instance.init();
   runApp(const CarpenterHubApp());
 }
 
@@ -38,6 +45,7 @@ class CarpenterHubApp extends StatelessWidget {
       child: Consumer<AppState>(
         builder: (context, app, _) => MaterialApp(
         title: 'CarpenterHub',
+        navigatorKey: pushNavigatorKey,
         debugShowCheckedModeBanner: false,
         theme: buildAppTheme(),
         // Carpenter-adjustable text scale (Profile > font size) applies

@@ -64,7 +64,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final email = TextEditingController();
+  // Either a mobile number or an email address -- carpenters who
+  // registered without an email sign in with their number.
+  final identifier = TextEditingController();
   final password = TextEditingController();
   String? error;
   bool busy = false;
@@ -81,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 4),
           Text(app.tr('Login to continue'), style: TextStyle(color: kMuted, fontSize: 13)),
           const SizedBox(height: 20),
-          TextField(controller: email, decoration: InputDecoration(labelText: app.tr('Email'))),
+          TextField(controller: identifier, decoration: InputDecoration(labelText: app.tr('Mobile number or email'))),
           const SizedBox(height: 12),
           TextField(controller: password, decoration: InputDecoration(labelText: app.tr('Password')), obscureText: true),
           if (error != null) Padding(padding: const EdgeInsets.only(top: 10), child: Text(error!, style: const TextStyle(color: kDanger, fontSize: 12))),
@@ -94,10 +96,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       busy = true;
                       error = null;
                     });
-                    final result = await app.login(email.text.trim(), password.text);
+                    final result = await app.login(identifier.text.trim(), password.text);
                     setState(() => busy = false);
                     if (result != 'ok') {
-                      setState(() => error = result);
+                      setState(() => error = app.tr(result));
                       return;
                     }
                     if (!context.mounted) return;
@@ -168,9 +170,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
           const SizedBox(height: 16),
           TextField(controller: name, decoration: InputDecoration(labelText: app.tr('Full name'), hintText: 'Ramesh Kumar')),
           const SizedBox(height: 12),
-          TextField(controller: mobile, decoration: InputDecoration(labelText: app.tr('Mobile number'), hintText: '98765 43210')),
+          TextField(
+            controller: mobile,
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(
+              labelText: app.tr('Mobile number'),
+              hintText: '98765 43210',
+              helperText: app.tr('You can log in with this number'),
+            ),
+          ),
           const SizedBox(height: 12),
-          TextField(controller: email, decoration: InputDecoration(labelText: app.tr('Email'))),
+          TextField(
+            controller: email,
+            keyboardType: TextInputType.emailAddress,
+            decoration: InputDecoration(labelText: app.tr('Email (optional)')),
+          ),
           const SizedBox(height: 12),
           TextField(controller: password, decoration: InputDecoration(labelText: app.tr('Password')), obscureText: true),
           const SizedBox(height: 12),
@@ -196,8 +210,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
             onPressed: busy
                 ? null
                 : () async {
-                    if (name.text.isEmpty || email.text.isEmpty || password.text.isEmpty) {
+                    // Email is optional -- the mobile number is what
+                    // identifies a carpenter without one, so it's
+                    // required and has to be a usable number.
+                    final digits = normalizeMobile(mobile.text);
+                    final typedEmail = email.text.trim();
+                    if (name.text.trim().isEmpty || digits.isEmpty || password.text.isEmpty) {
                       setState(() => error = app.tr('Fill all required fields'));
+                      return;
+                    }
+                    if (digits.length < 10) {
+                      setState(() => error = app.tr('Enter a valid 10-digit mobile number'));
+                      return;
+                    }
+                    if (typedEmail.isNotEmpty && !typedEmail.contains('@')) {
+                      setState(() => error = app.tr('Enter a valid email address'));
                       return;
                     }
                     setState(() {
@@ -207,7 +234,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     final result = await app.register(
                       name: name.text,
                       mobileNum: mobile.text,
-                      email: email.text.trim(),
+                      email: typedEmail,
                       password: password.text,
                       shop: shop.text,
                       addr: address.text,
@@ -215,7 +242,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     );
                     setState(() => busy = false);
                     if (result != 'ok') {
-                      setState(() => error = result);
+                      setState(() => error = app.tr(result));
                       return;
                     }
                     if (context.mounted) Navigator.pushReplacementNamed(context, '/pending');

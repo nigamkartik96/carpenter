@@ -283,6 +283,14 @@ const Map<String, String> hiStrings = {
   'Write a reply...': 'जवाब लिखें...',
   'Could not send comment': 'टिप्पणी नहीं भेजी जा सकी',
   'Could not load comments': 'टिप्पणियां लोड नहीं हो सकीं',
+  'Email (optional)': 'ईमेल (ज़रूरी नहीं)',
+  'Mobile number or email': 'मोबाइल नंबर या ईमेल',
+  'You can log in with this number': 'आप इसी नंबर से लॉगिन कर सकते हैं',
+  'Enter a valid 10-digit mobile number': 'सही 10 अंकों का मोबाइल नंबर डालें',
+  'Enter a valid email address': 'सही ईमेल पता डालें',
+  'An account already exists for this mobile number': 'इस मोबाइल नंबर से पहले से एक खाता बना हुआ है',
+  'No account found for that mobile number or email': 'इस मोबाइल नंबर या ईमेल से कोई खाता नहीं मिला',
+  'Wrong mobile number, email or password': 'मोबाइल नंबर, ईमेल या पासवर्ड गलत है',
 };
 
 class AppLocale {

@@ -1,16 +1,16 @@
-# Graph Report - admin_console  (2026-07-19)
+# Graph Report - admin_console  (2026-07-31)
 
 ## Corpus Check
-- 33 files · ~29,875 words
+- 34 files · ~30,469 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 801 nodes · 1104 edges · 33 communities (27 shown, 6 thin omitted)
+- 811 nodes · 1116 edges · 30 communities (25 shown, 5 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6aca94b3`
+- Built from commit: `221633d2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -38,16 +38,13 @@
 - shell.dart
 - redemptions_screen.dart
 - locations_screen.dart
-- notifications_screen.dart
 - AdminState
 - manifest.json
 - package:provider/provider.dart
 - package:flutter/material.dart
 - _DashedBorderPainter
 - build
-- StatChip
 - State
-- build
 
 ## God Nodes (most connected - your core abstractions)
 1. `AdminState` - 64 edges
@@ -76,7 +73,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (33 total, 6 thin omitted)
+## Communities (30 total, 5 thin omitted)
 
 ### Community 0 - "widgets.dart"
 Cohesion: 0.02
@@ -88,123 +85,115 @@ Nodes (96): dart:async, firebase_service.dart, addGift, addOffer, addOrderCommen
 
 ### Community 2 - "models.dart"
 Cohesion: 0.03
-Nodes (71): int get, AdminGift, AdminOffer, amount, approvedAmount, area, audioUrl, authorName (+63 more)
+Nodes (73): int get, AdminGift, AdminOffer, amount, approvedAmount, area, audioUrl, authorName (+65 more)
 
 ### Community 3 - "firebase_service.dart"
 Cohesion: 0.04
 Nodes (50): bool get, FirebaseAuth, FirebaseFirestore, addGift, addOffer, addOrderComment, addPartyOrder, AdminFirebaseService (+42 more)
 
 ### Community 4 - "offers_screens.dart"
-Cohesion: 0.07
-Nodes (28): DateTime, activityFilter, activitySince, allCarpenters, app, bannerUrl, category, _close (+20 more)
+Cohesion: 0.06
+Nodes (32): DateTime, activityFilter, activitySince, allCarpenters, app, bannerUrl, build, _CarpenterPicker (+24 more)
 
 ### Community 5 - "order_detail_screen.dart"
-Cohesion: 0.05
-Nodes (42): _bubble, _comments, _CommentsCard, _CommentsCardState, createState, dispose, effectiveStatus, _fmtWhen (+34 more)
+Cohesion: 0.04
+Nodes (46): build, build, amountCtrl, _bubble, build, _comments, createState, dispose (+38 more)
 
 ### Community 6 - "orders_screens.dart"
 Cohesion: 0.07
-Nodes (30): AdminOrder, build, createState, dateFilter, filterAndSortOrders, list, now, onDateFilter (+22 more)
+Nodes (28): AdminOrder, build, createState, dateFilter, filterAndSortOrders, list, now, onDateFilter (+20 more)
 
 ### Community 7 - "party_orders_screen.dart"
 Cohesion: 0.07
-Nodes (30): approveAmt, _approveCard, _approvePrefilled, build, busy, commissionCtl, createState, dispose (+22 more)
+Nodes (27): PartyOrder, approveAmt, _approveCard, _approvePrefilled, build, busy, commissionCtl, createState (+19 more)
 
 ### Community 8 - "creator_home_screen.dart"
-Cohesion: 0.07
-Nodes (29): PartyOrder, amount, build, carpenterId, carpenterName, carpSearch, createState, CreatorHomeScreen (+21 more)
+Cohesion: 0.04
+Nodes (46): ../cloudinary_service.dart, amount, build, carpenterId, carpenterName, carpSearch, createState, _CreatorOrderCard (+38 more)
 
 ### Community 9 - "router.dart"
 Cohesion: 0.09
-Nodes (23): GoRouter?, AdminRouterProvider, _AdminRouterProviderState, build, buildAdminRouter, createState, _router, login_screen.dart (+15 more)
+Nodes (21): GoRouter?, build, buildAdminRouter, createState, _router, login_screen.dart, screens/carpenter_detail_screen.dart, screens/carpenters_screens.dart (+13 more)
 
 ### Community 10 - "dashboard_screen.dart"
 Cohesion: 0.09
-Nodes (23): createState, DashboardScreen, _DashboardScreenState, dateFilter, _filterPartyOrders, onDateFilter, onSortBy, onStatusFilter (+15 more)
+Nodes (21): createState, dateFilter, _filterPartyOrders, onDateFilter, onSortBy, onStatusFilter, _orderTile, _page (+13 more)
 
 ### Community 11 - "gifts_screens.dart"
-Cohesion: 0.08
-Nodes (25): ../cloudinary_service.dart, build, _close, createState, description, GiftDetailScreen, giftId, GiftsScreen (+17 more)
+Cohesion: 0.18
+Nodes (10): body, build, createState, _page, _perPage, sending, submitted, targetTier (+2 more)
 
 ### Community 12 - "main.dart"
-Cohesion: 0.11
-Nodes (18): firebase_options.dart, currentPlatform, DefaultFirebaseOptions, web, AdminConsoleApp, _AdminConsoleAppState, _app, build (+10 more)
+Cohesion: 0.18
+Nodes (10): firebase_options.dart, _app, build, createState, initializeApp, initState, main, package:cloud_firestore/cloud_firestore.dart (+2 more)
 
 ### Community 13 - "StatelessWidget"
-Cohesion: 0.10
-Nodes (20): OfferDetailScreen, OrderStatusStepper, _StatusActions, OrderFilterBar, AppCard, AudienceBadge, Avatar, BackLink (+12 more)
+Cohesion: 0.09
+Nodes (22): OfferDetailScreen, OrderStatusStepper, _StatusActions, OrderFilterBar, AppCard, AudienceBadge, Avatar, BackLink (+14 more)
 
 ### Community 14 - "settings_screen.dart"
-Cohesion: 0.11
-Nodes (19): amount, app, build, buildNumber, converted, createState, didUpdateWidget, downloadUrl (+11 more)
+Cohesion: 0.05
+Nodes (66): ChangeNotifier, LoginScreen, _LoginScreenState, AdminConsoleApp, _AdminConsoleAppState, AdminRouterProvider, _AdminRouterProviderState, CarpenterDetailScreen (+58 more)
 
 ### Community 15 - "carpenters_screens.dart"
 Cohesion: 0.06
-Nodes (35): IconData, Carpenter, build, carpenter, CarpentersScreen, _CarpentersScreenState, _CarpenterTile, createState (+27 more)
+Nodes (32): Carpenter, build, carpenter, _CarpenterTile, createState, dispose, onTap, orderCount (+24 more)
 
 ### Community 16 - "carpenter_detail_screen.dart"
 Cohesion: 0.11
-Nodes (18): CarpenterDetailScreen, _CarpenterDetailScreenState, carpenterId, createState, icon, label, _leadsTab, _MiniStat (+10 more)
+Nodes (17): IconData, carpenterId, createState, icon, label, _leadsTab, _MiniStat, _ordersTab (+9 more)
 
 ### Community 17 - "cloudinary_service.dart"
-Cohesion: 0.11
-Nodes (17): dart:convert, dart:typed_data, CloudinaryService, cloudName, _compressImage, _imageExtensions, instance, _jpegQuality (+9 more)
+Cohesion: 0.08
+Nodes (24): dart:convert, dart:typed_data, CloudinaryService, cloudName, _compressImage, _imageExtensions, instance, _jpegQuality (+16 more)
 
 ### Community 19 - "leads_screen.dart"
-Cohesion: 0.15
-Nodes (13): AdminLead, app, build, createState, lead, _LeadCard, LeadsScreen, _LeadsScreenState (+5 more)
+Cohesion: 0.17
+Nodes (11): AdminLead, app, build, createState, lead, _LeadCard, leadStatuses, leadTerminalStatuses (+3 more)
 
 ### Community 21 - "redemptions_screen.dart"
 Cohesion: 0.18
-Nodes (11): Redemption, app, createState, _page, _perPage, redemption, _RedemptionCard, RedemptionsScreen (+3 more)
+Nodes (11): Redemption, app, build, createState, _page, _perPage, redemption, _RedemptionCard (+3 more)
 
 ### Community 22 - "locations_screen.dart"
 Cohesion: 0.20
-Nodes (10): createState, _defaultCenter, LocationsScreen, _LocationsScreenState, mapController, selected, _int, package:flutter_map/flutter_map.dart (+2 more)
-
-### Community 23 - "notifications_screen.dart"
-Cohesion: 0.18
-Nodes (11): body, build, createState, NotificationsScreen, _NotificationsScreenState, _page, _perPage, sending (+3 more)
+Nodes (9): build, createState, _defaultCenter, mapController, selected, _int, models.dart, package:flutter_map/flutter_map.dart (+1 more)
 
 ### Community 24 - "AdminState"
-Cohesion: 0.20
-Nodes (12): ChangeNotifier, build, build, build, build, initState, _send, build (+4 more)
+Cohesion: 0.29
+Nodes (6): currentPlatform, DefaultFirebaseOptions, web, package:firebase_core/firebase_core.dart, static const FirebaseOptions, static FirebaseOptions get
 
 ### Community 25 - "manifest.json"
 Cohesion: 0.18
 Nodes (10): background_color, description, display, icons, name, orientation, prefer_related_applications, short_name (+2 more)
 
 ### Community 26 - "package:provider/provider.dart"
-Cohesion: 0.25
-Nodes (8): build, createState, email, LoginScreen, _LoginScreenState, password, package:provider/provider.dart, state.dart
+Cohesion: 0.29
+Nodes (6): build, createState, email, password, state.dart, widgets.dart
 
 ### Community 27 - "package:flutter/material.dart"
 Cohesion: 0.40
 Nodes (4): package:admin_console/main.dart, package:flutter/material.dart, package:flutter_test/flutter_test.dart, main
 
-### Community 31 - "State"
-Cohesion: 0.20
-Nodes (14): _CarpenterPicker, _CarpenterPickerState, _NewOfferDialog, _NewOfferDialogState, OffersScreen, _OffersScreenState, _AppVersionForm, _AppVersionFormState (+6 more)
-
 ## Knowledge Gaps
-- **570 isolated node(s):** `CloudinaryService`, `_imageExtensions`, `_pdfExtensions`, `_maxDimension`, `_jpegQuality` (+565 more)
+- **576 isolated node(s):** `CloudinaryService`, `_imageExtensions`, `_pdfExtensions`, `_maxDimension`, `_jpegQuality` (+571 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AdminState` connect `AdminState` to `state.dart`, `offers_screens.dart`, `order_detail_screen.dart`, `orders_screens.dart`, `party_orders_screen.dart`, `creator_home_screen.dart`, `router.dart`, `dashboard_screen.dart`, `gifts_screens.dart`, `main.dart`, `StatelessWidget`, `settings_screen.dart`, `carpenters_screens.dart`, `carpenter_detail_screen.dart`, `leads_screen.dart`, `redemptions_screen.dart`, `locations_screen.dart`, `notifications_screen.dart`, `package:provider/provider.dart`, `State`, `build`?**
-  _High betweenness centrality (0.173) - this node is a cross-community bridge._
+- **Why does `AdminState` connect `settings_screen.dart` to `state.dart`, `offers_screens.dart`, `order_detail_screen.dart`, `orders_screens.dart`, `party_orders_screen.dart`, `creator_home_screen.dart`, `router.dart`, `dashboard_screen.dart`, `gifts_screens.dart`, `main.dart`, `StatelessWidget`, `carpenters_screens.dart`, `carpenter_detail_screen.dart`, `leads_screen.dart`, `redemptions_screen.dart`, `locations_screen.dart`, `package:provider/provider.dart`?**
+  _High betweenness centrality (0.181) - this node is a cross-community bridge._
 - **Why does `AdminFirebaseService` connect `firebase_service.dart` to `state.dart`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+  _High betweenness centrality (0.035) - this node is a cross-community bridge._
 - **Why does `AdminOrder` connect `orders_screens.dart` to `models.dart`, `order_detail_screen.dart`?**
   _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **What connects `CloudinaryService`, `_imageExtensions`, `_pdfExtensions` to the rest of the system?**
-  _570 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _576 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `widgets.dart` be split into smaller, more focused modules?**
   _Cohesion score 0.020833333333333332 - nodes in this community are weakly interconnected._
 - **Should `state.dart` be split into smaller, more focused modules?**
   _Cohesion score 0.020618556701030927 - nodes in this community are weakly interconnected._
 - **Should `models.dart` be split into smaller, more focused modules?**
-  _Cohesion score 0.027777777777777776 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.02702702702702703 - nodes in this community are weakly interconnected._

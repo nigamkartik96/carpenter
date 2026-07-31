@@ -365,6 +365,9 @@ class AdminState extends ChangeNotifier {
               carpenterId: d['carpenterId'] ?? '',
               carpenterName: _carpenterName(d['carpenterId']),
               amount: _int(d['amount']),
+              points: _int(d['points']),
+              partyName: '${d['partyName'] ?? ''}',
+              partyPhone: '${d['partyPhone'] ?? ''}',
               status: d['status'] ?? 'Submitted',
               products: [d['detail'] ?? ''],
               orderNumber: d['orderNumber'],
@@ -531,16 +534,23 @@ class AdminState extends ChangeNotifier {
 
   Future<void> setOrderAmount(AdminOrder o, int amount) => _fb.setOrderAmount(o.id, amount);
 
-  Future<void> setOrderItems(AdminOrder o, List<OrderItem> items) {
-    final amount = items.fold<int>(0, (total, i) => total + i.total);
-    return _fb.setOrderItems(
+  /// Points here are the hand-entered figure, not `pointRuleAmount` /
+  /// `pointRulePoints` applied to the amount -- see [AdminOrder.points].
+  Future<void> setOrderDetails(
+    AdminOrder o, {
+    required int amount,
+    required int points,
+    required String partyName,
+    required String partyPhone,
+  }) {
+    return _fb.setOrderDetails(
       o.id,
-      items.map((i) => i.toMap()).toList(),
-      amount,
+      amount: amount,
+      points: points,
+      partyName: partyName,
+      partyPhone: partyPhone,
       carpenterId: o.carpenterId,
       status: o.status,
-      pointRuleAmount: pointRuleAmount,
-      pointRulePoints: pointRulePoints,
     );
   }
 
@@ -551,9 +561,7 @@ class AdminState extends ChangeNotifier {
       orderId: o.id,
       carpenterId: o.carpenterId,
       status: status,
-      pointRuleAmount: pointRuleAmount,
-      pointRulePoints: pointRulePoints,
-      orderAmount: o.amount,
+      orderPoints: o.points,
     );
   }
 

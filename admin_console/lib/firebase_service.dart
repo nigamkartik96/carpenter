@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'push_service.dart';
+
 /// Admin-side Firestore/Auth wrapper. Reads and writes the same
 /// collections the carpenter app uses (carpenters, orders, offers,
 /// gifts, giftRedemptions, leads, notifications, pointsLedger) so both
@@ -197,29 +199,32 @@ class AdminFirebaseService {
   Future<void> setOrderAmount(String orderId, int amount) =>
       db.collection('orders').doc(orderId).update({'amount': amount});
 
-  /// Saves the admin-entered line items and recomputes amount as their
-  /// sum. If the order is already Fulfilled, this also re-runs the
-  /// points recalculation against the new amount -- previously, editing
-  /// the price after marking an order Fulfilled didn't touch the
-  /// carpenter's points at all, since crediting only ever fired on the
-  /// status *transition*, not on amount changes.
-  Future<void> setOrderItems(
-    String orderId,
-    List<Map<String, dynamic>> items,
-    int amount, {
+  /// Saves the admin-entered order details (amount, hand-calculated
+  /// points, and the party the goods came from). If the order is already
+  /// Fulfilled, this also re-runs the points recalculation against the
+  /// new points figure -- previously, editing the price after marking an
+  /// order Fulfilled didn't touch the carpenter's points at all, since
+  /// crediting only ever fired on the status *transition*.
+  Future<void> setOrderDetails(
+    String orderId, {
+    required int amount,
+    required int points,
+    required String partyName,
+    required String partyPhone,
     required String carpenterId,
     required String status,
-    required int pointRuleAmount,
-    required int pointRulePoints,
   }) async {
-    await db.collection('orders').doc(orderId).update({'items': items, 'amount': amount});
+    await db.collection('orders').doc(orderId).update({
+      'amount': amount,
+      'points': points,
+      'partyName': partyName,
+      'partyPhone': partyPhone,
+    });
     await _recalculatePoints(
       orderId: orderId,
       carpenterId: carpenterId,
       status: status,
-      amount: amount,
-      pointRuleAmount: pointRuleAmount,
-      pointRulePoints: pointRulePoints,
+      points: points,
     );
   }
 
@@ -230,18 +235,14 @@ class AdminFirebaseService {
     required String orderId,
     required String carpenterId,
     required String status,
-    required int pointRuleAmount,
-    required int pointRulePoints,
-    required int orderAmount,
+    required int orderPoints,
   }) async {
     await db.collection('orders').doc(orderId).update({'status': status});
     await _recalculatePoints(
       orderId: orderId,
       carpenterId: carpenterId,
       status: status,
-      amount: orderAmount,
-      pointRuleAmount: pointRuleAmount,
-      pointRulePoints: pointRulePoints,
+      points: orderPoints,
     );
   }
 
@@ -255,7 +256,7 @@ class AdminFirebaseService {
     required String carpenterId,
     required String orderNumber,
     required String text,
-  }) {
+  }) async {
     final batch = db.batch();
     batch.set(db.collection('orders').doc(orderId).collection('comments').doc(), {
       'text': text,
@@ -272,25 +273,38 @@ class AdminFirebaseService {
       'read': false,
       'createdAt': FieldValue.serverTimestamp(),
     });
-    return batch.commit();
+    await batch.commit();
+    await AdminPushService.instance.notify(
+      carpenterIds: [carpenterId],
+      title: 'New comment on your order',
+      body: 'Admin commented on order $orderNumber',
+      type: 'order',
+      refId: orderId,
+    );
   }
 
   /// Single source of truth for order points. Tracks how many points an
   /// order has already credited (`creditedPoints` on the order doc) and
   /// applies only the *difference* between that and what the order
-  /// should be worth right now -- so it's correct no matter the order
-  /// price changes before or after marking Fulfilled, or status moves
-  /// back out of Fulfilled (which reverses the credit).
+  /// should be worth right now -- so it's correct no matter whether the
+  /// points figure changes before or after marking Fulfilled, or status
+  /// moves back out of Fulfilled (which reverses the credit).
+  ///
+  /// [points] is the figure the admin typed on the order detail screen.
+  /// Regular orders deliberately ignore the amount -> points config rule
+  /// (that rule still governs party orders); for the MVP the points are
+  /// calculated by hand and entered directly.
   Future<void> _recalculatePoints({
     required String orderId,
     required String carpenterId,
     required String status,
-    required int amount,
-    required int pointRuleAmount,
-    required int pointRulePoints,
+    required int points,
   }) async {
     final orderRef = db.collection('orders').doc(orderId);
+    var pushDelta = 0;
     await db.runTransaction((tx) async {
+      // Reset per attempt -- a retried transaction re-runs this whole body.
+      pushDelta = 0;
       final snap = await tx.get(orderRef);
       final creditedRaw = snap.data()?['creditedPoints'];
       final credited = creditedRaw is int ? creditedRaw : int.tryParse('$creditedRaw') ?? 0;
@@ -299,7 +313,7 @@ class AdminFirebaseService {
       // 'Fulfilled' counted, so moving an order on to Delivered zeroed
       // the target and silently clawed back the carpenter's points.
       final credits = status == 'Fulfilled' || status == 'Delivered';
-      final target = (credits && pointRuleAmount > 0) ? (amount ~/ pointRuleAmount) * pointRulePoints : 0;
+      final target = credits ? points : 0;
       final delta = target - credited;
       if (delta == 0) return;
 
@@ -323,8 +337,20 @@ class AdminFirebaseService {
           'read': false,
           'createdAt': FieldValue.serverTimestamp(),
         });
+        pushDelta = delta;
       }
     });
+    // Outside the transaction: it can be retried by Firestore, and a
+    // retried push would notify the carpenter twice for one credit.
+    if (pushDelta > 0) {
+      await AdminPushService.instance.notify(
+        carpenterIds: [carpenterId],
+        title: 'Points credited',
+        body: '+$pushDelta points for your order',
+        type: 'order',
+        refId: orderId,
+      );
+    }
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchOffers() =>
@@ -369,6 +395,13 @@ class AdminFirebaseService {
       });
     }
     await batch.commit();
+    await AdminPushService.instance.notify(
+      carpenterIds: recipientIds,
+      title: 'New offer',
+      body: '$title is now live!',
+      type: 'offer',
+      refId: offerRef.id,
+    );
   }
 
   /// Soft delete: marks the offer Withdrawn instead of removing the doc,
@@ -412,6 +445,11 @@ class AdminFirebaseService {
       'createdAt': FieldValue.serverTimestamp(),
     });
     await batch.commit();
+    await AdminPushService.instance.notify(
+      carpenterIds: [carpenterId],
+      title: 'Redemption update',
+      body: 'Your redemption status is now $status',
+    );
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchLeads() =>
@@ -490,6 +528,11 @@ class AdminFirebaseService {
       'createdAt': FieldValue.serverTimestamp(),
     });
     await batch.commit();
+    await AdminPushService.instance.notify(
+      carpenterIds: carpenters.docs.map((c) => c.id).toList(),
+      title: title,
+      body: body,
+    );
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchBroadcasts() =>

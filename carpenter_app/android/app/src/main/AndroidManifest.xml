@@ -10,6 +10,10 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <!-- Android 13+ won't show any notification, push or local, without
+         this permission being declared AND granted at runtime (asked for
+         in services/push_service.dart). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:label="CarpenterHub"
         android:name="${applicationName}"
@@ -41,6 +45,13 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Channel the Firebase SDK posts to when a message arrives with
+             the app closed. Must match _channelId in push_service.dart,
+             which creates the channel; without this, those notifications
+             land on a silent low-importance fallback channel. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="carpenterhub_default" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

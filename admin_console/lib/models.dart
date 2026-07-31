@@ -71,6 +71,9 @@ class AdminOrder {
     required this.carpenterId,
     required this.carpenterName,
     required this.amount,
+    this.points = 0,
+    this.partyName = '',
+    this.partyPhone = '',
     this.status = 'Pending',
     this.products = const [],
     this.items = const [],
@@ -87,9 +90,17 @@ class AdminOrder {
   final String carpenterId;
   final String carpenterName;
   final int amount;
+  // Points the admin typed in by hand on the order detail screen. During
+  // the MVP these are worked out off-system, so the amount -> points
+  // conversion rule deliberately does not apply to regular orders.
+  final int points;
+  final String partyName;
+  final String partyPhone;
   String status; // Submitted, Processing, Fulfilled, Delivered
   final String orderNumber; // human-readable, e.g. OD-0001
   final List<String> products;
+  // What the carpenter asked for in the app -- read-only here; the admin
+  // no longer edits or prices these line by line.
   final List<OrderItem> items;
   final String? invoiceUrl;
   final String detail;
