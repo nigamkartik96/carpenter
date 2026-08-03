@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../models.dart';
-import '../router.dart';
 import '../state.dart';
 import '../widgets.dart';
 import 'orders_screens.dart';
@@ -65,26 +64,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [for (final c in cards) SizedBox(width: cardWidth, child: c)],
           );
         }),
-        const SizedBox(height: 24),
-        const SubHeading('Quick links'),
-        const SizedBox(height: 10),
-        LayoutBuilder(builder: (context, constraints) {
-          final perRow = (constraints.maxWidth / 130).floor().clamp(3, 9);
-          const spacing = 10.0;
-          final tileWidth = (constraints.maxWidth - spacing * (perRow - 1)) / perRow;
-          return Wrap(
-            spacing: spacing,
-            runSpacing: spacing,
-            children: [
-              for (var i = 1; i < adminSections.length; i++)
-                SizedBox(
-                  width: tileWidth,
-                  child: LinkTile(label: adminSections[i].$2, icon: adminSections[i].$3, onTap: () => context.go(adminSections[i].$1)),
-                ),
-            ],
-          );
-        }),
-        const SizedBox(height: 24),
+        // A "Quick links" grid used to sit here, repeating every sidebar
+        // destination as a tile. It pushed the order queue -- the reason an
+        // admin opens this page -- below the fold to duplicate navigation
+        // that is already permanently on screen to the left.
+        const SizedBox(height: spaceXl),
         Container(
           decoration: BoxDecoration(
             color: kBgSurface,
@@ -100,7 +84,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Expanded(child: SubHeading(_showParty ? 'Recent party orders' : 'Recent orders')),
                     TextButton(
                       onPressed: () => context.go(_showParty ? '/party-orders' : '/orders'),
-                      child: const Text('View all →', style: TextStyle(fontSize: 12)),
+                      child: const Text('View all →'),
                     ),
                   ],
                 ),
@@ -201,9 +185,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 15, color: active ? kAccentPrimary : kTextMuted),
-              const SizedBox(width: 6),
-              Text(label, style: TextStyle(fontSize: 12, fontWeight: active ? FontWeight.w600 : FontWeight.w400, color: active ? kTextPrimary : kTextMuted)),
+              Icon(icon, size: 15, color: active ? kAccentPrimary : kTextSecondary),
+              const SizedBox(width: spaceSm),
+              // Inactive is secondary, not muted -- an unselected tab is
+              // still a control you can press, and muted read as disabled.
+              Text(label, style: kTypeMeta.copyWith(fontWeight: active ? FontWeight.w600 : FontWeight.w400, color: active ? kTextPrimary : kTextSecondary)),
             ],
           ),
         ),
@@ -227,16 +213,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    Text(o.carpenterName, style: kTypeBody.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 2),
-                    Text(o.orderNumber, style: const TextStyle(color: kTextMuted, fontSize: 11)),
+                    Text(o.orderNumber, style: kTypeFigure.copyWith(fontSize: 12, color: kTextSecondary)),
                   ],
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  orderAmountText(o, fontSize: 13),
+                  orderAmountText(o, fontSize: 14),
                   const SizedBox(height: 2),
                   StatusBadge(o.status),
                 ],
@@ -259,22 +245,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               width: 36,
               height: 36,
-              decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(8)),
-              child: const Icon(Icons.receipt_long_outlined, size: 16, color: Color(0xFF92400E)),
+              decoration: BoxDecoration(color: kTintAttention, borderRadius: BorderRadius.circular(8)),
+              child: const Icon(Icons.receipt_long_outlined, size: 16, color: kInkAttention),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  Text(o.carpenterName, style: kTypeBody.copyWith(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 2),
-                  Text('Party: ${o.party}', style: const TextStyle(color: kTextMuted, fontSize: 11)),
+                  Text('Party: ${o.party}', style: kTypeMeta),
                   if (!isPending) ...[
                     const SizedBox(height: 4),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(3),
-                      child: LinearProgressIndicator(value: progress.clamp(0.0, 1.0), minHeight: 4, backgroundColor: kBorderSubtle, color: progress >= 1.0 ? const Color(0xFF16A34A) : kAccentPrimary),
+                      child: LinearProgressIndicator(value: progress.clamp(0.0, 1.0), minHeight: 4, backgroundColor: kBorderSubtle, color: progress >= 1.0 ? kStatusSuccess : kAccentPrimary),
                     ),
                   ],
                 ],
@@ -284,12 +270,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text('₹${o.amount}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                Text('₹${o.amount}', style: kTypeFigure.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 2),
                 PartyStatusChip(status: o.status),
                 if (!isPending) ...[
                   const SizedBox(height: 2),
-                  Text('+${o.pointsAwarded} pts', style: const TextStyle(color: Color(0xFF16A34A), fontSize: 11, fontWeight: FontWeight.w500)),
+                  Text('+${o.pointsAwarded} pts', style: kTypeFigure.copyWith(fontSize: 12, color: kInkSuccess)),
                 ],
               ],
             ),
@@ -353,34 +339,32 @@ class _PartyFilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget chip(String label, String value, String current, ValueChanged<String> onSelect) => FilterChip(
-          label: Text(label, style: const TextStyle(fontSize: 12)),
-          selected: current == value,
-          onSelected: (_) => onSelect(value),
-          visualDensity: VisualDensity.compact,
-        );
-
+    // Mirrors OrderFilterBar: status as chips, everything single-choice as
+    // a select.
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+      spacing: spaceSm,
+      runSpacing: spaceSm,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        chip('All dates', 'all', dateFilter, onDateFilter),
-        chip('Past day', 'today', dateFilter, onDateFilter),
-        chip('Past week', 'week', dateFilter, onDateFilter),
-        const SizedBox(width: 4),
-        for (final (value, label) in _statuses) chip(label, value, statusFilter, onStatusFilter),
-        const SizedBox(width: 8),
-        DropdownButton<String>(
+        for (final (value, label) in _statuses)
+          StatusFilterChip(label: label, selected: statusFilter == value, onTap: () => onStatusFilter(value)),
+        const SizedBox(width: spaceXs),
+        FilterSelect<String>(
+          value: dateFilter,
+          icon: Icons.calendar_today_outlined,
+          options: const [('all', 'All dates'), ('today', 'Past day'), ('week', 'Past week')],
+          onChanged: onDateFilter,
+        ),
+        FilterSelect<String>(
           value: sortBy,
-          underline: const SizedBox(),
-          items: const [
-            DropdownMenuItem(value: 'newest', child: Text('Newest first', style: TextStyle(fontSize: 13))),
-            DropdownMenuItem(value: 'oldest', child: Text('Oldest first', style: TextStyle(fontSize: 13))),
-            DropdownMenuItem(value: 'amountHigh', child: Text('Amount: high to low', style: TextStyle(fontSize: 13))),
-            DropdownMenuItem(value: 'amountLow', child: Text('Amount: low to high', style: TextStyle(fontSize: 13))),
+          icon: Icons.swap_vert,
+          options: const [
+            ('newest', 'Newest first'),
+            ('oldest', 'Oldest first'),
+            ('amountHigh', 'Amount: high to low'),
+            ('amountLow', 'Amount: low to high'),
           ],
-          onChanged: (v) => onSortBy(v ?? 'newest'),
+          onChanged: onSortBy,
         ),
       ],
     );

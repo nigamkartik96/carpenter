@@ -117,7 +117,7 @@ class OfferDetailScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text('${o.category} · Valid till ${o.validTill}', style: const TextStyle(color: kMuted, fontSize: 13)),
+          Text('${o.category} · Valid till ${o.validTill}', style: kTypeBody.copyWith(color: kTextSecondary)),
           if (o.description.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text(o.description, style: const TextStyle(fontSize: 14, height: 1.4)),
@@ -127,7 +127,7 @@ class OfferDetailScreen extends StatelessWidget {
             o.targetCarpenterIds == null || o.targetCarpenterIds!.isEmpty
                 ? 'Sent to: all approved carpenters'
                 : 'Sent to: ${o.targetCarpenterIds!.length} selected carpenter(s)',
-            style: const TextStyle(color: kMuted, fontSize: 13),
+            style: kTypeBody.copyWith(color: kTextSecondary),
           ),
           if (o.pdfUrl != null) ...[
             const SizedBox(height: 16),
@@ -328,7 +328,7 @@ class _NewOfferDialogState extends State<_NewOfferDialog> {
                   controlAffinity: ListTileControlAffinity.leading,
                   dense: true,
                   value: allCarpenters,
-                  title: const Text('All approved carpenters', style: TextStyle(fontSize: 13)),
+                  title: const Text('All approved carpenters', style: kTypeBody),
                   onChanged: (v) => setState(() => allCarpenters = v ?? true),
                 ),
                 if (!allCarpenters)
@@ -437,9 +437,9 @@ class _CarpenterPickerState extends State<_CarpenterPicker> {
                 value: s.activityFilter,
                 underline: const SizedBox(),
                 items: const [
-                  DropdownMenuItem(value: 'none', child: Text('No activity filter', style: TextStyle(fontSize: 13))),
-                  DropdownMenuItem(value: 'ordered', child: Text('Ordered since...', style: TextStyle(fontSize: 13))),
-                  DropdownMenuItem(value: 'notOrdered', child: Text('Not ordered since...', style: TextStyle(fontSize: 13))),
+                  DropdownMenuItem(value: 'none', child: Text('No activity filter', style: kTypeBody)),
+                  DropdownMenuItem(value: 'ordered', child: Text('Ordered since...', style: kTypeBody)),
+                  DropdownMenuItem(value: 'notOrdered', child: Text('Not ordered since...', style: kTypeBody)),
                 ],
                 onChanged: (v) => setState(() => s.activityFilter = v ?? 'none'),
               ),
@@ -452,14 +452,14 @@ class _CarpenterPickerState extends State<_CarpenterPicker> {
                   icon: const Icon(Icons.calendar_today_outlined, size: 14),
                   label: Text(s.activitySince == null ? 'Pick date' : fmtDate(s.activitySince!), style: const TextStyle(fontSize: 12)),
                 ),
-              const Text('Sort by', style: TextStyle(fontSize: 13, color: kMuted)),
+              Text('Sort by', style: kTypeBody.copyWith(color: kTextSecondary)),
               DropdownButton<String>(
                 value: s.sortBy,
                 underline: const SizedBox(),
                 items: const [
-                  DropdownMenuItem(value: 'name', child: Text('Name', style: TextStyle(fontSize: 13))),
-                  DropdownMenuItem(value: 'lastOrder', child: Text('Last order date', style: TextStyle(fontSize: 13))),
-                  DropdownMenuItem(value: 'totalAmount', child: Text('Total order amount', style: TextStyle(fontSize: 13))),
+                  DropdownMenuItem(value: 'name', child: Text('Name', style: kTypeBody)),
+                  DropdownMenuItem(value: 'lastOrder', child: Text('Last order date', style: kTypeBody)),
+                  DropdownMenuItem(value: 'totalAmount', child: Text('Total order amount', style: kTypeBody)),
                 ],
                 onChanged: (v) => setState(() => s.sortBy = v ?? 'name'),
               ),
@@ -473,7 +473,7 @@ class _CarpenterPickerState extends State<_CarpenterPicker> {
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 220),
             child: list.isEmpty
-                ? const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Text('No carpenters match this filter', style: TextStyle(color: kMuted, fontSize: 13)))
+                ? Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Text('No carpenters match this filter', style: kTypeBody.copyWith(color: kTextSecondary)))
                 : ListView(
                     shrinkWrap: true,
                     children: list.map((c) {
@@ -490,7 +490,7 @@ class _CarpenterPickerState extends State<_CarpenterPicker> {
                             s.selectedIds.remove(c.id);
                           }
                         }),
-                        title: Text(c.name, style: const TextStyle(fontSize: 13)),
+                        title: Text(c.name, style: kTypeBody),
                         subtitle: Text(
                           'Last order: ${last != null ? fmtDate(last) : '-'} · Total: ₹$total',
                           style: const TextStyle(fontSize: 11, color: kMuted),

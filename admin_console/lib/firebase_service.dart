@@ -124,10 +124,16 @@ class AdminFirebaseService {
     });
   }
 
-  /// The reward amount and reward % are the creator's, fixed at create time --
-  /// approval only settles how much is actually collectable.
-  Future<void> approvePartyOrder(String id, int approvedAmount) =>
-      db.collection('partyOrders').doc(id).update({'status': 'approved', 'approvedAmount': approvedAmount});
+  /// Approval settles how much is collectable and is also the admin's last
+  /// chance to correct the reward terms the creator entered -- once approved,
+  /// the rules freeze them for the payment stage.
+  Future<void> approvePartyOrder(String id, int approvedAmount, {required int rewardAmount, required int rewardPercent}) =>
+      db.collection('partyOrders').doc(id).update({
+        'status': 'approved',
+        'approvedAmount': approvedAmount,
+        'rewardAmount': rewardAmount,
+        'rewardPercent': rewardPercent,
+      });
 
   Future<void> completePartyOrder(String id) =>
       db.collection('partyOrders').doc(id).update({'status': 'completed'});

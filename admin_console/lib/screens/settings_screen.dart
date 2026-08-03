@@ -130,7 +130,7 @@ class _LeadPointsRuleFormState extends State<_LeadPointsRuleForm> {
         spacing: 10,
         runSpacing: 10,
         children: [
-          const Text('Award on:', style: TextStyle(fontSize: 13)),
+          const Text('Award on:', style: kTypeBody),
           SizedBox(
             width: 140,
             child: TextField(

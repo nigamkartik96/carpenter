@@ -147,7 +147,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           Text('${order.type} order', style: const TextStyle(color: kMuted, fontSize: 12)),
           if (order.detail.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(order.detail, style: const TextStyle(fontSize: 13)),
+            Text(order.detail, style: kTypeBody),
           ],
           // Photo orders show the image here; voice/manual orders simply
           // have nothing in its place -- no empty placeholder gap.
@@ -164,7 +164,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               children: [
                 const Icon(Icons.mic_none, size: 18, color: kPrimary),
                 const SizedBox(width: 8),
-                const Expanded(child: Text('Voice note', style: TextStyle(fontSize: 13))),
+                const Expanded(child: Text('Voice note', style: kTypeBody)),
                 OutlinedButton.icon(
                   onPressed: () => launchUrl(Uri.parse(order.audioUrl!), mode: LaunchMode.externalApplication),
                   icon: const Icon(Icons.play_arrow, size: 16),
@@ -296,14 +296,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   if (order.invoiceUrl != null) ...[
                     const Icon(Icons.file_present_outlined, color: kPrimary),
                     const SizedBox(width: 8),
-                    const Expanded(child: Text('Invoice uploaded', style: TextStyle(fontSize: 13))),
+                    const Expanded(child: Text('Invoice uploaded', style: kTypeBody)),
                     TextButton(
                       onPressed: () => launchUrl(Uri.parse(order.invoiceUrl!), mode: LaunchMode.externalApplication),
                       child: const Text('View'),
                     ),
                     const SizedBox(width: 8),
                   ] else
-                    const Expanded(child: Text('No invoice uploaded yet', style: TextStyle(color: kMuted, fontSize: 13))),
+                    Expanded(child: Text('No invoice uploaded yet', style: kTypeBody.copyWith(color: kTextSecondary))),
                   OutlinedButton.icon(
                     onPressed: uploadingInvoice ? null : () => _uploadInvoice(app, order),
                     icon: uploadingInvoice
@@ -608,7 +608,7 @@ class _StatusActions extends StatelessWidget {
         children: [
           Icon(Icons.lock_outline, size: 16, color: kTextMuted),
           SizedBox(width: 8),
-          Expanded(child: Text('This order has been delivered and is now closed.', style: TextStyle(color: kTextMuted, fontSize: 13))),
+          Expanded(child: Text('This order has been delivered and is now closed.', style: kTypeMeta)),
         ],
       );
     }
@@ -710,7 +710,7 @@ class _CommentsCardState extends State<_CommentsCard> {
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: mine ? kAccentPrimaryDark : kTextSecondary),
             ),
             const SizedBox(height: 2),
-            Text(c.text, style: const TextStyle(fontSize: 13)),
+            Text(c.text, style: kTypeBody),
             const SizedBox(height: 2),
             Text(_fmtWhen(c.createdAt), style: const TextStyle(fontSize: 10, color: kTextMuted)),
           ],
@@ -752,9 +752,9 @@ class _CommentsCardState extends State<_CommentsCard> {
                     );
                   }
                   if (comments.isEmpty) {
-                    return const Padding(
+                    return Padding(
                       padding: EdgeInsets.only(bottom: 8),
-                      child: Text('No comments yet. Start the conversation below.', style: TextStyle(color: kMuted, fontSize: 13)),
+                      child: Text('No comments yet. Start the conversation below.', style: kTypeBody.copyWith(color: kTextSecondary)),
                     );
                   }
                   return Column(children: comments.map(_bubble).toList());

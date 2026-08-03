@@ -33,19 +33,35 @@ const kBorderSubtle = Color(0xFFDFE4E2);
 const kAccentPrimary = Color(0xFF0F4C51);
 const kAccentPrimaryDark = Color(0xFF0A383C);
 
-// Status-system colors (solid, used with white text for guaranteed AA
-// contrast -- see StatusBadge below). Each is a standard "600"-weight shade
-// from a widely-used design scale, chosen specifically because that weight
-// is already tuned to clear AA contrast against white text.
-const kStatusNeutral = Color(0xFF6B7280); // Submitted/New/Pending: muted gray, not yellow
-const kStatusInfo = Color(0xFF2563EB); // In progress
-const kStatusAttention = Color(0xFFD97706); // Needs action
-const kStatusSuccess = Color(0xFF16A34A); // Complete
-const kStatusClosed = Color(0xFFB91C1C); // Rejected/withdrawn/closed -- muted red, distinct from a live error state
+// Status fills, used with white text. Every value here is measured at >=4.5:1
+// against white, so a solid pill is AA at any size.
+//
+// The previous green (#16A34A) and amber (#D97706) were "600"-weight shades
+// assumed to be safe, but measured only 3.30:1 and 3.19:1 with white text --
+// both failing AA despite the comment here claiming otherwise. They are now
+// one step darker.
+const kStatusNeutral = Color(0xFF5B6866); // Submitted/New/Pending -- rendered as a light pill, see StatusBadge
+const kStatusInfo = Color(0xFF2563EB); // In progress -- 5.17:1
+const kStatusAttention = Color(0xFFB45309); // Needs action -- 5.02:1
+const kStatusSuccess = Color(0xFF15803D); // Complete -- 5.02:1
+const kStatusClosed = Color(0xFFB91C1C); // Rejected/withdrawn/closed -- 6.47:1
 
 // Audience tags (Gold/Silver/All on Notifications) use a distinct palette
 // from status, so the two kinds of pill are never visually confusable.
-const kAudienceColor = Color(0xFF7C3AED);
+const kAudienceColor = Color(0xFF6D28D9); // 7.10:1
+
+// ---- Tints -------------------------------------------------------------
+// Pale category backgrounds with a matching ink dark enough to read on them
+// (each pair measured >=6.7:1). Screens were mixing seven ad-hoc pastels for
+// this; these are the only ones.
+const kTintSuccess = Color(0xFFE8F5EC);
+const kTintAttention = Color(0xFFFDF3E3);
+const kTintAudience = Color(0xFFF1EAFA);
+const kTintAccent = Color(0xFFE7EEEE);
+
+const kInkSuccess = Color(0xFF14532D);
+const kInkAttention = Color(0xFF7C4A03);
+const kInkAudience = Color(0xFF5B21B6);
 
 // Backward-compatible aliases -- lots of existing screens reference these
 // short names directly; keep them pointing at the token system above
@@ -468,6 +484,32 @@ class AudienceBadge extends StatelessWidget {
   }
 }
 
+/// Carpenter tier (Bronze/Silver/Gold/Platinum) as a neutral outline pill.
+///
+/// Tiers used to render through [AudienceBadge], which painted all four the
+/// same violet -- so the colour told you nothing the word wasn't already
+/// saying, and it clashed with the audience tags on Notifications that use
+/// that violet to mean something else. In this system colour is reserved
+/// for state that needs attention; a tier is a standing attribute, so it
+/// stays quiet and lets the status pill beside it carry the emphasis.
+class TierBadge extends StatelessWidget {
+  const TierBadge(this.tier, {super.key});
+  final String tier;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: kBgSurface,
+        borderRadius: BorderRadius.circular(kRadiusPill),
+        border: Border.all(color: kBorderSubtle),
+      ),
+      child: Text(tier, style: kTypeMicro),
+    );
+  }
+}
+
 /// Carpenter/admin avatar with a guaranteed fallback: CircleAvatar's plain
 /// `backgroundImage` silently shows a broken-image glyph on a load error
 /// with no way to react to it. This builds the image manually so a failed
@@ -538,8 +580,10 @@ class StatChip extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Uppercase micro label above the figure: the number is
-                    // the content, the label is just its key.
-                    Text(label.toUpperCase(), style: kTypeMicro.copyWith(letterSpacing: 0.6, color: kTextMuted)),
+                    // the content, the label is just its key. Secondary, not
+                    // muted -- muted is 3.06:1, and this label is the only
+                    // thing telling you what the number counts.
+                    Text(label.toUpperCase(), style: kTypeMicro.copyWith(letterSpacing: 0.6)),
                     const SizedBox(height: spaceXs),
                     Text(value, style: kTypeFigureLarge),
                     if (trend != null) ...[
@@ -561,6 +605,91 @@ class StatChip extends StatelessWidget {
 /// (`Kpi(...)`) don't all need renaming.
 class Kpi extends StatChip {
   const Kpi({super.key, required super.label, required super.value, required super.icon, super.onTap});
+}
+
+/// Filter chip in the console's own vocabulary rather than Material's.
+/// Selected reads as a filled accent pill; unselected as a plain outline --
+/// the stock FilterChip's selected state was a faint tint with a checkmark,
+/// which at a row of six was hard to pick out at a glance.
+class StatusFilterChip extends StatelessWidget {
+  const StatusFilterChip({super.key, required this.label, required this.selected, required this.onTap});
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? kAccentPrimary : kBgSurface,
+      borderRadius: BorderRadius.circular(kRadiusPill),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(kRadiusPill),
+        // No `alignment` and no fixed height here: a Container with an
+        // alignment expands to fill the loose constraints a Wrap hands it,
+        // which turned a row of chips into full-width stacked bars.
+        // Padding alone lets each chip hug its label.
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(kRadiusPill),
+            border: Border.all(color: selected ? kAccentPrimary : kBorderSubtle),
+          ),
+          child: Text(label, style: kTypeMeta.copyWith(color: selected ? Colors.white : kTextSecondary, fontWeight: selected ? FontWeight.w600 : FontWeight.w400)),
+        ),
+      ),
+    );
+  }
+}
+
+/// A bordered dropdown for filter bars. Filters that are a single choice
+/// from a list (date range, sort order) belong here rather than as a row of
+/// chips: chips imply multi-select and, at four or five per group, turn the
+/// bar into a wall of pills where nothing reads as the active state.
+/// Chips are kept only for status, where seeing every option at a glance is
+/// the point.
+class FilterSelect<T> extends StatelessWidget {
+  const FilterSelect({super.key, required this.value, required this.options, required this.onChanged, this.icon});
+  final T value;
+  final List<(T, String)> options;
+  final ValueChanged<T> onChanged;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 32,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: kBgSurface,
+        borderRadius: BorderRadius.circular(kRadiusControl),
+        border: Border.all(color: kBorderSubtle),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          value: value,
+          isDense: true,
+          borderRadius: BorderRadius.circular(kRadiusControl),
+          icon: const Icon(Icons.keyboard_arrow_down, size: 16, color: kTextSecondary),
+          style: kTypeMeta.copyWith(color: kTextPrimary),
+          items: [
+            for (final (v, label) in options)
+              DropdownMenuItem(
+                value: v,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (icon != null) ...[Icon(icon, size: 14, color: kTextSecondary), const SizedBox(width: 6)],
+                    Text(label, style: kTypeMeta.copyWith(color: kTextPrimary)),
+                  ],
+                ),
+              ),
+          ],
+          onChanged: (v) => v == null ? null : onChanged(v),
+        ),
+      ),
+    );
+  }
 }
 
 /// Compact icon + label tile for "Quick links"-style navigation grids --

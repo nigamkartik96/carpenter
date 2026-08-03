@@ -683,7 +683,12 @@ class AdminState extends ChangeNotifier {
     return _fb.updatePartyOrder(id, carpenterId: carpenterId, carpenterName: carpenterName, party: party, amount: amount, rewardAmount: rewardAmount, rewardPercent: rewardPercent, fileUrl: fileUrl, fileType: fileType);
   }
 
-  Future<void> approvePartyOrder(PartyOrder o, int approvedAmount) => _fb.approvePartyOrder(o.id, approvedAmount);
+  Future<void> approvePartyOrder(PartyOrder o, int approvedAmount, {int? rewardAmount, int? rewardPercent}) => _fb.approvePartyOrder(
+        o.id,
+        approvedAmount,
+        rewardAmount: rewardAmount ?? o.rewardAmount,
+        rewardPercent: rewardPercent ?? o.rewardPercent,
+      );
 
   /// Points are worked out from the order itself (reward amount and reward %
   /// against the running collected total), so the caller only supplies what

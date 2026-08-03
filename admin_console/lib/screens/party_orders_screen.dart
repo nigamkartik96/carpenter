@@ -68,11 +68,10 @@ class _PartyOrdersScreenState extends State<PartyOrdersScreen> {
             runSpacing: 8,
             children: [
               for (final (value, label) in _statusFilters)
-                FilterChip(
-                  label: Text(label, style: const TextStyle(fontSize: 12)),
+                StatusFilterChip(
+                  label: label,
                   selected: statusFilter == value,
-                  onSelected: (_) => setState(() { statusFilter = value; _page = 0; }),
-                  visualDensity: VisualDensity.compact,
+                  onTap: () => setState(() { statusFilter = value; _page = 0; }),
                 ),
             ],
           ),
@@ -110,18 +109,18 @@ class PartyStatusChip extends StatelessWidget {
     late String label;
     switch (status) {
       case 'completed':
-        bg = const Color(0xFFDCFCE7);
-        fg = const Color(0xFF166534);
+        bg = kTintSuccess;
+        fg = kInkSuccess;
         label = 'Completed';
         break;
       case 'approved':
-        bg = const Color(0xFFFEF3C7);
-        fg = const Color(0xFF92400E);
+        bg = kTintAttention;
+        fg = kInkAttention;
         label = 'Collecting payment';
         break;
       default:
-        bg = const Color(0xFFEEF2FF);
-        fg = const Color(0xFF4338CA);
+        bg = kTintAccent;
+        fg = kAccentPrimary;
         label = 'Pending';
     }
     return Container(
@@ -175,7 +174,7 @@ class _PartyOrderCard extends StatelessWidget {
                         value: isCompleted ? 1.0 : progress.clamp(0.0, 1.0),
                         minHeight: 5,
                         backgroundColor: kBorderSubtle,
-                        color: (isCompleted || progress >= 1.0) ? const Color(0xFF16A34A) : kAccentPrimary,
+                        color: (isCompleted || progress >= 1.0) ? kStatusSuccess : kAccentPrimary,
                       ),
                     ),
                   ],
@@ -210,8 +209,33 @@ class PartyOrderDetailScreen extends StatefulWidget {
 
 class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
   final approveAmt = TextEditingController();
+  final rewardAmt = TextEditingController();
+  final rewardPct = TextEditingController();
   bool busy = false;
+  bool submitted = false;
   bool _approvePrefilled = false;
+
+  @override
+  void dispose() {
+    approveAmt.dispose();
+    rewardAmt.dispose();
+    rewardPct.dispose();
+    super.dispose();
+  }
+
+  int get _amt => int.tryParse(approveAmt.text) ?? 0;
+  int get _reward => int.tryParse(rewardAmt.text) ?? 0;
+  int get _percent => int.tryParse(rewardPct.text) ?? -1;
+
+  /// Reward amount is the slice of the order that earns points, so it can
+  /// never exceed what the admin is approving as collectable.
+  String? get _rewardError {
+    if (_reward <= 0) return 'Enter a reward amount';
+    if (_amt > 0 && _reward > _amt) return 'Cannot be more than the approved amount (₹$_amt)';
+    return null;
+  }
+
+  String? get _percentError => (_percent < 0 || _percent > 100) ? 'Must be between 0 and 100' : null;
 
   @override
   Widget build(BuildContext context) {
@@ -226,6 +250,10 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
     }
     if (!_approvePrefilled) {
       approveAmt.text = (o.approvedAmount > 0 ? o.approvedAmount : o.amount).toString();
+      // Reward terms start at whatever the creator entered; the admin can
+      // overwrite them before approving.
+      rewardAmt.text = (o.rewardAmount > 0 ? o.rewardAmount : o.amount).toString();
+      rewardPct.text = o.rewardPercent.toString();
       _approvePrefilled = true;
     }
 
@@ -310,36 +338,56 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
     );
   }
 
-  /// Approval settles how much is collectable. The reward amount and reward %
-  /// are the creator's -- fixed when the order was logged -- so they show
-  /// here as context, not as fields.
+  /// Approval settles how much is collectable and, with it, the reward terms:
+  /// the creator's reward amount and reward % are only a proposal, so the
+  /// admin can correct both here before the numbers are frozen for payment.
   Widget _approveCard(AdminState app, PartyOrder o) => FormCard(
         title: 'Approve order',
         children: [
           LabeledField(
             label: 'Approved order amount',
-            child: TextField(controller: approveAmt, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(prefixText: '₹ ')),
+            error: submitted && _amt <= 0 ? 'Enter a valid amount' : null,
+            child: TextField(controller: approveAmt, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(prefixText: '₹ ')),
           ),
           const SizedBox(height: spaceMd),
-          _kv('Reward amount', _money(o.rewardAmount)),
-          _kv('Reward %', '${o.rewardPercent}%'),
+          LabeledField(
+            label: 'Reward amount',
+            error: submitted ? _rewardError : null,
+            child: TextField(controller: rewardAmt, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(prefixText: '₹ ')),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text('Creator entered ${_money(o.rewardAmount)}. The part of the order that earns points -- never more than the approved amount.', style: const TextStyle(fontSize: 12, color: kTextSecondary)),
+          ),
+          const SizedBox(height: spaceMd),
+          LabeledField(
+            label: 'Reward %',
+            error: submitted ? _percentError : null,
+            child: TextField(controller: rewardPct, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(suffixText: '%')),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text('Creator entered ${o.rewardPercent}%.', style: const TextStyle(fontSize: 12, color: kTextSecondary)),
+          ),
           Builder(builder: (_) {
-            final amt = int.tryParse(approveAmt.text) ?? o.amount;
-            final reward = o.rewardAmount <= 0 || o.rewardAmount > amt ? amt : o.rewardAmount;
-            final expectedPoints = (reward * o.rewardPercent) ~/ 100;
+            final amt = _amt > 0 ? _amt : o.amount;
+            final reward = _reward <= 0 || _reward > amt ? amt : _reward;
+            final pct = _percent < 0 ? 0 : _percent;
+            final expectedPoints = (reward * pct) ~/ 100;
             return Padding(
-              padding: const EdgeInsets.only(top: 6, bottom: 10),
-              child: Text('Max points if fully paid: +$expectedPoints pts (${o.rewardPercent}% of ${_money(reward)})', style: const TextStyle(fontSize: 12, color: Color(0xFF16A34A), fontWeight: FontWeight.w500)),
+              padding: const EdgeInsets.only(top: 10, bottom: 10),
+              child: Text('Max points if fully paid: +$expectedPoints pts ($pct% of ${_money(reward)})', style: const TextStyle(fontSize: 12, color: kStatusSuccess, fontWeight: FontWeight.w500)),
             );
           }),
           ElevatedButton.icon(
             onPressed: busy
                 ? null
                 : () async {
-                    final amt = int.tryParse(approveAmt.text) ?? o.amount;
+                    setState(() => submitted = true);
+                    if (_amt <= 0 || _rewardError != null || _percentError != null) return;
                     setState(() => busy = true);
                     try {
-                      await app.approvePartyOrder(o, amt);
+                      await app.approvePartyOrder(o, _amt, rewardAmount: _reward, rewardPercent: _percent);
                     } finally {
                       if (mounted) setState(() => busy = false);
                     }
@@ -380,9 +428,9 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 3),
                 child: Row(
                   children: [
-                    Expanded(child: Text('${_money(p.amount)} received', style: const TextStyle(fontSize: 13))),
+                    Expanded(child: Text('${_money(p.amount)} received', style: kTypeBody)),
                     Expanded(flex: 2, child: Text(p.at != null ? fmtDateTime(p.at!) : 'date not recorded', style: const TextStyle(fontSize: 12, color: kTextSecondary))),
-                    Text('+${p.points} pts', style: const TextStyle(fontSize: 13, color: Color(0xFF16A34A))),
+                    Text('+${p.points} pts', style: kTypeFigure.copyWith(fontSize: 12, color: kInkSuccess)),
                   ],
                 ),
               )),
@@ -420,7 +468,7 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
 
   Widget _kv(String k, String v) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(k, style: const TextStyle(color: kTextSecondary, fontSize: 13)), Text(v, style: const TextStyle(fontSize: 13))]),
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(k, style: kTypeBody.copyWith(color: kTextSecondary)), Text(v, style: kTypeBody)]),
       );
 
   String _fmt(DateTime d) => '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';

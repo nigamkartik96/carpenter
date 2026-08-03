@@ -85,35 +85,33 @@ class OrderFilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget chip(String label, String value, String current, ValueChanged<String> onSelect) => FilterChip(
-          label: Text(label, style: const TextStyle(fontSize: 12)),
-          selected: current == value,
-          onSelected: (_) => onSelect(value),
-          visualDensity: VisualDensity.compact,
-        );
-
+    // Status stays as chips -- an admin wants every stage visible at once.
+    // Date and sort are single-choice, so they collapse into selects and
+    // stop competing with the status row.
     return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+      spacing: spaceSm,
+      runSpacing: spaceSm,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        chip('All dates', 'all', dateFilter, onDateFilter),
-        chip('Past day', 'today', dateFilter, onDateFilter),
-        chip('Past week', 'week', dateFilter, onDateFilter),
-        const SizedBox(width: 4),
-        chip('All statuses', 'All', statusFilter, onStatusFilter),
-        for (final s in orderStatuses) chip(s, s, statusFilter, onStatusFilter),
-        const SizedBox(width: 8),
-        DropdownButton<String>(
+        StatusFilterChip(label: 'All statuses', selected: statusFilter == 'All', onTap: () => onStatusFilter('All')),
+        for (final s in orderStatuses) StatusFilterChip(label: s, selected: statusFilter == s, onTap: () => onStatusFilter(s)),
+        const SizedBox(width: spaceXs),
+        FilterSelect<String>(
+          value: dateFilter,
+          icon: Icons.calendar_today_outlined,
+          options: const [('all', 'All dates'), ('today', 'Past day'), ('week', 'Past week')],
+          onChanged: onDateFilter,
+        ),
+        FilterSelect<String>(
           value: sortBy,
-          underline: const SizedBox(),
-          items: const [
-            DropdownMenuItem(value: 'newest', child: Text('Newest first', style: TextStyle(fontSize: 13))),
-            DropdownMenuItem(value: 'oldest', child: Text('Oldest first', style: TextStyle(fontSize: 13))),
-            DropdownMenuItem(value: 'amountHigh', child: Text('Amount: high to low', style: TextStyle(fontSize: 13))),
-            DropdownMenuItem(value: 'amountLow', child: Text('Amount: low to high', style: TextStyle(fontSize: 13))),
+          icon: Icons.swap_vert,
+          options: const [
+            ('newest', 'Newest first'),
+            ('oldest', 'Oldest first'),
+            ('amountHigh', 'Amount: high to low'),
+            ('amountLow', 'Amount: low to high'),
           ],
-          onChanged: (v) => onSortBy(v ?? 'newest'),
+          onChanged: onSortBy,
         ),
       ],
     );
@@ -209,11 +207,11 @@ class _OrderCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(order.carpenterName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  Text(order.carpenterName, style: kTypeBody.copyWith(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 2),
                   Text(
                     '${order.orderNumber}${order.products.isNotEmpty ? ' · ${order.products.first}' : ''}',
-                    style: const TextStyle(fontSize: 12, color: kTextSecondary),
+                    style: kTypeMeta,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -226,7 +224,7 @@ class _OrderCard extends StatelessWidget {
               children: [
                 Text(
                   pending ? '' : '₹${order.amount}',
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  style: kTypeFigure.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 6),
                 StatusBadge(order.status),

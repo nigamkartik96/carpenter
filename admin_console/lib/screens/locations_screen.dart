@@ -68,7 +68,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                 ? Container(
                     color: kBgApp,
                     alignment: Alignment.center,
-                    child: const Text('No carpenter locations reported yet', style: TextStyle(color: kTextSecondary, fontSize: 13)),
+                    child: Text('No carpenter locations reported yet', style: kTypeBody.copyWith(color: kTextSecondary)),
                   )
                 : FlutterMap(
                     mapController: mapController,
@@ -130,8 +130,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
             ],
             rows: active.map((c) => DataListRow(
               cells: [
-                Expanded(child: Text(c.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-                Expanded(child: Text(c.area, style: const TextStyle(fontSize: 13))),
+                Expanded(child: Text(c.name, style: kTypeBody.copyWith(fontWeight: FontWeight.w600))),
+                Expanded(child: Text(c.area, style: kTypeBody)),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

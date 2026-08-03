@@ -127,7 +127,7 @@ class _CreatorOrderCard extends StatelessWidget {
                 value: progress.clamp(0.0, 1.0),
                 minHeight: 4,
                 backgroundColor: kBorderSubtle,
-                color: progress >= 1.0 ? const Color(0xFF16A34A) : kAccentPrimary,
+                color: progress >= 1.0 ? kStatusSuccess : kAccentPrimary,
               ),
             ),
             const SizedBox(height: 6),
@@ -220,9 +220,9 @@ class _RecordPaymentDialogState extends State<_RecordPaymentDialog> {
                   children: [
                     Row(
                       children: [
-                        Expanded(child: Text('₹${p.amount}', style: const TextStyle(fontSize: 13))),
+                        Expanded(child: Text('₹${p.amount}', style: kTypeBody)),
                         Expanded(flex: 2, child: Text(_fmtDate(p.at), style: const TextStyle(fontSize: 12, color: kTextSecondary))),
-                        Text('+${p.points} pts', style: const TextStyle(fontSize: 13, color: Color(0xFF16A34A))),
+                        Text('+${p.points} pts', style: kTypeFigure.copyWith(fontSize: 12, color: kInkSuccess)),
                       ],
                     ),
                     Text(o.pointsWorking(p.amount), style: const TextStyle(fontSize: 11, color: kTextMuted)),
@@ -260,7 +260,7 @@ class _RecordPaymentDialogState extends State<_RecordPaymentDialog> {
           padding: const EdgeInsets.only(top: 6),
           child: Text(
             amt > 0 ? '${o.pointsWorking(amt)} — credited to ${o.carpenterName.split(' ').first}.' : 'Stamped with the date and time you record it.',
-            style: TextStyle(fontSize: 12, color: newPoints > 0 ? const Color(0xFF16A34A) : kWarning),
+            style: TextStyle(fontSize: 12, color: newPoints > 0 ? kStatusSuccess : kWarning),
           ),
         ),
       ],
@@ -277,8 +277,8 @@ class _RecordPaymentDialogState extends State<_RecordPaymentDialog> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(fontSize: 13, color: kTextSecondary)),
-            Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            Text(label, style: kTypeBody.copyWith(color: kTextSecondary)),
+            Text(value, style: kTypeBody.copyWith(fontWeight: FontWeight.w600)),
           ],
         ),
       );
@@ -297,18 +297,18 @@ class _PartyStatusChip extends StatelessWidget {
     late String label;
     switch (status) {
       case 'completed':
-        bg = const Color(0xFFDCFCE7);
-        fg = const Color(0xFF166534);
+        bg = kTintSuccess;
+        fg = kInkSuccess;
         label = 'Completed';
         break;
       case 'approved':
-        bg = const Color(0xFFFEF3C7);
-        fg = const Color(0xFF92400E);
+        bg = kTintAttention;
+        fg = kInkAttention;
         label = 'Collecting payment';
         break;
       default:
-        bg = const Color(0xFFEEF2FF);
-        fg = const Color(0xFF4338CA);
+        bg = kTintAccent;
+        fg = kAccentPrimary;
         label = 'Awaiting approval';
     }
     return Container(
@@ -461,7 +461,7 @@ class _PartyOrderDialogState extends State<_PartyOrderDialog> {
                   constraints: const BoxConstraints(maxHeight: 160),
                   decoration: BoxDecoration(border: Border.all(color: kBorderSubtle), borderRadius: BorderRadius.circular(8)),
                   child: matches.isEmpty
-                      ? const Padding(padding: EdgeInsets.all(12), child: Text('No match', style: TextStyle(color: kTextMuted, fontSize: 13)))
+                      ? const Padding(padding: EdgeInsets.all(12), child: Text('No match', style: kTypeMeta))
                       : ListView(
                           shrinkWrap: true,
                           children: matches.map((c) => InkWell(
@@ -473,7 +473,7 @@ class _PartyOrderDialogState extends State<_PartyOrderDialog> {
                                 }),
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                                  child: Text(c.name, style: const TextStyle(fontSize: 13)),
+                                  child: Text(c.name, style: kTypeBody),
                                 ),
                               )).toList(),
                         ),
@@ -511,7 +511,7 @@ class _PartyOrderDialogState extends State<_PartyOrderDialog> {
         ),
         Padding(
           padding: const EdgeInsets.only(top: 4),
-          child: Text(_rewardSummary, style: const TextStyle(fontSize: 12, color: Color(0xFF16A34A), fontWeight: FontWeight.w500)),
+          child: Text(_rewardSummary, style: const TextStyle(fontSize: 12, color: kStatusSuccess, fontWeight: FontWeight.w500)),
         ),
         const SizedBox(height: spaceMd),
         LabeledField(
@@ -521,7 +521,7 @@ class _PartyOrderDialogState extends State<_PartyOrderDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(border: Border.all(color: kBorderSubtle), borderRadius: BorderRadius.circular(8), color: kBgApp),
-            child: const Row(children: [Icon(Icons.calendar_today_outlined, size: 15, color: kTextSecondary), SizedBox(width: 8), Text('Tracked automatically on submit', style: TextStyle(color: kTextSecondary, fontSize: 13))]),
+            child: Row(children: [Icon(Icons.calendar_today_outlined, size: 15, color: kTextSecondary), SizedBox(width: 8), Text('Tracked automatically on submit', style: kTypeBody.copyWith(color: kTextSecondary))]),
           ),
         ),
       ],
@@ -545,7 +545,7 @@ class _PartyOrderDialogState extends State<_PartyOrderDialog> {
           child: Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(border: Border.all(color: kBorderSubtle), borderRadius: BorderRadius.circular(kCardRadius), color: kBgApp),
-            child: const Row(children: [Icon(Icons.picture_as_pdf_outlined, color: Color(0xFFB91C1C)), SizedBox(width: 10), Expanded(child: Text('PDF attached · tap to replace', style: TextStyle(fontSize: 13))), Icon(Icons.edit_outlined, size: 16, color: kTextMuted)]),
+            child: const Row(children: [Icon(Icons.picture_as_pdf_outlined, color: kStatusClosed), SizedBox(width: 10), Expanded(child: Text('PDF attached · tap to replace', style: kTypeBody)), Icon(Icons.edit_outlined, size: 16, color: kTextMuted)]),
           ),
         ),
       );

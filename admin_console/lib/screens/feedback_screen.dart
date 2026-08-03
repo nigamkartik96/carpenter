@@ -36,11 +36,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         const SizedBox(height: 12),
         Row(
           children: [
-            FilterChip(
-              label: const Text('Unresolved only'),
+            StatusFilterChip(
+              label: 'Unresolved only',
               selected: _openOnly,
-              onSelected: (v) => setState(() {
-                _openOnly = v;
+              onTap: () => setState(() {
+                _openOnly = !_openOnly;
                 _page = 0;
               }),
             ),
@@ -122,7 +122,7 @@ class _FeedbackCard extends StatelessWidget {
           ),
           if (entry.text.isNotEmpty) ...[
             const SizedBox(height: 10),
-            Text(entry.text, style: const TextStyle(fontSize: 13)),
+            Text(entry.text, style: kTypeBody),
           ],
           if (entry.imageUrl != null) ...[
             const SizedBox(height: 10),

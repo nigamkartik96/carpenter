@@ -97,7 +97,7 @@ class _LeadCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               lead.pointsAwarded > 0
-                  ? Text('+${lead.pointsAwarded}', style: const TextStyle(color: Color(0xFF16A34A), fontSize: 14, fontWeight: FontWeight.w600))
+                  ? Text('+${lead.pointsAwarded}', style: const TextStyle(color: kStatusSuccess, fontSize: 14, fontWeight: FontWeight.w600))
                   : Text('0', style: const TextStyle(color: kTextMuted, fontSize: 14)),
               const SizedBox(height: 6),
               StatusDropdown(

@@ -60,7 +60,7 @@ class _CarpentersScreenState extends State<CarpentersScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('${c.name} · ${c.shop}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                            Text('${c.name} · ${c.shop}', style: kTypeBody.copyWith(fontWeight: FontWeight.w600)),
                             Text(c.mobile, style: const TextStyle(color: kMuted, fontSize: 12)),
                           ],
                         ),
@@ -106,27 +106,22 @@ class _CarpentersScreenState extends State<CarpentersScreen> {
             runSpacing: 8,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
+              // Status as chips (same vocabulary as Orders and the
+              // dashboard); tier collapses into a select, which takes five
+              // pills out of the row.
               for (final s in _statuses)
-                FilterChip(
-                  label: Text(s == 'all' ? 'All statuses' : s, style: const TextStyle(fontSize: 12)),
+                StatusFilterChip(
+                  label: s == 'all' ? 'All statuses' : s,
                   selected: statusFilter == s,
-                  onSelected: (_) => setState(() { statusFilter = s; _page = 0; }),
-                  visualDensity: VisualDensity.compact,
+                  onTap: () => setState(() { statusFilter = s; _page = 0; }),
                 ),
-              const SizedBox(width: 4),
-              FilterChip(
-                label: const Text('All tiers', style: TextStyle(fontSize: 12)),
-                selected: tierFilter == 'all',
-                onSelected: (_) => setState(() { tierFilter = 'all'; _page = 0; }),
-                visualDensity: VisualDensity.compact,
+              const SizedBox(width: spaceXs),
+              FilterSelect<String>(
+                value: tierFilter,
+                icon: Icons.workspace_premium_outlined,
+                options: [('all', 'All tiers'), for (final t in carpenterTiers) (t, t)],
+                onChanged: (v) => setState(() { tierFilter = v; _page = 0; }),
               ),
-              for (final t in carpenterTiers)
-                FilterChip(
-                  label: Text(t, style: const TextStyle(fontSize: 12)),
-                  selected: tierFilter == t,
-                  onSelected: (_) => setState(() { tierFilter = t; _page = 0; }),
-                  visualDensity: VisualDensity.compact,
-                ),
             ],
           ),
           const SizedBox(height: 4),
@@ -183,11 +178,11 @@ class _CarpenterTile extends StatelessWidget {
             children: [
               Avatar(photoUrl: carpenter.photoUrl, name: carpenter.name, radius: 32),
               const SizedBox(height: 10),
-              Text(carpenter.name, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+              Text(carpenter.name, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: kTypeBody.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 2),
               Text(carpenter.shop, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: const TextStyle(color: kMuted, fontSize: 12)),
               const SizedBox(height: 8),
-              Wrap(alignment: WrapAlignment.center, spacing: 6, runSpacing: 6, children: [StatusBadge(carpenter.status), AudienceBadge(carpenter.tier)]),
+              Wrap(alignment: WrapAlignment.center, spacing: 6, runSpacing: 6, children: [StatusBadge(carpenter.status), TierBadge(carpenter.tier)]),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

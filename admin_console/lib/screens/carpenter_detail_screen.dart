@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models.dart';
 import '../state.dart';
 import '../widgets.dart';
@@ -57,9 +58,9 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(c.name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
-                      Text(c.shop, style: const TextStyle(color: kMuted, fontSize: 13)),
+                      Text(c.shop, style: kTypeBody.copyWith(color: kTextSecondary)),
                       const SizedBox(height: 6),
-                      Text(c.mobile, style: const TextStyle(fontSize: 13)),
+                      Text(c.mobile, style: kTypeBody),
                       Text(c.area, style: const TextStyle(color: kMuted, fontSize: 12)),
                       const SizedBox(height: 10),
                       // Counts read as plain details alongside the name and
@@ -98,6 +99,7 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                             icon: const Icon(Icons.account_balance_wallet_outlined, size: 16),
                             label: const Text('Payment details'),
                           ),
+                          _LocationButton(carpenter: c),
                           if (c.status == 'Pending') ...[
                             ElevatedButton(
                               onPressed: () async {
@@ -200,7 +202,7 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(o.orderNumber, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                          Text(o.orderNumber, style: kTypeBody.copyWith(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 2),
                           Text(orderAmountLabel(o), style: TextStyle(fontSize: 12, color: o.amount == 0 && o.items.isEmpty ? kTextMuted : kTextSecondary)),
                         ],
@@ -230,22 +232,22 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                 children: [
                   Container(
                     width: 34, height: 34,
-                    decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(8)),
-                    child: const Icon(Icons.receipt_long_outlined, size: 15, color: Color(0xFF92400E)),
+                    decoration: BoxDecoration(color: kTintAttention, borderRadius: BorderRadius.circular(8)),
+                    child: const Icon(Icons.receipt_long_outlined, size: 15, color: kInkAttention),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Party: ${o.party}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                        Text('Party: ${o.party}', style: kTypeBody.copyWith(fontWeight: FontWeight.w600)),
                         const SizedBox(height: 2),
                         if (!isPending) ...[
                           Text('Paid ₹${o.paid} of ₹${o.approvedAmount} · Remaining ₹${o.remaining}', style: const TextStyle(color: kTextSecondary, fontSize: 11)),
                           const SizedBox(height: 4),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(3),
-                            child: LinearProgressIndicator(value: progress.clamp(0.0, 1.0), minHeight: 4, backgroundColor: kBorderSubtle, color: progress >= 1.0 ? const Color(0xFF16A34A) : kAccentPrimary),
+                            child: LinearProgressIndicator(value: progress.clamp(0.0, 1.0), minHeight: 4, backgroundColor: kBorderSubtle, color: progress >= 1.0 ? kStatusSuccess : kAccentPrimary),
                           ),
                         ] else
                           Text('₹${o.amount}', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
@@ -259,7 +261,7 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                       PartyStatusChip(status: o.status),
                       if (!isPending) ...[
                         const SizedBox(height: 4),
-                        Text('+${o.pointsAwarded} pts', style: const TextStyle(color: Color(0xFF16A34A), fontSize: 11, fontWeight: FontWeight.w500)),
+                        Text('+${o.pointsAwarded} pts', style: const TextStyle(color: kStatusSuccess, fontSize: 11, fontWeight: FontWeight.w500)),
                       ] else ...[
                         const SizedBox(height: 4),
                         Text('~${o.maxPoints} pts', style: const TextStyle(color: kTextMuted, fontSize: 11)),
@@ -285,15 +287,15 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                 children: [
                   Container(
                     width: 34, height: 34,
-                    decoration: BoxDecoration(color: const Color(0xFFF3E8FF), borderRadius: BorderRadius.circular(8)),
-                    child: const Icon(Icons.card_giftcard_outlined, size: 15, color: Color(0xFF7C3AED)),
+                    decoration: BoxDecoration(color: kTintAudience, borderRadius: BorderRadius.circular(8)),
+                    child: const Icon(Icons.card_giftcard_outlined, size: 15, color: kAudienceColor),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(r.giftName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                        Text(r.giftName, style: kTypeBody.copyWith(fontWeight: FontWeight.w600)),
                         const SizedBox(height: 2),
                         Text('${r.points} pts', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
                       ],
@@ -317,15 +319,15 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                 children: [
                   Container(
                     width: 34, height: 34,
-                    decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(8)),
-                    child: const Icon(Icons.lightbulb_outline, size: 15, color: Color(0xFF166534)),
+                    decoration: BoxDecoration(color: kTintSuccess, borderRadius: BorderRadius.circular(8)),
+                    child: const Icon(Icons.lightbulb_outline, size: 15, color: kInkSuccess),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(l.customer, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                        Text(l.customer, style: kTypeBody.copyWith(fontWeight: FontWeight.w600)),
                         const SizedBox(height: 2),
                         Text(l.phone, style: const TextStyle(color: kTextSecondary, fontSize: 12)),
                       ],
@@ -345,6 +347,41 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
       );
 }
 
+/// Opens the carpenter's last reported position in Google Maps.
+///
+/// Deliberately a button rather than the inline 220px map that used to sit
+/// further down this page: the position is worth checking now and then, not
+/// worth a permanent third of the screen.
+///
+/// Disabled when the app has never reported a fix, with the reason in the
+/// tooltip -- opening Maps on a null pair would land on (0, 0) in the Gulf
+/// of Guinea and look like real data.
+class _LocationButton extends StatelessWidget {
+  const _LocationButton({required this.carpenter});
+  final Carpenter carpenter;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = carpenter;
+    final hasFix = c.lat != null && c.lng != null;
+    return Tooltip(
+      message: hasFix
+          ? 'Last seen ${c.lastSeen} · opens Google Maps in a new tab'
+          : 'No location reported yet. The carpenter app reports a position while it is open.',
+      child: OutlinedButton.icon(
+        onPressed: hasFix
+            ? () => launchUrl(
+                  Uri.parse('https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}'),
+                  mode: LaunchMode.externalApplication,
+                )
+            : null,
+        icon: const Icon(Icons.location_on_outlined, size: 16),
+        label: const Text('Location'),
+      ),
+    );
+  }
+}
+
 /// One "Label 123" pair in the header card's detail line.
 class _Detail extends StatelessWidget {
   const _Detail({required this.label, required this.value});
@@ -357,7 +394,7 @@ class _Detail extends StatelessWidget {
       TextSpan(
         children: [
           TextSpan(text: '$label ', style: const TextStyle(color: kTextMuted, fontSize: 12)),
-          TextSpan(text: value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+          TextSpan(text: value, style: kTypeBody.copyWith(fontWeight: FontWeight.w700)),
         ],
       ),
     );

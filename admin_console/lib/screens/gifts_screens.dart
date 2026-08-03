@@ -55,7 +55,7 @@ class _GiftsScreenState extends State<GiftsScreen> {
                       ? ClipRRect(borderRadius: BorderRadius.circular(6), child: Image.network(g.imageUrl!, height: 40, width: 40, fit: BoxFit.cover))
                       : const Icon(Icons.card_giftcard, color: kPrimary, size: 22),
                   const SizedBox(height: 6),
-                  Text(g.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  Text(g.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: kTypeBody.copyWith(fontWeight: FontWeight.w600)),
                   Text(
                     '${g.points} pts · ${g.qty} in stock',
                     maxLines: 2,
@@ -141,7 +141,7 @@ class GiftDetailScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text('${g.points} points · ${g.qty} in stock', style: const TextStyle(color: kMuted, fontSize: 13)),
+          Text('${g.points} points · ${g.qty} in stock', style: kTypeBody.copyWith(color: kTextSecondary)),
           if (g.description.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text(g.description, style: const TextStyle(fontSize: 14, height: 1.4)),

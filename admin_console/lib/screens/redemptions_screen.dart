@@ -59,8 +59,8 @@ class _RedemptionCard extends StatelessWidget {
             width: 36,
             height: 36,
             margin: const EdgeInsets.only(right: 14),
-            decoration: BoxDecoration(color: const Color(0xFFF3E8FF), borderRadius: BorderRadius.circular(8)),
-            child: const Icon(Icons.card_giftcard_outlined, size: 18, color: Color(0xFF7C3AED)),
+            decoration: BoxDecoration(color: kTintAudience, borderRadius: BorderRadius.circular(8)),
+            child: const Icon(Icons.card_giftcard_outlined, size: 18, color: kAudienceColor),
           ),
           Expanded(
             child: Column(
