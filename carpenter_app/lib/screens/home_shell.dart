@@ -19,6 +19,46 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
 
+  // Carpenters who signed up before always-on location was asked for
+  // never see ConsentScreen again, so their background reporting stays
+  // dead forever. Prompt them here instead -- once per app launch, so
+  // it's fixable but not nagging.
+  static bool _askedThisLaunch = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkLocationPermission());
+  }
+
+  Future<void> _checkLocationPermission() async {
+    if (_askedThisLaunch) return;
+    _askedThisLaunch = true;
+    final app = context.read<AppState>();
+    if (!app.isApproved) return;
+    if (await app.hasBackgroundLocationPermission()) return;
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(app.tr('Location sharing is off')),
+        content: Text(app.tr(
+          'To keep sharing your location when the app is closed, open Settings > Permissions > Location and choose "Allow all the time".',
+        )),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(app.tr('Later'))),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              app.openLocationSettings();
+            },
+            child: Text(app.tr('Open settings')),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
@@ -241,64 +281,6 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            const Icon(Icons.emoji_events_outlined, size: 16, color: kMuted),
-            const SizedBox(width: 6),
-            Text(app.tr('Top carpenters'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: kText)),
-          ],
-        ),
-        const SizedBox(height: 8),
-        if (app.leaderboard.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(app.tr('No leaderboard activity yet'), style: const TextStyle(color: kMuted, fontSize: 12)),
-          )
-        else
-          SizedBox(
-          height: 88 * app.fontScale,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: app.leaderboard.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, i) {
-              final e = app.leaderboard[i];
-              final you = e.name == app.carpenterName;
-              return SizedBox(
-                width: 62,
-                child: Column(
-                  children: [
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        CircleAvatar(
-                          radius: 23,
-                          backgroundColor: (you ? kPrimary : kCard2),
-                          child: e.photoUrl != null
-                              ? ClipOval(child: CachedImg(e.photoUrl!, width: 46, height: 46, errorWidget: Text(e.initials, style: TextStyle(color: you ? kOnPrimary : kText, fontWeight: FontWeight.w600))))
-                              : Text(e.initials, style: TextStyle(color: you ? kOnPrimary : kText, fontWeight: FontWeight.w600)),
-                        ),
-                        Positioned(
-                          top: -4,
-                          right: -4,
-                          child: CircleAvatar(
-                            radius: 9,
-                            backgroundColor: you ? kSuccess : kPrimaryDark,
-                            child: Text('${i + 1}', style: const TextStyle(fontSize: 10, color: Colors.white)),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(you ? app.tr('You') : e.name, style: const TextStyle(fontSize: 11, color: kText), maxLines: 1, overflow: TextOverflow.ellipsis),
-                    Text('${e.points}', style: const TextStyle(fontSize: 11, color: kMuted), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
@@ -310,11 +292,14 @@ class DashboardScreen extends StatelessWidget {
           crossAxisSpacing: 16,
           childAspectRatio: 1.15 / app.fontScale,
           children: [
-            ActionTile(icon: Icons.local_offer_outlined, title: app.tr('Offers'), subtitle: app.tr('Today & weekly'), color: const Color(0xFFFF8C42), onTap: () => Navigator.pushNamed(context, '/offers')),
+            // Order here is deliberate -- the two actions carpenters come
+            // to the app for lead, then browsing, then the rest. Order
+            // history isn't a tile: it's already the Orders tab below.
             ActionTile(icon: Icons.add_box_outlined, title: app.tr('Create order'), subtitle: app.tr('Image, manual or voice'), color: kSuccess, onTap: () => Navigator.pushNamed(context, '/createOrder')),
             ActionTile(icon: Icons.card_giftcard_outlined, title: app.tr('Redeem points'), subtitle: app.tr('Gifts & cash'), color: kPrimaryLight, onTap: () => Navigator.pushNamed(context, '/gifts')),
+            ActionTile(icon: Icons.local_offer_outlined, title: app.tr('Offers'), subtitle: app.tr('Today & weekly'), color: const Color(0xFFFF8C42), onTap: () => Navigator.pushNamed(context, '/offers')),
+            ActionTile(icon: Icons.feedback_outlined, title: app.tr('Feedback'), subtitle: app.tr('Type, voice or photo'), color: kPurple, onTap: () => Navigator.pushNamed(context, '/feedback')),
             ActionTile(icon: Icons.lightbulb_outline, title: app.tr('Suggestions'), subtitle: app.tr('Share a lead'), color: const Color(0xFF39C5CF), onTap: () => Navigator.pushNamed(context, '/leads')),
-            ActionTile(icon: Icons.history, title: app.tr('Order history'), subtitle: app.tr('Track past orders'), color: kPurple, onTap: () => Navigator.pushNamed(context, '/orderHistory')),
             ActionTile(icon: Icons.account_balance_wallet_outlined, title: app.tr('My account'), subtitle: app.tr('Bank, UPI & profile'), color: kInfo, onTap: () => Navigator.pushNamed(context, '/account')),
           ],
         ),

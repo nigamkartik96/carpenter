@@ -14,6 +14,7 @@ import 'services/push_service.dart';
 import 'services/update_service.dart';
 import 'state/app_state.dart';
 import 'theme.dart';
+import 'screens/feedback_screen.dart';
 import 'screens/onboarding_screens.dart';
 import 'screens/home_shell.dart';
 import 'screens/order_screens.dart';
@@ -79,6 +80,7 @@ class CarpenterHubApp extends StatelessWidget {
           '/gifts': (_) => const GiftStoreScreen(),
           '/giftSuccess': (_) => const GiftSuccessScreen(),
           '/leads': (_) => const LeadsScreen(),
+          '/feedback': (_) => const FeedbackScreen(),
           '/leadNew': (_) => const LeadNewScreen(),
           '/notifications': (_) => const NotificationsScreen(),
           '/profile': (_) => const ProfileScreen(),

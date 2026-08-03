@@ -308,19 +308,95 @@ class AppState extends ChangeNotifier {
   /// block or error out the rest of the app.
   Future<void> reportLocationOnce() async {
     try {
-      if (!await Geolocator.isLocationServiceEnabled()) return;
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        debugPrint('location: device location services are off');
+        return;
+      }
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) return;
-      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        debugPrint('location: permission $permission');
+        return;
+      }
+      final pos = await currentPosition();
+      if (pos == null) {
+        debugPrint('location: no fix available');
+        return;
+      }
       if (uid != null) await _fb.updateLocation(uid!, pos.latitude, pos.longitude);
-    } catch (_) {
-      // Best-effort -- a denied permission or a flaky GPS fix shouldn't
-      // surface as an app-wide error banner.
+    } catch (e) {
+      // Best-effort -- a flaky GPS fix shouldn't surface as an app-wide
+      // error banner. Logged rather than swallowed: this used to fail
+      // completely silently, which is why nobody noticed the admin map
+      // was frozen on whatever position was captured at sign-up.
+      debugPrint('location: report failed: $e');
     }
   }
+
+  /// Waiting on a fresh GPS fix indoors can hang indefinitely, which is
+  /// what an un-timed getCurrentPosition() does -- the periodic timer
+  /// then just stacks up calls that never complete. Cap the wait and
+  /// fall back to the last fix Android already has, which for a
+  /// "where was this carpenter recently" map is fine.
+  static Future<Position?> currentPosition() async {
+    try {
+      return await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 20),
+        ),
+      );
+    } catch (e) {
+      debugPrint('location: live fix failed ($e), trying last known');
+      try {
+        return await Geolocator.getLastKnownPosition();
+      } catch (_) {
+        return null;
+      }
+    }
+  }
+
+  /// True once the carpenter has granted "Allow all the time".
+  ///
+  /// Android 10+ only ever grants "while using the app" from the normal
+  /// permission prompt, and that is NOT enough for the hourly background
+  /// job -- it silently gets no fix once the app leaves the foreground.
+  /// On Android 11+ the always-on option cannot be requested from a
+  /// dialog at all; the carpenter has to pick it in system settings,
+  /// which is what [openLocationSettings] is for.
+  Future<bool> hasBackgroundLocationPermission() async {
+    try {
+      return await Geolocator.checkPermission() == LocationPermission.always;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Asks for foreground location, then tries to upgrade to always-on.
+  /// Returns true if always-on was granted without needing a trip to
+  /// settings (Android 9 and below, or if the carpenter had already
+  /// allowed it).
+  Future<bool> requestLocationPermissions() async {
+    try {
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.whileInUse) {
+        // Harmless where the OS won't offer it; grants directly on older
+        // Android versions.
+        permission = await Geolocator.requestPermission();
+      }
+      return permission == LocationPermission.always;
+    } catch (e) {
+      debugPrint('location: permission request failed: $e');
+      return false;
+    }
+  }
+
+  Future<void> openLocationSettings() => Geolocator.openAppSettings();
 
   /// Called explicitly once the carpenter has seen and accepted the
   /// location-sharing rationale (ConsentScreen), or implicitly on
@@ -660,6 +736,23 @@ class AppState extends ChangeNotifier {
       });
     } catch (e) {
       _reportError('addLead', e);
+      rethrow;
+    }
+  }
+
+  /// At least one of [text], [audioUrl] or [imageUrl] is expected --
+  /// the screen enforces that before calling.
+  Future<void> submitFeedback({String text = '', String? audioUrl, String? imageUrl}) async {
+    try {
+      await _fb.addFeedback(uid!, {
+        'text': text,
+        'carpenterName': carpenterName,
+        'mobile': mobile,
+        if (audioUrl != null) 'audioUrl': audioUrl,
+        if (imageUrl != null) 'imageUrl': imageUrl,
+      });
+    } catch (e) {
+      _reportError('submitFeedback', e);
       rethrow;
     }
   }

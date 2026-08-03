@@ -122,6 +122,32 @@ class OrderComment {
   bool get fromAdmin => authorRole == 'admin';
 }
 
+/// A problem a carpenter reported from the app. Any combination of typed
+/// text, a voice note and a photo -- carpenters who don't write
+/// comfortably send only the latter two, so none of them is required.
+class FeedbackEntry {
+  FeedbackEntry({
+    required this.id,
+    required this.carpenterId,
+    required this.carpenterName,
+    this.mobile = '',
+    this.text = '',
+    this.audioUrl,
+    this.imageUrl,
+    this.status = 'New',
+    this.createdAt,
+  });
+  final String id;
+  final String carpenterId;
+  final String carpenterName;
+  final String mobile;
+  final String text;
+  final String? audioUrl;
+  final String? imageUrl;
+  String status; // New, Resolved
+  final DateTime? createdAt;
+}
+
 class AdminOffer {
   AdminOffer({
     required this.id,
@@ -179,15 +205,27 @@ class Redemption {
 /// the carpenter points at the time it's recorded, so [points] is captured
 /// per-payment rather than recomputed from the total.
 class PartyPayment {
-  PartyPayment({required this.amount, required this.points});
+  PartyPayment({required this.amount, required this.points, this.at});
   final int amount;
   final int points;
+  // When the collection was recorded. Payments live in an array on the order
+  // doc, and FieldValue.serverTimestamp() can't be used inside an array
+  // element, so this is stamped client-side at record time. Null on rows
+  // written before dates were tracked. Kept as a DateTime here (this file
+  // stays Firestore-free); state.dart converts the Timestamp on the way in,
+  // and the SDK accepts a DateTime on the way out.
+  final DateTime? at;
 
-  Map<String, dynamic> toMap() => {'amount': amount, 'points': points};
+  Map<String, dynamic> toMap() => {
+        'amount': amount,
+        'points': points,
+        if (at != null) 'at': at,
+      };
 
   static PartyPayment fromMap(Map<String, dynamic> m) => PartyPayment(
         amount: (m['amount'] is int) ? m['amount'] : int.tryParse('${m['amount']}') ?? 0,
         points: (m['points'] is int) ? m['points'] : int.tryParse('${m['points']}') ?? 0,
+        at: m['at'] is DateTime ? m['at'] as DateTime : null,
       );
 }
 
@@ -203,9 +241,10 @@ class PartyOrder {
     required this.carpenterName,
     required this.party,
     required this.amount,
+    this.rewardAmount = 0,
     this.status = 'pending',
     this.approvedAmount = 0,
-    this.commissionPercent = 10,
+    this.rewardPercent = 10,
     this.fileUrl,
     this.fileType,
     this.payments = const [],
@@ -218,9 +257,14 @@ class PartyOrder {
   final String carpenterName; // denormalized at create time so the list needs no join
   final String party;
   final int amount; // amount the creator entered
+  // The slice of [amount] that actually earns points -- never more than the
+  // amount itself. Set by the creator at create time. Legacy docs written
+  // before rewards existed default to the full amount, which reproduces the
+  // old "reward % of everything collected" behaviour.
+  final int rewardAmount;
   String status; // pending, approved, completed
   int approvedAmount; // set by the admin on approval
-  int commissionPercent; // % of payment credited as points (set at approval)
+  int rewardPercent; // % of the reward amount credited as points (0-100)
   final String? fileUrl;
   final String? fileType; // 'image' or 'pdf'
   final List<PartyPayment> payments;
@@ -231,6 +275,46 @@ class PartyOrder {
   int get pointsAwarded => payments.fold(0, (s, p) => s + p.points);
   int get remaining => (approvedAmount - paid).clamp(0, approvedAmount);
   bool get editable => status == 'pending'; // creator can edit only before approval
+
+  /// What payments are collected against -- the admin's approved figure once
+  /// set, otherwise the amount the creator entered.
+  int get collectableAmount => approvedAmount > 0 ? approvedAmount : amount;
+
+  /// Reward base, guarded against ever exceeding what's being collected (an
+  /// admin can approve a smaller figure than the creator entered, which would
+  /// otherwise push the ratio above 1 and inflate points).
+  int get effectiveRewardAmount => rewardAmount <= 0
+      ? collectableAmount
+      : (rewardAmount > collectableAmount ? collectableAmount : rewardAmount);
+
+  /// Points this order is worth in total, once every rupee is collected:
+  /// reward % of the reward amount.
+  int get maxPoints => (effectiveRewardAmount * rewardPercent) ~/ 100;
+
+  /// Points a single recorded payment earns, scored on its own: the payment's
+  /// share of the reward amount, times reward %.
+  ///
+  /// Each payment stands alone rather than being derived from the running
+  /// total, so every row in the payment history carries its own calculation.
+  /// The trade-off is truncation -- a payment worth less than a whole point
+  /// earns 0, and those fractions don't carry over to later payments, so the
+  /// sum across many small instalments can fall short of [maxPoints].
+  int pointsForPayment(int payment) {
+    final base = collectableAmount;
+    if (base <= 0) return 0;
+    final capped = payment > base ? base : payment;
+    return (capped * effectiveRewardAmount * rewardPercent) ~/ (base * 100);
+  }
+
+  /// The arithmetic behind [pointsForPayment], spelled out for the payment
+  /// history so the figure can be checked by eye.
+  String pointsWorking(int payment) {
+    final base = collectableAmount;
+    if (base <= 0) return '';
+    final rewardShare = (payment * effectiveRewardAmount) / base;
+    final share = rewardShare == rewardShare.roundToDouble() ? rewardShare.round().toString() : rewardShare.toStringAsFixed(2);
+    return '₹$payment x ₹$effectiveRewardAmount/₹$base = ₹$share reward x $rewardPercent% = ${pointsForPayment(payment)} pts';
+  }
 }
 
 class AdminLead {

@@ -61,10 +61,11 @@ service cloud.firestore {
     // The carpenter app never touches this collection -- only the points
     // from each payment reach the carpenter (via pointsLedger, written by
     // the admin's transaction below, which isAdmin already gates).
-    //   - order-creator: create their own; update ONLY while still pending
-    //     (so an admin's approval/payments can't be edited out from under
-    //     them), and only their own docs.
-    //   - admin: full read/write (approve, record payments, complete).
+    //   - order-creator: create their own; edit ONLY while still pending (so
+    //     an admin's approval can't be edited out from under them); and, once
+    //     approved, record payments against their own order -- collection is
+    //     the creator's job, not the admin's.
+    //   - admin: full read/write (approve, complete).
     match /partyOrders/{orderId} {
       allow read: if isAdmin() ||
         (isOrderCreator() && resource.data.createdBy == request.auth.uid);
@@ -74,18 +75,33 @@ service cloud.firestore {
       allow update: if isAdmin() ||
         (isOrderCreator() &&
          resource.data.createdBy == request.auth.uid &&
-         resource.data.status == 'pending' &&
-         // A creator edit must stay a pending order it still owns -- it
-         // can't flip status to 'approved' or reassign createdBy.
-         request.resource.data.status == 'pending' &&
-         request.resource.data.createdBy == resource.data.createdBy);
+         request.resource.data.createdBy == resource.data.createdBy &&
+         (
+           // Editing a still-pending order: it must stay pending -- the
+           // creator can't flip status to 'approved' themselves.
+           (resource.data.status == 'pending' && request.resource.data.status == 'pending') ||
+           // Recording a payment on an approved order: only the payments
+           // array may change, plus the status moving to 'completed' when
+           // the final instalment settles it. The approved amount, reward
+           // terms and ownership are all frozen at this point.
+           (resource.data.status == 'approved' &&
+            request.resource.data.status in ['approved', 'completed'] &&
+            request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['payments', 'status']))
+         ));
       allow delete: if isAdmin();
     }
 
     match /carpenters/{carpenterId} {
       allow read: if isSignedIn();
       allow create: if isOwner(carpenterId);
-      allow update: if isOwner(carpenterId) || isAdmin();
+      // An order-creator recording a party payment credits points in the same
+      // transaction, so it needs write access here -- but ONLY to the two
+      // points fields. It can't touch status, tier, phone or anything else.
+      allow update: if isOwner(carpenterId) || isAdmin() ||
+        (isOrderCreator() &&
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['points', 'lifetimePoints']));
       allow delete: if isAdmin();
     }
 
@@ -134,14 +150,28 @@ service cloud.firestore {
       allow update: if isAdmin();
     }
 
+    // Problems carpenters report from the app's Feedback screen. A
+    // carpenter may file their own and see their own; only the admin can
+    // read the whole queue or change a row's status.
+    match /feedback/{feedbackId} {
+      allow read: if isAdmin() ||
+        (isSignedIn() && resource.data.carpenterId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.carpenterId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // Order-creators may only append (the ledger entry and notification that
+    // accompany a party payment) -- never edit or delete existing rows.
     match /notifications/{notificationId} {
       allow read: if isSignedIn();
-      allow write: if isAdmin();
+      allow create: if isAdmin() || isOrderCreator();
+      allow update, delete: if isAdmin();
     }
 
     match /pointsLedger/{entryId} {
       allow read: if isSignedIn();
-      allow write: if isAdmin();
+      allow create: if isAdmin() || isOrderCreator();
+      allow update, delete: if isAdmin();
     }
 
     // Admin broadcast log (persisted notification-send history).

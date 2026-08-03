@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../models.dart';
 import '../state.dart';
 import '../widgets.dart';
@@ -65,6 +62,21 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                       Text(c.mobile, style: const TextStyle(fontSize: 13)),
                       Text(c.area, style: const TextStyle(color: kMuted, fontSize: 12)),
                       const SizedBox(height: 10),
+                      // Counts read as plain details alongside the name and
+                      // phone rather than a separate row of stat tiles --
+                      // nothing here is tappable, so tiles overstated them.
+                      Wrap(
+                        spacing: 18,
+                        runSpacing: 6,
+                        children: [
+                          _Detail(label: 'Points', value: '${c.points}'),
+                          _Detail(label: 'Orders', value: '${orders.length}'),
+                          _Detail(label: 'Party', value: '${partyOrders.length}'),
+                          _Detail(label: 'Redemptions', value: '${redemptions.length}'),
+                          _Detail(label: 'Leads', value: '${leads.length}'),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -110,65 +122,6 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: _MiniStat(icon: Icons.workspace_premium_outlined, label: 'Points', value: '${c.points}')),
-              const SizedBox(width: 10),
-              Expanded(child: _MiniStat(icon: Icons.inventory_2_outlined, label: 'Orders', value: '${orders.length}')),
-              const SizedBox(width: 10),
-              Expanded(child: _MiniStat(icon: Icons.receipt_long_outlined, label: 'Party', value: '${partyOrders.length}')),
-              const SizedBox(width: 10),
-              Expanded(child: _MiniStat(icon: Icons.card_giftcard_outlined, label: 'Redemptions', value: '${redemptions.length}')),
-              const SizedBox(width: 10),
-              Expanded(child: _MiniStat(icon: Icons.lightbulb_outline, label: 'Leads', value: '${leads.length}')),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const SubHeading('Location'),
-          const SizedBox(height: 8),
-          if (c.lat != null && c.lng != null) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: GestureDetector(
-                onTap: () => launchUrl(Uri.parse('https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}'), mode: LaunchMode.externalApplication),
-                child: AbsorbPointer(
-                  child: SizedBox(
-                    height: 220,
-                    child: FlutterMap(
-                      options: MapOptions(initialCenter: LatLng(c.lat!, c.lng!), initialZoom: 14),
-                      children: [
-                        TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'com.carpenterhub.admin_console'),
-                        MarkerLayer(markers: [
-                          Marker(
-                            point: LatLng(c.lat!, c.lng!),
-                            width: 32,
-                            height: 32,
-                            child: const Icon(Icons.location_on, color: kPrimaryDark, size: 32),
-                          ),
-                        ]),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            AppCard(
-              onTap: () => launchUrl(Uri.parse('https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}'), mode: LaunchMode.externalApplication),
-              child: Row(
-                children: [
-                  const Icon(Icons.location_on_outlined, color: kPrimary),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text('Last seen: ${c.lastSeen}', style: const TextStyle(fontSize: 13))),
-                  const Icon(Icons.open_in_new, size: 16, color: kMuted),
-                  const SizedBox(width: 6),
-                  const Text('Open map', style: TextStyle(fontSize: 12, color: kMuted)),
-                ],
-              ),
-            ),
-          ] else
-            const EmptyState(icon: Icons.location_off_outlined, message: 'No location reported yet'),
           const SizedBox(height: 20),
           Container(
             decoration: BoxDecoration(
@@ -309,7 +262,7 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                         Text('+${o.pointsAwarded} pts', style: const TextStyle(color: Color(0xFF16A34A), fontSize: 11, fontWeight: FontWeight.w500)),
                       ] else ...[
                         const SizedBox(height: 4),
-                        Text('~${(o.amount * o.commissionPercent) ~/ 100} pts', style: const TextStyle(color: kTextMuted, fontSize: 11)),
+                        Text('~${o.maxPoints} pts', style: const TextStyle(color: kTextMuted, fontSize: 11)),
                       ],
                     ],
                   ),
@@ -392,23 +345,19 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
       );
 }
 
-class _MiniStat extends StatelessWidget {
-  const _MiniStat({required this.icon, required this.label, required this.value});
-  final IconData icon;
+/// One "Label 123" pair in the header card's detail line.
+class _Detail extends StatelessWidget {
+  const _Detail({required this.label, required this.value});
   final String label;
   final String value;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      decoration: BoxDecoration(color: kBgSurface, borderRadius: BorderRadius.circular(kCardRadius), border: Border.all(color: kBorderSubtle)),
-      child: Column(
+    return Text.rich(
+      TextSpan(
         children: [
-          Icon(icon, size: 18, color: kAccentPrimary),
-          const SizedBox(height: 6),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-          Text(label, style: const TextStyle(color: kTextMuted, fontSize: 11)),
+          TextSpan(text: '$label ', style: const TextStyle(color: kTextMuted, fontSize: 12)),
+          TextSpan(text: value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
         ],
       ),
     );

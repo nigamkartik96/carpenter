@@ -92,6 +92,8 @@ class AdminState extends ChangeNotifier {
   final List<AdminGift> gifts = [];
   final List<Redemption> redemptions = [];
   final List<AdminLead> leads = [];
+  final List<FeedbackEntry> feedback = [];
+  int get newFeedbackCount => feedback.where((f) => f.status == 'New').length;
   final List<Broadcast> broadcasts = [];
   final List<PartyOrder> partyOrders = [];
 
@@ -215,6 +217,7 @@ class AdminState extends ChangeNotifier {
     gifts.clear();
     redemptions.clear();
     leads.clear();
+    feedback.clear();
     broadcasts.clear();
     partyOrders.clear();
     notifyListeners();
@@ -222,6 +225,15 @@ class AdminState extends ChangeNotifier {
 
   /// Maps a party-orders snapshot into the cached list, newest first.
   /// Shared by both role listeners (admin sees all, creator sees own).
+  /// Payments arrive with a Firestore Timestamp; models.dart is deliberately
+  /// Firestore-free, so unwrap it to a DateTime before handing the map over.
+  static Map<String, dynamic> _paymentMap(Map raw) {
+    final m = Map<String, dynamic>.from(raw);
+    final at = m['at'];
+    if (at is Timestamp) m['at'] = at.toDate();
+    return m;
+  }
+
   void _applyPartyOrders(QuerySnapshot<Map<String, dynamic>> snap) {
     final docs = snap.docs.toList()
       ..sort((a, b) {
@@ -242,12 +254,14 @@ class AdminState extends ChangeNotifier {
           carpenterName: d['carpenterName'] ?? '',
           party: d['party'] ?? '',
           amount: _int(d['amount']),
+          rewardAmount: _int(d['rewardAmount']),
           status: d['status'] ?? 'pending',
           approvedAmount: _int(d['approvedAmount']),
-          commissionPercent: _int(d['commissionPercent'], 10),
+          // Orders written before the rename still carry commissionPercent.
+          rewardPercent: _int(d['rewardPercent'] ?? d['commissionPercent'], 10),
           fileUrl: d['fileUrl'],
           fileType: d['fileType'],
-          payments: rawPayments is List ? rawPayments.map((m) => PartyPayment.fromMap(Map<String, dynamic>.from(m as Map))).toList() : const [],
+          payments: rawPayments is List ? rawPayments.map((m) => PartyPayment.fromMap(_paymentMap(m as Map))).toList() : const [],
           createdBy: d['createdBy'],
           createdAt: d['createdAt'] is Timestamp ? (d['createdAt'] as Timestamp).toDate() : null,
         );
@@ -447,6 +461,35 @@ class AdminState extends ChangeNotifier {
       }
     }, onError: (e) => _reportError('redemptions', e)));
 
+    _subs.add(_fb.watchFeedback().listen((snap) {
+      try {
+        feedback
+          ..clear()
+          ..addAll(snap.docs.map((doc) {
+            final d = doc.data();
+            final at = d['createdAt'];
+            return FeedbackEntry(
+              id: doc.id,
+              carpenterId: d['carpenterId'] ?? '',
+              // Denormalized at submit time, but fall back to the live
+              // carpenter list for rows written before that was stored.
+              carpenterName: (d['carpenterName'] as String?)?.isNotEmpty == true
+                  ? d['carpenterName']
+                  : _carpenterName(d['carpenterId']),
+              mobile: d['mobile'] ?? '',
+              text: d['text'] ?? '',
+              audioUrl: d['audioUrl'],
+              imageUrl: d['imageUrl'],
+              status: d['status'] ?? 'New',
+              createdAt: at is Timestamp ? at.toDate() : null,
+            );
+          }));
+        notifyListeners();
+      } catch (e) {
+        _reportError('feedback', e);
+      }
+    }, onError: (e) => _reportError('feedback', e)));
+
     _subs.add(_fb.watchLeads().listen((snap) {
       try {
         leads
@@ -513,9 +556,11 @@ class AdminState extends ChangeNotifier {
     return regular + party;
   }
 
+  /// What party orders have actually credited -- the sum of the per-payment
+  /// figures on record, not a recomputation from the totals.
   int totalPartyPoints(String carpenterId) {
     return partyOrdersFor(carpenterId).fold(0, (s, o) {
-      if (o.approvedAmount > 0) return s + (o.paid * o.commissionPercent) ~/ 100;
+      if (o.approvedAmount > 0) return s + o.pointsAwarded;
       return s;
     });
   }
@@ -587,6 +632,8 @@ class AdminState extends ChangeNotifier {
     return _fb.setRedemptionStatus(id: r.id, carpenterId: r.carpenterId, status: status);
   }
 
+  Future<void> setFeedbackStatus(FeedbackEntry f, String status) => _fb.setFeedbackStatus(f.id, status);
+
   Future<void> setLeadStatus(AdminLead l, String status) => _fb.setLeadStatus(
         id: l.id,
         carpenterId: l.carpenterId,
@@ -628,22 +675,26 @@ class AdminState extends ChangeNotifier {
     return m.isEmpty ? null : m.first;
   }
 
-  Future<void> addPartyOrder({required String carpenterId, required String carpenterName, required String party, required int amount, String? fileUrl, String? fileType}) {
-    return _fb.addPartyOrder(carpenterId: carpenterId, carpenterName: carpenterName, party: party, amount: amount, createdBy: uid!, fileUrl: fileUrl, fileType: fileType);
+  Future<void> addPartyOrder({required String carpenterId, required String carpenterName, required String party, required int amount, required int rewardAmount, required int rewardPercent, String? fileUrl, String? fileType}) {
+    return _fb.addPartyOrder(carpenterId: carpenterId, carpenterName: carpenterName, party: party, amount: amount, rewardAmount: rewardAmount, rewardPercent: rewardPercent, createdBy: uid!, fileUrl: fileUrl, fileType: fileType);
   }
 
-  Future<void> updatePartyOrder(String id, {required String carpenterId, required String carpenterName, required String party, required int amount, String? fileUrl, String? fileType}) {
-    return _fb.updatePartyOrder(id, carpenterId: carpenterId, carpenterName: carpenterName, party: party, amount: amount, fileUrl: fileUrl, fileType: fileType);
+  Future<void> updatePartyOrder(String id, {required String carpenterId, required String carpenterName, required String party, required int amount, required int rewardAmount, required int rewardPercent, String? fileUrl, String? fileType}) {
+    return _fb.updatePartyOrder(id, carpenterId: carpenterId, carpenterName: carpenterName, party: party, amount: amount, rewardAmount: rewardAmount, rewardPercent: rewardPercent, fileUrl: fileUrl, fileType: fileType);
   }
 
-  Future<void> approvePartyOrder(PartyOrder o, int approvedAmount, {int commissionPercent = 10}) => _fb.approvePartyOrder(o.id, approvedAmount, commissionPercent: commissionPercent);
+  Future<void> approvePartyOrder(PartyOrder o, int approvedAmount) => _fb.approvePartyOrder(o.id, approvedAmount);
 
+  /// Points are worked out from the order itself (reward amount and reward %
+  /// against the running collected total), so the caller only supplies what
+  /// came in this time.
   Future<void> recordPartyPayment(PartyOrder o, int amount) => _fb.recordPartyPayment(
         orderId: o.id,
         carpenterId: o.carpenterId,
         party: o.party,
         amount: amount,
-        commissionPercent: o.commissionPercent,
+        pointsFor: o.pointsForPayment,
+        collectableAmount: o.collectableAmount,
       );
 
   Future<void> completePartyOrder(PartyOrder o) => _fb.completePartyOrder(o.id);

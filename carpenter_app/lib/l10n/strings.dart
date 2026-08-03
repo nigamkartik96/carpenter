@@ -291,6 +291,31 @@ const Map<String, String> hiStrings = {
   'An account already exists for this mobile number': 'इस मोबाइल नंबर से पहले से एक खाता बना हुआ है',
   'No account found for that mobile number or email': 'इस मोबाइल नंबर या ईमेल से कोई खाता नहीं मिला',
   'Wrong mobile number, email or password': 'मोबाइल नंबर, ईमेल या पासवर्ड गलत है',
+  'One more step': 'एक और कदम',
+  'Location sharing is off': 'लोकेशन शेयरिंग बंद है',
+  'To keep sharing your location when the app is closed, open Settings > Permissions > Location and choose "Allow all the time".':
+      'ऐप बंद होने पर भी लोकेशन शेयर करते रहने के लिए, सेटिंग्स > अनुमतियां > लोकेशन में जाकर "हमेशा अनुमति दें" चुनें।',
+  'Open settings': 'सेटिंग्स खोलें',
+  // The dashboard tile and screen title. Hindi is deliberately not a
+  // translation of "Feedback" -- "अंकित करें" (record/note down your
+  // business problem) is what carpenters were asked to understand.
+  'Feedback': 'व्यापारिक समस्या को अंकित करें',
+  'Type, voice or photo': 'लिखकर, बोलकर या फोटो से',
+  'Tell the admin about any problem you are facing.': 'आपको जो भी दिक्कत हो रही है, एडमिन को बताएं।',
+  'Tell the admin about any problem you are facing. You can type it, record your voice, or send a photo.':
+      'आपको जो भी दिक्कत हो रही है, एडमिन को बताएं। आप लिख सकते हैं, अपनी आवाज़ रिकॉर्ड कर सकते हैं, या फोटो भेज सकते हैं।',
+  'Write': 'लिखें',
+  'Describe the problem...': 'दिक्कत के बारे में लिखें...',
+  'Record voice note': 'आवाज़ रिकॉर्ड करें',
+  'Stop recording': 'रिकॉर्डिंग बंद करें',
+  'Voice note ready': 'आवाज़ रिकॉर्ड हो गई',
+  'Photo': 'फोटो',
+  'Play': 'सुनें',
+  'Send to admin': 'एडमिन को भेजें',
+  'Sending...': 'भेजा जा रहा है...',
+  'Sent to admin. Thank you!': 'एडमिन को भेज दिया गया। धन्यवाद!',
+  'Please write, record or attach something first': 'पहले कुछ लिखें, रिकॉर्ड करें या फोटो लगाएं',
+  'Could not send': 'भेजा नहीं जा सका',
 };
 
 class AppLocale {

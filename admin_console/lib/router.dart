@@ -14,6 +14,7 @@ import 'screens/order_detail_screen.dart';
 import 'screens/offers_screens.dart';
 import 'screens/gifts_screens.dart';
 import 'screens/redemptions_screen.dart';
+import 'screens/feedback_screen.dart';
 import 'screens/leads_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/settings_screen.dart';
@@ -26,13 +27,13 @@ import 'screens/creator_home_screen.dart';
 const List<(String, String, IconData)> adminSections = [
   ('/', 'Dashboard', Icons.dashboard_outlined),
   ('/carpenters', 'Carpenters', Icons.people_outline),
-  ('/locations', 'Locations', Icons.map_outlined),
   ('/orders', 'Orders', Icons.inventory_2_outlined),
   ('/party-orders', 'Party orders', Icons.receipt_long_outlined),
   ('/offers', 'Offers', Icons.local_offer_outlined),
   ('/gifts', 'Gift catalog', Icons.card_giftcard_outlined),
   ('/redemptions', 'Redemptions', Icons.assignment_outlined),
   ('/leads', 'Leads', Icons.lightbulb_outline),
+  ('/feedback', 'Feedback', Icons.feedback_outlined),
   ('/notifications', 'Notifications', Icons.notifications_outlined),
   ('/settings', 'Settings', Icons.settings_outlined),
 ];
@@ -113,6 +114,7 @@ GoRouter buildAdminRouter(AdminState app) {
           ),
           GoRoute(path: '/redemptions', builder: (context, state) => const RedemptionsScreen()),
           GoRoute(path: '/leads', builder: (context, state) => const LeadsScreen()),
+          GoRoute(path: '/feedback', builder: (context, state) => const FeedbackScreen()),
           GoRoute(path: '/notifications', builder: (context, state) => const NotificationsScreen()),
           GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),
         ],

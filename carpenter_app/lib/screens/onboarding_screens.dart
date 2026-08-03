@@ -324,6 +324,45 @@ class _PendingScreenState extends State<PendingScreen> {
 class ConsentScreen extends StatelessWidget {
   const ConsentScreen({super.key});
 
+  /// Grants foreground location, then tries to upgrade to "Allow all the
+  /// time". Android 11+ refuses to offer that in a dialog, so if it isn't
+  /// granted the carpenter is walked to the settings page where it can
+  /// be. Without it the hourly background job gets no fix at all and the
+  /// admin map freezes on this one position -- which is exactly what was
+  /// happening before.
+  static Future<void> _grantAndContinue(BuildContext context, AppState app) async {
+    final always = await app.requestLocationPermissions();
+    app.startLocationReporting();
+    if (!context.mounted) return;
+    if (!always) {
+      await showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(app.tr('One more step')),
+          content: Text(app.tr(
+            'To keep sharing your location when the app is closed, open Settings > Permissions > Location and choose "Allow all the time".',
+          )),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(app.tr('Later')),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                app.openLocationSettings();
+              },
+              child: Text(app.tr('Open settings')),
+            ),
+          ],
+        ),
+      );
+    }
+    if (context.mounted) {
+      Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (r) => false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
@@ -353,10 +392,7 @@ class ConsentScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                app.startLocationReporting();
-                Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (r) => false);
-              },
+              onPressed: () => _grantAndContinue(context, app),
               child: Text(app.tr('Allow location access')),
             ),
             const SizedBox(height: 8),

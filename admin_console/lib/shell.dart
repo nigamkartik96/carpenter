@@ -53,9 +53,9 @@ class AdminShell extends StatelessWidget {
         : <Widget>[
             item(0),
             groupLabel('Operations'),
-            for (final i in const [1, 2, 3, 4]) item(i), // Carpenters, Locations, Orders, Party orders
+            for (final i in const [1, 2, 3]) item(i), // Carpenters, Orders, Party orders
             groupLabel('Engagement'),
-            for (final i in const [5, 6, 7, 8, 9]) item(i), // Offers, Gifts, Redemptions, Leads, Notifications
+            for (final i in const [4, 5, 6, 7, 8, 9]) item(i), // Offers, Gifts, Redemptions, Leads, Feedback, Notifications
           ];
 
     return Column(
@@ -74,7 +74,10 @@ class AdminShell extends StatelessWidget {
         ...navItems,
         const Spacer(),
         const Divider(color: Colors.white12, height: 1),
-        if (!app.isCreator) item(10), // Settings -- admin only
+        // Settings is always the last entry in adminSections; referenced
+        // by position rather than a hardcoded index so inserting a
+        // section above it can't silently orphan it.
+        if (!app.isCreator) item(sections.length - 1),
         if (app.adminEmail != null)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),

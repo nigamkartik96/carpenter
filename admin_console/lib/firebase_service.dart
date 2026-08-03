@@ -77,6 +77,8 @@ class AdminFirebaseService {
     required String carpenterName,
     required String party,
     required int amount,
+    required int rewardAmount,
+    required int rewardPercent,
     required String createdBy,
     String? fileUrl,
     String? fileType,
@@ -86,6 +88,8 @@ class AdminFirebaseService {
       'carpenterName': carpenterName,
       'party': party,
       'amount': amount,
+      'rewardAmount': rewardAmount,
+      'rewardPercent': rewardPercent,
       'status': 'pending',
       'approvedAmount': 0,
       'payments': [],
@@ -103,6 +107,8 @@ class AdminFirebaseService {
     required String carpenterName,
     required String party,
     required int amount,
+    required int rewardAmount,
+    required int rewardPercent,
     String? fileUrl,
     String? fileType,
   }) {
@@ -111,13 +117,17 @@ class AdminFirebaseService {
       'carpenterName': carpenterName,
       'party': party,
       'amount': amount,
+      'rewardAmount': rewardAmount,
+      'rewardPercent': rewardPercent,
       if (fileUrl != null) 'fileUrl': fileUrl,
       if (fileType != null) 'fileType': fileType,
     });
   }
 
-  Future<void> approvePartyOrder(String id, int approvedAmount, {int commissionPercent = 10}) =>
-      db.collection('partyOrders').doc(id).update({'status': 'approved', 'approvedAmount': approvedAmount, 'commissionPercent': commissionPercent});
+  /// The reward amount and reward % are the creator's, fixed at create time --
+  /// approval only settles how much is actually collectable.
+  Future<void> approvePartyOrder(String id, int approvedAmount) =>
+      db.collection('partyOrders').doc(id).update({'status': 'approved', 'approvedAmount': approvedAmount});
 
   Future<void> completePartyOrder(String id) =>
       db.collection('partyOrders').doc(id).update({'status': 'completed'});
@@ -125,27 +135,30 @@ class AdminFirebaseService {
   /// Records a payment the party made and credits the carpenter the
   /// resulting points in the same transaction -- points, the pointsLedger
   /// entry, and the notification all land together or not at all, mirroring
-  /// [_recalculatePoints]. Points are computed from the *paid* amount, not
-  /// the order/approved amount, since the party can pay in instalments.
+  /// [_recalculatePoints].
+  ///
+  /// [pointsFor] scores this payment on its own -- its share of the reward
+  /// amount, times reward % (see PartyOrder.pointsForPayment) -- so every
+  /// entry in the history carries its own calculation.
   Future<void> recordPartyPayment({
     required String orderId,
     required String carpenterId,
     required String party,
     required int amount,
-    required int commissionPercent,
+    required int Function(int payment) pointsFor,
+    required int collectableAmount,
   }) async {
     final orderRef = db.collection('partyOrders').doc(orderId);
     await db.runTransaction((tx) async {
       final snap = await tx.get(orderRef);
       final data = snap.data() ?? {};
-      final approved = (data['approvedAmount'] is int) ? data['approvedAmount'] as int : 0;
       final existing = (data['payments'] as List?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? [];
       final paidSoFar = existing.fold<int>(0, (s, p) => s + ((p['amount'] is int) ? p['amount'] as int : 0));
-      final remaining = (approved - paidSoFar).clamp(0, approved);
+      final remaining = (collectableAmount - paidSoFar).clamp(0, collectableAmount);
       final capped = amount > remaining ? remaining : amount;
       if (capped <= 0) return;
-      final points = (capped * commissionPercent) ~/ 100;
-      existing.add({'amount': capped, 'points': points});
+      final points = pointsFor(capped);
+      existing.add({'amount': capped, 'points': points, 'at': DateTime.now()});
       tx.update(orderRef, {'payments': existing});
       if (points > 0) {
         tx.update(db.collection('carpenters').doc(carpenterId), {
@@ -451,6 +464,13 @@ class AdminFirebaseService {
       body: 'Your redemption status is now $status',
     );
   }
+
+  /// Problems reported from the carpenter app's Feedback screen.
+  Stream<QuerySnapshot<Map<String, dynamic>>> watchFeedback() =>
+      db.collection('feedback').orderBy('createdAt', descending: true).limit(500).snapshots();
+
+  Future<void> setFeedbackStatus(String id, String status) =>
+      db.collection('feedback').doc(id).update({'status': status});
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchLeads() =>
       db.collection('leads').orderBy('createdAt', descending: true).limit(500).snapshots();

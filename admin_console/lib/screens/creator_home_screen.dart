@@ -90,25 +90,198 @@ class _CreatorOrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final o = order;
+    // Pending -> edit the order. Approved -> collect against it. Completed is
+    // read-only. Collection is the creator's job, not the admin's.
+    final collecting = o.status == 'approved';
+    final progress = o.collectableAmount > 0 ? o.paid / o.collectableAmount : 0.0;
     return AppCard(
-      onTap: o.editable ? () => showDialog(context: context, builder: (_) => _PartyOrderDialog(existing: o)) : null,
-      child: Row(
+      onTap: o.editable
+          ? () => showDialog(context: context, builder: (_) => _PartyOrderDialog(existing: o))
+          : collecting
+              ? () => showDialog(context: context, builder: (_) => _RecordPaymentDialog(order: o))
+              : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-                Text('Party: ${o.party} · ₹${o.amount}', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
-              ],
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(o.carpenterName, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
+                    Text('Party: ${o.party} · ₹${o.amount}', style: const TextStyle(color: kTextSecondary, fontSize: 12)),
+                  ],
+                ),
+              ),
+              _PartyStatusChip(status: o.status),
+              if (o.editable) const Padding(padding: EdgeInsets.only(left: 8), child: Icon(Icons.edit_outlined, size: 16, color: kTextMuted)),
+              if (collecting) const Padding(padding: EdgeInsets.only(left: 8), child: Icon(Icons.payments_outlined, size: 16, color: kAccentPrimary)),
+            ],
           ),
-          _PartyStatusChip(status: o.status),
-          if (o.editable) const Padding(padding: EdgeInsets.only(left: 8), child: Icon(Icons.edit_outlined, size: 16, color: kTextMuted)),
+          if (o.status != 'pending') ...[
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: LinearProgressIndicator(
+                value: progress.clamp(0.0, 1.0),
+                minHeight: 4,
+                backgroundColor: kBorderSubtle,
+                color: progress >= 1.0 ? const Color(0xFF16A34A) : kAccentPrimary,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Collected ₹${o.paid} of ₹${o.collectableAmount} · +${o.pointsAwarded} of ${o.maxPoints} pts'
+              '${collecting ? ' · tap to record a payment' : ''}',
+              style: const TextStyle(color: kTextSecondary, fontSize: 11),
+            ),
+          ],
         ],
       ),
     );
   }
+}
+
+/// Payment collection, done by the creator who logged the order. Each entry
+/// is stamped with the date it was recorded and shows in the history below.
+class _RecordPaymentDialog extends StatefulWidget {
+  const _RecordPaymentDialog({required this.order});
+  final PartyOrder order;
+
+  @override
+  State<_RecordPaymentDialog> createState() => _RecordPaymentDialogState();
+}
+
+class _RecordPaymentDialogState extends State<_RecordPaymentDialog> {
+  final amount = TextEditingController();
+  bool saving = false;
+  String? error;
+
+  static String _fmtDate(DateTime? d) => d == null ? 'date not recorded' : fmtDateTime(d);
+
+  Future<void> _record(AdminState app, PartyOrder o) async {
+    final amt = int.tryParse(amount.text) ?? 0;
+    if (amt <= 0) {
+      setState(() => error = 'Enter an amount');
+      return;
+    }
+    if (amt > o.remaining) {
+      setState(() => error = 'More than the ₹${o.remaining} still outstanding');
+      return;
+    }
+    setState(() {
+      saving = true;
+      error = null;
+    });
+    try {
+      final settles = amt >= o.remaining;
+      await app.recordPartyPayment(o, amt);
+      if (settles) await app.completePartyOrder(o);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          saving = false;
+          error = 'Could not record payment: $e';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final app = context.watch<AdminState>();
+    // Read the order back off state so the dialog reflects payments as they
+    // land rather than the snapshot it was opened with.
+    final o = app.partyOrderById(widget.order.id) ?? widget.order;
+    final amt = int.tryParse(amount.text) ?? 0;
+    final newPoints = amt > 0 ? o.pointsForPayment(amt) : 0;
+
+    return FormDialog(
+      title: 'Record payment',
+      subtitle: '${o.party} · ${o.carpenterName}',
+      icon: Icons.payments_outlined,
+      onClose: () => Navigator.pop(context),
+      children: [
+        _summaryRow('Collectable', '₹${o.collectableAmount}'),
+        _summaryRow('Collected so far', '₹${o.paid}'),
+        _summaryRow('Outstanding', '₹${o.remaining}'),
+        _summaryRow('Reward', '${o.rewardPercent}% of ₹${o.effectiveRewardAmount} = ${o.maxPoints} pts'),
+        _summaryRow('Points credited', '+${o.pointsAwarded} pts'),
+        if (o.payments.isNotEmpty) ...[
+          const SizedBox(height: spaceMd),
+          const Text('Payment history', style: TextStyle(fontSize: 12, color: kTextSecondary)),
+          const SizedBox(height: 4),
+          ...o.payments.map((p) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: Text('₹${p.amount}', style: const TextStyle(fontSize: 13))),
+                        Expanded(flex: 2, child: Text(_fmtDate(p.at), style: const TextStyle(fontSize: 12, color: kTextSecondary))),
+                        Text('+${p.points} pts', style: const TextStyle(fontSize: 13, color: Color(0xFF16A34A))),
+                      ],
+                    ),
+                    Text(o.pointsWorking(p.amount), style: const TextStyle(fontSize: 11, color: kTextMuted)),
+                  ],
+                ),
+              )),
+        ],
+        const Divider(height: 24, color: kBorderSubtle),
+        LabeledField(
+          label: 'Amount received from the party',
+          error: error,
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: amount,
+                  onChanged: (_) => setState(() => error = null),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: const InputDecoration(hintText: '10000', prefixText: '₹ '),
+                ),
+              ),
+              const SizedBox(width: spaceSm),
+              OutlinedButton(
+                onPressed: () => setState(() {
+                  amount.text = o.remaining.toString();
+                  error = null;
+                }),
+                child: const Text('Fill outstanding', style: TextStyle(fontSize: 12)),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text(
+            amt > 0 ? '${o.pointsWorking(amt)} — credited to ${o.carpenterName.split(' ').first}.' : 'Stamped with the date and time you record it.',
+            style: TextStyle(fontSize: 12, color: newPoints > 0 ? const Color(0xFF16A34A) : kWarning),
+          ),
+        ),
+      ],
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        const SizedBox(width: spaceSm),
+        ElevatedButton(onPressed: saving ? null : () => _record(app, o), child: Text(saving ? 'Recording...' : 'Record payment')),
+      ],
+    );
+  }
+
+  Widget _summaryRow(String label, String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: const TextStyle(fontSize: 13, color: kTextSecondary)),
+            Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      );
 }
 
 /// Party-order status pill. Its own small helper (not the shared StatusBadge)
@@ -160,6 +333,8 @@ class _PartyOrderDialog extends StatefulWidget {
 class _PartyOrderDialogState extends State<_PartyOrderDialog> {
   final party = TextEditingController();
   final amount = TextEditingController();
+  final rewardAmount = TextEditingController();
+  final rewardPercent = TextEditingController(text: '10');
   final carpSearch = TextEditingController();
   String? carpenterId;
   String carpenterName = '';
@@ -177,6 +352,8 @@ class _PartyOrderDialogState extends State<_PartyOrderDialog> {
     if (e != null) {
       party.text = e.party;
       amount.text = e.amount.toString();
+      rewardAmount.text = e.rewardAmount > 0 ? e.rewardAmount.toString() : '';
+      rewardPercent.text = e.rewardPercent.toString();
       carpenterId = e.carpenterId;
       carpenterName = e.carpenterName;
       carpSearch.text = e.carpenterName;
@@ -203,16 +380,42 @@ class _PartyOrderDialogState extends State<_PartyOrderDialog> {
     }
   }
 
+  int get _amt => int.tryParse(amount.text) ?? 0;
+  int get _reward => int.tryParse(rewardAmount.text) ?? 0;
+  int get _percent => int.tryParse(rewardPercent.text) ?? -1;
+
+  /// Reward amount is the slice of the order that earns points, so it can
+  /// never exceed the order itself.
+  String? get _rewardError {
+    if (_reward <= 0) return 'Enter a reward amount';
+    if (_amt > 0 && _reward > _amt) return 'Cannot be more than the order amount (₹$_amt)';
+    return null;
+  }
+
+  String? get _percentError {
+    if (_percent < 0 || _percent > 100) return 'Must be between 0 and 100';
+    return null;
+  }
+
+  /// Live preview of what the carpenter earns once the party has paid in
+  /// full -- reward % of the reward amount.
+  String get _rewardSummary {
+    if (_reward <= 0 || _percent < 0) return 'Points are reward % of the reward amount, credited as payments come in.';
+    final pts = (_reward * _percent) ~/ 100;
+    return 'Earns $pts pts in total once fully paid ($_percent% of ₹$_reward).';
+  }
+
   Future<void> _submit(AdminState app) async {
     setState(() => submitted = true);
-    final amt = int.tryParse(amount.text) ?? 0;
+    final amt = _amt;
     if (carpenterId == null || party.text.trim().isEmpty || amt <= 0) return;
+    if (_rewardError != null || _percentError != null) return;
     setState(() => saving = true);
     try {
       if (widget.existing == null) {
-        await app.addPartyOrder(carpenterId: carpenterId!, carpenterName: carpenterName, party: party.text.trim(), amount: amt, fileUrl: fileUrl, fileType: fileType);
+        await app.addPartyOrder(carpenterId: carpenterId!, carpenterName: carpenterName, party: party.text.trim(), amount: amt, rewardAmount: _reward, rewardPercent: _percent, fileUrl: fileUrl, fileType: fileType);
       } else {
-        await app.updatePartyOrder(widget.existing!.id, carpenterId: carpenterId!, carpenterName: carpenterName, party: party.text.trim(), amount: amt, fileUrl: fileUrl, fileType: fileType);
+        await app.updatePartyOrder(widget.existing!.id, carpenterId: carpenterId!, carpenterName: carpenterName, party: party.text.trim(), amount: amt, rewardAmount: _reward, rewardPercent: _percent, fileUrl: fileUrl, fileType: fileType);
       }
       if (mounted) Navigator.pop(context);
     } catch (e) {
@@ -287,8 +490,28 @@ class _PartyOrderDialogState extends State<_PartyOrderDialog> {
         const SizedBox(height: spaceMd),
         LabeledField(
           label: 'Order amount',
-          error: submitted && (int.tryParse(amount.text) ?? 0) <= 0 ? 'Enter a valid amount' : null,
+          error: submitted && _amt <= 0 ? 'Enter a valid amount' : null,
           child: TextField(controller: amount, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(hintText: '24000', prefixText: '₹ ')),
+        ),
+        const SizedBox(height: spaceMd),
+        LabeledField(
+          label: 'Reward amount',
+          error: submitted ? _rewardError : null,
+          child: TextField(controller: rewardAmount, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(hintText: '20000', prefixText: '₹ ')),
+        ),
+        const Padding(
+          padding: EdgeInsets.only(top: 4),
+          child: Text('The part of the order that earns points. Never more than the order amount.', style: TextStyle(fontSize: 12, color: kTextSecondary)),
+        ),
+        const SizedBox(height: spaceMd),
+        LabeledField(
+          label: 'Reward %',
+          error: submitted ? _percentError : null,
+          child: TextField(controller: rewardPercent, onChanged: (_) => setState(() {}), keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(hintText: '10', suffixText: '%')),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(_rewardSummary, style: const TextStyle(fontSize: 12, color: Color(0xFF16A34A), fontWeight: FontWeight.w500)),
         ),
         const SizedBox(height: spaceMd),
         LabeledField(

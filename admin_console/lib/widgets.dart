@@ -57,6 +57,15 @@ const double space2xl = 32;
 const double kCardRadius = 12;
 const kCardBorder = BorderSide(color: kBorderSubtle);
 
+/// Date + time, for things where "when exactly" matters -- a recorded party
+/// payment has to be reconcilable against a cash book, and several can land
+/// on the same day, so the date alone doesn't tell them apart.
+String fmtDateTime(DateTime d) {
+  final date = '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+  final time = '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+  return '$date · $time';
+}
+
 /// Shared yes/no confirmation dialog so every destructive or
 /// hard-to-undo action (withdraw, status change, settings save, ...)
 /// looks and behaves the same. Returns true only if the admin confirmed.

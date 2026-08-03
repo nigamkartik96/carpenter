@@ -206,6 +206,18 @@ class FirebaseService {
     });
   }
 
+  /// Carpenter-reported problems for the admin to act on. Any mix of
+  /// typed text, a voice note and a photo -- carpenters who can't read
+  /// or write comfortably use the other two.
+  Future<void> addFeedback(String carpenterId, Map<String, dynamic> data) {
+    return db.collection('feedback').add({
+      ...data,
+      'carpenterId': carpenterId,
+      'status': 'New',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   Stream<QuerySnapshot<Map<String, dynamic>>> watchLeads(String carpenterId) =>
       db.collection('leads').where('carpenterId', isEqualTo: carpenterId).snapshots();
 

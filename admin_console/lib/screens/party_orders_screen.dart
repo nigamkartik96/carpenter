@@ -210,8 +210,6 @@ class PartyOrderDetailScreen extends StatefulWidget {
 
 class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
   final approveAmt = TextEditingController();
-  final commissionCtl = TextEditingController(text: '10');
-  final payAmt = TextEditingController();
   bool busy = false;
   bool _approvePrefilled = false;
 
@@ -228,7 +226,6 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
     }
     if (!_approvePrefilled) {
       approveAmt.text = (o.approvedAmount > 0 ? o.approvedAmount : o.amount).toString();
-      commissionCtl.text = o.commissionPercent.toString();
       _approvePrefilled = true;
     }
 
@@ -313,6 +310,9 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
     );
   }
 
+  /// Approval settles how much is collectable. The reward amount and reward %
+  /// are the creator's -- fixed when the order was logged -- so they show
+  /// here as context, not as fields.
   Widget _approveCard(AdminState app, PartyOrder o) => FormCard(
         title: 'Approve order',
         children: [
@@ -321,21 +321,15 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
             child: TextField(controller: approveAmt, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(prefixText: '₹ ')),
           ),
           const SizedBox(height: spaceMd),
-          LabeledField(
-            label: 'Commission %',
-            child: TextField(controller: commissionCtl, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(suffixText: '%', hintText: '10')),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 4, bottom: 10),
-            child: Text('Percentage of each payment credited as points to the carpenter', style: const TextStyle(fontSize: 12, color: kTextSecondary)),
-          ),
+          _kv('Reward amount', _money(o.rewardAmount)),
+          _kv('Reward %', '${o.rewardPercent}%'),
           Builder(builder: (_) {
             final amt = int.tryParse(approveAmt.text) ?? o.amount;
-            final commission = (int.tryParse(commissionCtl.text) ?? 10).clamp(0, 100);
-            final expectedPoints = (amt * commission) ~/ 100;
+            final reward = o.rewardAmount <= 0 || o.rewardAmount > amt ? amt : o.rewardAmount;
+            final expectedPoints = (reward * o.rewardPercent) ~/ 100;
             return Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Text('Max points if fully paid: +$expectedPoints pts (${commission}% of ${_money(amt)})', style: const TextStyle(fontSize: 12, color: Color(0xFF16A34A), fontWeight: FontWeight.w500)),
+              padding: const EdgeInsets.only(top: 6, bottom: 10),
+              child: Text('Max points if fully paid: +$expectedPoints pts (${o.rewardPercent}% of ${_money(reward)})', style: const TextStyle(fontSize: 12, color: Color(0xFF16A34A), fontWeight: FontWeight.w500)),
             );
           }),
           ElevatedButton.icon(
@@ -343,10 +337,9 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
                 ? null
                 : () async {
                     final amt = int.tryParse(approveAmt.text) ?? o.amount;
-                    final commission = (int.tryParse(commissionCtl.text) ?? 10).clamp(0, 100);
                     setState(() => busy = true);
                     try {
-                      await app.approvePartyOrder(o, amt, commissionPercent: commission);
+                      await app.approvePartyOrder(o, amt);
                     } finally {
                       if (mounted) setState(() => busy = false);
                     }
@@ -357,6 +350,9 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
         ],
       );
 
+  /// Read-only for the admin. Collection is the order-creator's job -- they
+  /// are the one physically collecting from the party -- so this shows what
+  /// has come in and when, without any way to record or complete from here.
   Widget _paymentCard(AdminState app, PartyOrder o) {
     final completed = o.status == 'completed';
     return FormCard(
@@ -372,8 +368,9 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
           ],
         ),
         const SizedBox(height: spaceSm),
-        _kv('Commission', '${o.commissionPercent}%'),
-        _kv('Points (${o.commissionPercent}% of received ${_money(o.paid)})', '${(o.paid * o.commissionPercent) ~/ 100} pts'),
+        _kv('Reward amount', _money(o.effectiveRewardAmount)),
+        _kv('Reward %', '${o.rewardPercent}%'),
+        _kv('Points if fully paid', '${o.maxPoints} pts'),
         _kv('Points credited to ${o.carpenterName.split(' ').first}', '+${o.pointsAwarded} pts'),
         if (o.payments.isNotEmpty) ...[
           const SizedBox(height: spaceSm),
@@ -381,89 +378,27 @@ class _PartyOrderDetailScreenState extends State<PartyOrderDetailScreen> {
           const SizedBox(height: 4),
           ...o.payments.map((p) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 3),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('${_money(p.amount)} received', style: const TextStyle(fontSize: 13)), Text('+${p.points} pts', style: const TextStyle(fontSize: 13, color: Color(0xFF16A34A)))]),
+                child: Row(
+                  children: [
+                    Expanded(child: Text('${_money(p.amount)} received', style: const TextStyle(fontSize: 13))),
+                    Expanded(flex: 2, child: Text(p.at != null ? fmtDateTime(p.at!) : 'date not recorded', style: const TextStyle(fontSize: 12, color: kTextSecondary))),
+                    Text('+${p.points} pts', style: const TextStyle(fontSize: 13, color: Color(0xFF16A34A))),
+                  ],
+                ),
               )),
         ],
-        if (!completed) ...[
-          const Divider(height: 24, color: kBorderSubtle),
-          LabeledField(
-            label: 'Record payment received from party',
-            child: Row(
-              children: [
-                Expanded(child: TextField(controller: payAmt, keyboardType: TextInputType.number, inputFormatters: [FilteringTextInputFormatter.digitsOnly], decoration: const InputDecoration(hintText: '10000', prefixText: '₹ '))),
-                const SizedBox(width: 8),
-                OutlinedButton(
-                  onPressed: () => setState(() => payAmt.text = o.remaining.toString()),
-                  child: const Text('Fill remaining', style: TextStyle(fontSize: 12)),
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: completed
+              ? const PartyStatusChip(status: 'completed')
+              : const Row(
+                  children: [
+                    Icon(Icons.info_outline, size: 15, color: kTextMuted),
+                    SizedBox(width: 6),
+                    Expanded(child: Text('Payments are collected and recorded by the order creator.', style: TextStyle(fontSize: 12, color: kTextMuted))),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 6, bottom: 10),
-            child: Text('Commission: ${o.commissionPercent}% of payment added as points · max ${_money(o.remaining)}', style: const TextStyle(fontSize: 12, color: kTextSecondary)),
-          ),
-          Row(
-            children: [
-              ElevatedButton.icon(
-                onPressed: busy
-                    ? null
-                    : () async {
-                        final amt = int.tryParse(payAmt.text) ?? 0;
-                        if (amt <= 0) return;
-                        if (amt > o.remaining) {
-                          await infoDialog(context, title: 'Amount too high', message: 'Payment of ${_money(amt)} exceeds the remaining balance of ${_money(o.remaining)}. Please enter an amount up to ${_money(o.remaining)}.');
-                          return;
-                        }
-                        final settlesOrder = amt >= o.remaining;
-                        final thisPoints = (amt * o.commissionPercent) ~/ 100;
-                        final totalCollected = o.paid + amt;
-                        final totalPoints = o.pointsAwarded + thisPoints;
-                        setState(() => busy = true);
-                        try {
-                          await app.recordPartyPayment(o, amt);
-                          payAmt.clear();
-                          if (settlesOrder) {
-                            await app.completePartyOrder(o);
-                            if (mounted) {
-                              await infoDialog(
-                                context,
-                                title: 'Order completed',
-                                message: "${o.party}'s order is fully paid. ${_money(totalCollected)} collected and +$totalPoints pts awarded to ${o.carpenterName.split(' ').first}.",
-                              );
-                            }
-                          }
-                        } finally {
-                          if (mounted) setState(() => busy = false);
-                        }
-                      },
-                icon: const Icon(Icons.payments_outlined, size: 16),
-                label: const Text('Record payment'),
-              ),
-              const SizedBox(width: spaceSm),
-              OutlinedButton.icon(
-                onPressed: busy
-                    ? null
-                    : () async {
-                        final ok = await confirmDialog(context, title: 'Complete this order?', message: 'No more payments can be recorded after completing. ${_money(o.paid)} collected, +${o.pointsAwarded} pts awarded.', confirmLabel: 'Complete');
-                        if (!ok) return;
-                        setState(() => busy = true);
-                        try {
-                          await app.completePartyOrder(o);
-                        } finally {
-                          if (mounted) setState(() => busy = false);
-                        }
-                      },
-                icon: const Icon(Icons.check_circle_outline, size: 16),
-                label: const Text('Complete order'),
-              ),
-            ],
-          ),
-        ] else
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: PartyStatusChip(status: 'completed'),
-          ),
+        ),
       ],
     );
   }
