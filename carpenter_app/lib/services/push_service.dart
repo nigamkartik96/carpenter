@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'firebase_service.dart';
+import 'navigation.dart';
 
 /// Android needs a notification channel declared up front; messages that
 /// arrive while the app is closed are posted to this one by the Firebase
@@ -11,11 +12,6 @@ import 'firebase_service.dart';
 /// foreground messages are posted to it by [PushService] by hand.
 const _channelId = 'carpenterhub_default';
 const _channelName = 'Order & points updates';
-
-/// Set by main.dart so a notification tap can navigate without a
-/// BuildContext -- taps are handled from a background isolate callback
-/// and from cold start, neither of which has a widget tree to read.
-final GlobalKey<NavigatorState> pushNavigatorKey = GlobalKey<NavigatorState>();
 
 /// Runs in its own isolate when a message arrives with the app killed or
 /// backgrounded. Messages carry a `notification` block, so Android draws
@@ -113,7 +109,7 @@ class PushService {
   /// the notification list, which is a safe destination whether or not
   /// the app's Firestore caches have loaded yet.
   void _open(Map<String, dynamic> data) {
-    final nav = pushNavigatorKey.currentState;
+    final nav = appNavigatorKey.currentState;
     if (nav == null) return;
     final refId = '${data['refId'] ?? ''}';
     if (data['type'] == 'order' && refId.isNotEmpty) {

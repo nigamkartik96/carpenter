@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../services/update_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/speaker_button.dart';
@@ -28,7 +29,13 @@ class _HomeShellState extends State<HomeShell> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkLocationPermission());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // A carpenter who logs in fresh never passes through AuthGate's
+      // resumed-session branch, so the update check has to happen here
+      // too. UpdateService only ever prompts once per launch.
+      UpdateService.promptIfAvailable();
+      _checkLocationPermission();
+    });
   }
 
   Future<void> _checkLocationPermission() async {

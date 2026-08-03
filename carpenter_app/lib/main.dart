@@ -10,6 +10,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'firebase_options.dart';
 import 'services/background_location.dart';
+import 'services/navigation.dart';
 import 'services/push_service.dart';
 import 'services/update_service.dart';
 import 'state/app_state.dart';
@@ -46,7 +47,7 @@ class CarpenterHubApp extends StatelessWidget {
       child: Consumer<AppState>(
         builder: (context, app, _) => MaterialApp(
         title: 'CarpenterHub',
-        navigatorKey: pushNavigatorKey,
+        navigatorKey: appNavigatorKey,
         debugShowCheckedModeBanner: false,
         theme: buildAppTheme(),
         // Carpenter-adjustable text scale (Profile > font size) applies
@@ -126,12 +127,7 @@ class _AuthGateState extends State<AuthGate> {
     _checkForUpdate();
   }
 
-  Future<void> _checkForUpdate() async {
-    final update = await UpdateService.instance.checkForUpdate();
-    if (update != null && mounted) {
-      UpdateService.showUpdateDialog(context, update);
-    }
-  }
+  Future<void> _checkForUpdate() => UpdateService.promptIfAvailable();
 
   @override
   Widget build(BuildContext context) {

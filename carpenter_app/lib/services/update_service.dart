@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'navigation.dart';
 
 class UpdateInfo {
   final String version;
@@ -51,9 +54,35 @@ class UpdateService {
         );
       }
       return null;
-    } catch (_) {
+    } catch (e) {
+      // Logged out, this reads config/appVersion without being signed in
+      // and Firestore rules reject it. Logged out is also the one case
+      // where nothing needs updating yet, so returning null is right --
+      // but log it, because a silent null here is indistinguishable from
+      // "already up to date".
+      debugPrint('update check failed: $e');
       return null;
     }
+  }
+
+  // The prompt is offered once per app launch. Both AuthGate (resumed
+  // session) and HomeShell (fresh login) ask, since neither covers the
+  // other's path, and without this guard a resumed session would show
+  // the dialog twice.
+  static bool _prompted = false;
+
+  /// Shows the update dialog through the app-wide navigator rather than a
+  /// widget's own context. The check is asynchronous and routing to the
+  /// dashboard unmounts whatever started it, so a `mounted` guard on the
+  /// caller silently swallowed the prompt for every logged-in carpenter.
+  static Future<void> promptIfAvailable() async {
+    if (_prompted) return;
+    final update = await instance.checkForUpdate();
+    if (update == null) return;
+    final ctx = appNavigatorKey.currentContext;
+    if (ctx == null) return;
+    _prompted = true;
+    await showUpdateDialog(ctx, update);
   }
 
   Future<void> launchDownload(String url) async {

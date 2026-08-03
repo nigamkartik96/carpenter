@@ -1,3 +1,5 @@
+import 'dart:ui' show FontFeature;
+
 import 'package:flutter/material.dart';
 import 'models.dart';
 
@@ -6,21 +8,30 @@ import 'models.dart';
 // than hardcoding one-off values, so the whole app reads as one product.
 // ---------------------------------------------------------------------------
 
-// Cool neutral gray, not the previous warm beige -- the beige+black-opacity
-// combination was reading as dated/institutional ("hospital walls") rather
-// than a modern product. This scale mirrors the neutral grays common across
-// current SaaS admin tools (Linear, Vercel, etc.).
-const kBgApp = Color(0xFFF7F8FA);
+// The console is a multi-tenant product: it ships to businesses other than
+// CarpenterHub, whose own apps each have their own look (carpenter_app is
+// deliberately warm/orange -- do NOT mirror it here). So the surface system
+// is chromatically silent and the only brand colour lives in the accent
+// pair below. Re-theming for a new tenant means changing those two
+// constants and nothing else.
+//
+// The neutrals carry a faint green cast picked up from the petrol accent,
+// rather than the blue-gray every SaaS admin defaults to -- enough to feel
+// chosen at full-page scale, not enough to read as a colour.
+const kBgApp = Color(0xFFF4F6F5);
 const kBgSurface = Colors.white;
-const kBgSidebar = Color(0xFF14161A);
+const kBgSidebar = Color(0xFF10201F); // near-black, same petrol family
 
-const kTextPrimary = Color(0xFF111827);
-const kTextSecondary = Color(0xFF6B7280);
-const kTextMuted = Color(0xFF9CA3AF);
-const kBorderSubtle = Color(0xFFE5E7EB); // solid cool gray, not black-opacity -- crisper on both white and kBgApp
+const kTextPrimary = Color(0xFF16201F);
+const kTextSecondary = Color(0xFF5B6866); // 5.8:1 on white, 5.4:1 on kBgApp -- body-safe
+const kTextMuted = Color(0xFF8A9694); // 3.1:1 -- decorative/large only, never body text
+const kBorderSubtle = Color(0xFFDFE4E2);
 
-const kAccentPrimary = Color(0xFF4F46E5);
-const kAccentPrimaryDark = Color(0xFF4338CA);
+// ---- Tenant accent -------------------------------------------------------
+// The one place brand colour is allowed. Deep petrol: distinct from the
+// blue/indigo default, and dark enough to carry white text at AA.
+const kAccentPrimary = Color(0xFF0F4C51);
+const kAccentPrimaryDark = Color(0xFF0A383C);
 
 // Status-system colors (solid, used with white text for guaranteed AA
 // contrast -- see StatusBadge below). Each is a standard "600"-weight shade
@@ -54,8 +65,56 @@ const double spaceLg = 16;
 const double spaceXl = 24;
 const double space2xl = 32;
 
-const double kCardRadius = 12;
+// Two radii, not the seven that had accumulated (3/6/8/10/12/14/20).
+// Containers get one value, controls inside them get the tighter one, and
+// pills stay fully round.
+const double kRadiusCard = 10;
+const double kRadiusControl = 6;
+const double kRadiusPill = 999;
+const double kCardRadius = kRadiusCard; // legacy alias -- lots of call sites
 const kCardBorder = BorderSide(color: kBorderSubtle);
+
+// ---------------------------------------------------------------------------
+// Type. IBM Plex across three roles: Sans for interface, Mono for every
+// figure, Sans Devanagari as the fallback that carries Hindi content.
+//
+// The ramp is deliberately six steps with real distance between them. What
+// was here before had nine sizes clustered between 10 and 15 -- 12px and
+// 13px alone accounted for most of the interface, which is why nothing read
+// as more important than anything else. 13 is gone; if something sat at 13
+// it belongs at either 14 (content) or 12 (metadata).
+// ---------------------------------------------------------------------------
+const kFontSans = 'IBMPlexSans';
+const kFontMono = 'IBMPlexMono';
+const kFontFallback = ['IBMPlexSansDevanagari', 'Noto Sans Devanagari'];
+
+/// Page titles. One per screen, and nothing else competes with it.
+const kTypeDisplay = TextStyle(fontSize: 30, fontWeight: FontWeight.w700, height: 1.15, letterSpacing: -0.5, color: kTextPrimary);
+
+/// Card and dialog titles.
+const kTypeTitle = TextStyle(fontSize: 20, fontWeight: FontWeight.w700, height: 1.25, letterSpacing: -0.2, color: kTextPrimary);
+
+/// Section labels within a page.
+const kTypeSection = TextStyle(fontSize: 15, fontWeight: FontWeight.w600, height: 1.3, color: kTextPrimary);
+
+/// Default reading size for content.
+const kTypeBody = TextStyle(fontSize: 14, fontWeight: FontWeight.w400, height: 1.45, color: kTextPrimary);
+
+/// Supporting text: helper lines, timestamps, table metadata.
+const kTypeMeta = TextStyle(fontSize: 12, fontWeight: FontWeight.w400, height: 1.4, color: kTextSecondary);
+
+/// Pills, eyebrows, column headers. Uppercase tracking is applied at the
+/// call site where the label is genuinely a category rather than a word.
+const kTypeMicro = TextStyle(fontSize: 11, fontWeight: FontWeight.w600, height: 1.3, letterSpacing: 0.2, color: kTextSecondary);
+
+/// Every figure in the console -- money, points, counts, dates. Tabular so a
+/// column of numbers lines up digit-for-digit when scanned vertically, which
+/// on screens that are mostly numbers is the difference between a table and
+/// a list of strings.
+const kTypeFigure = TextStyle(fontFamily: kFontMono, fontSize: 14, fontWeight: FontWeight.w400, height: 1.4, color: kTextPrimary, fontFeatures: [FontFeature.tabularFigures()]);
+
+/// The headline figure on a stat card.
+const kTypeFigureLarge = TextStyle(fontFamily: kFontMono, fontSize: 24, fontWeight: FontWeight.w600, height: 1.2, letterSpacing: -0.5, color: kTextPrimary, fontFeatures: [FontFeature.tabularFigures()]);
 
 /// Date + time, for things where "when exactly" matters -- a recorded party
 /// payment has to be reconcilable against a cash book, and several can land
@@ -192,29 +251,72 @@ ThemeData buildAdminTheme() {
     useMaterial3: true,
     scaffoldBackgroundColor: kBgApp,
     colorScheme: ColorScheme.fromSeed(seedColor: kAccentPrimary),
-    // Devanagari (Hindi offer titles etc.) needs a fallback that has those
-    // glyphs -- Noto Sans is bundled with Flutter's default font set and
-    // covers it, so mixed Hindi/English text renders cleanly side by side
-    // instead of showing tofu boxes for the Hindi portion.
-    fontFamilyFallback: const ['Noto Sans', 'Noto Sans Devanagari'],
-    textTheme: const TextTheme(bodyMedium: TextStyle(color: kTextPrimary)),
+    fontFamily: kFontSans,
+    // Hindi (offer titles and other carpenter-entered content) falls through
+    // to Plex Sans Devanagari, so mixed Hindi/English lines render in one
+    // designed family rather than showing tofu or dropping to a system face
+    // mid-sentence.
+    fontFamilyFallback: kFontFallback,
+    textTheme: const TextTheme(
+      bodyLarge: kTypeBody,
+      bodyMedium: kTypeBody,
+      bodySmall: kTypeMeta,
+      titleLarge: kTypeTitle,
+      titleMedium: kTypeSection,
+      labelSmall: kTypeMicro,
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: kAccentPrimary,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        disabledBackgroundColor: kBorderSubtle,
+        disabledForegroundColor: kTextMuted,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: spaceLg, vertical: 14),
+        textStyle: const TextStyle(fontFamily: kFontSans, fontSize: 14, fontWeight: FontWeight.w600),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kRadiusControl)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: kTextPrimary,
+        side: const BorderSide(color: kBorderSubtle),
+        padding: const EdgeInsets.symmetric(horizontal: spaceLg, vertical: 14),
+        textStyle: const TextStyle(fontFamily: kFontSans, fontSize: 14, fontWeight: FontWeight.w600),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kRadiusControl)),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: kAccentPrimary,
+        textStyle: const TextStyle(fontFamily: kFontSans, fontSize: 14, fontWeight: FontWeight.w600),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: kBgSurface,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: spaceMd, vertical: spaceMd),
+      hintStyle: const TextStyle(color: kTextMuted, fontSize: 14),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(kRadiusControl), borderSide: const BorderSide(color: kBorderSubtle)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(kRadiusControl), borderSide: const BorderSide(color: kBorderSubtle)),
+      // A focused field is the one thing on screen accepting input; the
+      // accent earns its keep here more than anywhere else.
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(kRadiusControl), borderSide: const BorderSide(color: kAccentPrimary, width: 2)),
+      disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(kRadiusControl), borderSide: const BorderSide(color: kBorderSubtle)),
     ),
     cardTheme: CardThemeData(
       elevation: 0,
       color: kBgSurface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kCardRadius), side: kCardBorder),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kRadiusCard), side: kCardBorder),
+    ),
+    dividerTheme: const DividerThemeData(color: kBorderSubtle, thickness: 1, space: 1),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: kBgSurface,
+      foregroundColor: kTextPrimary,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      titleTextStyle: kTypeTitle,
     ),
   );
 }
@@ -272,10 +374,10 @@ class Heading extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(text, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: kTextPrimary)),
+        Text(text, style: kTypeDisplay),
         if (subtitle != null) ...[
-          const SizedBox(height: 2),
-          Text(subtitle!, style: const TextStyle(color: kTextSecondary, fontSize: 13)),
+          const SizedBox(height: spaceXs),
+          Text(subtitle!, style: kTypeBody.copyWith(color: kTextSecondary)),
         ],
       ],
     );
@@ -288,7 +390,7 @@ class SubHeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: kTextPrimary));
+    return Text(text, style: kTypeSection);
   }
 }
 
@@ -303,15 +405,15 @@ class BackLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: BorderRadius.circular(kRadiusControl),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+        padding: const EdgeInsets.symmetric(vertical: spaceXs, horizontal: 2),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.arrow_back, size: 16, color: kAccentPrimary),
-            const SizedBox(width: 6),
-            Text(label, style: const TextStyle(color: kAccentPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
+            const SizedBox(width: spaceSm),
+            Text(label, style: kTypeBody.copyWith(color: kAccentPrimary, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -337,13 +439,13 @@ class StatusBadge extends StatelessWidget {
     final neutral = _isNeutralStatus(label);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: neutral ? const Color(0xFFE7E5E1) : c, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: neutral ? kBgApp : c, borderRadius: BorderRadius.circular(kRadiusPill), border: neutral ? Border.all(color: kBorderSubtle) : null),
       child: Text(
         label,
         maxLines: 1,
         softWrap: false,
         overflow: TextOverflow.visible,
-        style: TextStyle(color: neutral ? kTextSecondary : Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+        style: kTypeMicro.copyWith(color: neutral ? kTextSecondary : Colors.white),
       ),
     );
   }
@@ -360,8 +462,8 @@ class AudienceBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: kAudienceColor, borderRadius: BorderRadius.circular(20)),
-      child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+      decoration: BoxDecoration(color: kAudienceColor, borderRadius: BorderRadius.circular(kRadiusPill)),
+      child: Text(label, style: kTypeMicro.copyWith(color: Colors.white)),
     );
   }
 }
@@ -426,8 +528,8 @@ class StatChip extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
+                padding: const EdgeInsets.all(spaceSm),
+                decoration: BoxDecoration(color: color.withOpacity(0.10), borderRadius: BorderRadius.circular(kRadiusControl)),
                 child: Icon(icon, size: 18, color: color),
               ),
               const SizedBox(width: spaceMd),
@@ -435,12 +537,14 @@ class StatChip extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(label, style: const TextStyle(color: kTextSecondary, fontSize: 12)),
-                    const SizedBox(height: 4),
-                    Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: kTextPrimary)),
+                    // Uppercase micro label above the figure: the number is
+                    // the content, the label is just its key.
+                    Text(label.toUpperCase(), style: kTypeMicro.copyWith(letterSpacing: 0.6, color: kTextMuted)),
+                    const SizedBox(height: spaceXs),
+                    Text(value, style: kTypeFigureLarge),
                     if (trend != null) ...[
                       const SizedBox(height: 2),
-                      Text(trend!, style: const TextStyle(color: kTextMuted, fontSize: 11)),
+                      Text(trend!, style: kTypeMicro.copyWith(color: kTextMuted)),
                     ],
                   ],
                 ),

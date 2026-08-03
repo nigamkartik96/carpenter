@@ -1,16 +1,16 @@
 # Graph Report - carpenter_app  (2026-08-03)
 
 ## Corpus Check
-- 60 files · ~38,533 words
+- 61 files · ~38,779 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 859 nodes · 1176 edges · 43 communities (35 shown, 8 thin omitted)
+- 864 nodes · 1185 edges · 52 communities (35 shown, 17 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 18 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f6b9f5a6`
+- Built from commit: `08b0a3e5`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -18,6 +18,7 @@
 - app_state.dart
 - Win32Window
 - models.dart
+- @pragma
 - theme.dart
 - order_screens.dart
 - main.dart
@@ -46,14 +47,22 @@
 - contact_picker.dart
 - _OrderHistoryScreenState
 - _UploadOrderScreenState
+- _ManualOrderScreenState
+- _OffersScreenState
+- _OrderHistoryScreenState
 - @bank
 - String?
+- _OrderSuccessScreenState
 - List
 - carpenter_app
 - CLAUDE.md
 - CLAUDE.md
 - README.md
+- _UploadOrderScreenState
+- _VoiceNotePlayerState
 - _OrderSuccessScreenState
+- _VoiceOrderScreenState
+- _LeadsScreenState
 
 ## God Nodes (most connected - your core abstractions)
 1. `AppState` - 77 edges
@@ -82,7 +91,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (43 total, 8 thin omitted)
+## Communities (52 total, 17 thin omitted)
 
 ### Community 0 - "app_state.dart"
 Cohesion: 0.02
@@ -96,21 +105,25 @@ Nodes (53): PluginRegistry, Point, RECT, Size, unique_ptr, RegisterPlugins(), Da
 Cohesion: 0.04
 Nodes (53): DateTime?, int get, AppNotification, audioUrl, authorName, authorRole, bannerUrl, body (+45 more)
 
+### Community 3 - "@pragma"
+Cohesion: 0.67
+Nodes (3): @pragma, backgroundLocationCallbackDispatcher, pushBackgroundHandler
+
 ### Community 4 - "theme.dart"
 Cohesion: 0.04
-Nodes (45): BoxFit, Color, buildAppTheme, child, color, _defaultPageSizes, errorWidget, fit (+37 more)
+Nodes (44): BoxFit, buildAppTheme, child, color, _defaultPageSizes, errorWidget, fit, height (+36 more)
 
 ### Community 5 - "order_screens.dart"
 Cohesion: 0.04
 Nodes (44): AudioPlayer?, AudioPlayer get, _addRow, audioUrl, _bubble, _comments, createState, detail (+36 more)
 
 ### Community 6 - "main.dart"
-Cohesion: 0.10
-Nodes (21): AuthGate, _AuthGateState, build, CarpenterHubApp, _check, _checked, _checkForUpdate, createState (+13 more)
+Cohesion: 0.11
+Nodes (18): build, CarpenterHubApp, _check, _checked, _checkForUpdate, createState, initializeApp, initState (+10 more)
 
 ### Community 7 - "rewards_screens.dart"
-Cohesion: 0.04
-Nodes (46): double?, IconData, _askedThisLaunch, _checkLocationPermission, createState, DashboardScreen, _index, initState (+38 more)
+Cohesion: 0.06
+Nodes (35): Color, double?, IconData, color, controller, createState, embedded, error (+27 more)
 
 ### Community 8 - "firebase_service.dart"
 Cohesion: 0.05
@@ -121,8 +134,8 @@ Cohesion: 0.07
 Nodes (31): _openFullScreenImage, accountNumber, AccountScreen, _AccountScreenState, address, bankName, _changeQr, _confirmDiscard (+23 more)
 
 ### Community 10 - "State"
-Cohesion: 0.09
-Nodes (21): AndroidFlutterLocalNotificationsPlugin, firebase_service.dart, FirebaseMessaging, FlutterLocalNotificationsPlugin, GlobalKey, _channelId, _channelName, init (+13 more)
+Cohesion: 0.10
+Nodes (19): AndroidFlutterLocalNotificationsPlugin, firebase_service.dart, FirebaseMessaging, FlutterLocalNotificationsPlugin, _channelId, _channelName, init, _initialized (+11 more)
 
 ### Community 11 - "onboarding_screens.dart"
 Cohesion: 0.08
@@ -146,15 +159,15 @@ Nodes (19): AppLocale, giftRedemption, hiStrings, isHindi, leadBonus, offerLive,
 
 ### Community 16 - "speech_service.dart"
 Cohesion: 0.05
-Nodes (42): bool get, dart:io, audioUrl, build, _busy, createState, dispose, error (+34 more)
+Nodes (40): bool get, dart:io, audioUrl, build, _busy, createState, dispose, error (+32 more)
 
 ### Community 17 - "StatelessWidget"
 Cohesion: 0.10
 Nodes (27): ChangeNotifier, ConsentScreen, SplashScreen, CreateOrderScreen, initState, OfferDetailsScreen, OrderDetailsScreen, OrderThumbnail (+19 more)
 
 ### Community 18 - "update_service.dart"
-Cohesion: 0.10
-Nodes (18): buildNumber, checkForUpdate, downloadUrl, forceUpdate, instance, launchDownload, releaseNotes, showUpdateDialog (+10 more)
+Cohesion: 0.05
+Nodes (39): GlobalKey, _askedThisLaunch, _checkLocationPermission, createState, DashboardScreen, HomeShell, _HomeShellState, _index (+31 more)
 
 ### Community 19 - "AppState"
 Cohesion: 0.06
@@ -193,37 +206,33 @@ Cohesion: 0.33
 Nodes (5): FlutterPluginRegistry, FlutterViewController, RegisterGeneratedPlugins(), MainFlutterWindow, NSWindow
 
 ### Community 30 - "_OrderHistoryScreenState"
-Cohesion: 0.10
-Nodes (30): HomeShell, _HomeShellState, ManualOrderScreen, _ManualOrderScreenState, OffersScreen, _OffersScreenState, OrderHistoryScreen, _OrderHistoryScreenState (+22 more)
-
-### Community 31 - "_UploadOrderScreenState"
-Cohesion: 0.33
-Nodes (4): _OrderCommentsSection, _OrderCommentsSectionState, UploadOrderScreen, _UploadOrderScreenState
+Cohesion: 0.16
+Nodes (18): AuthGate, _AuthGateState, FeedbackScreen, _FeedbackScreenState, GiftStoreScreen, _GiftStoreScreenState, LeadNewScreen, _LeadNewScreenState (+10 more)
 
 ### Community 42 - "List"
-Cohesion: 0.17
-Nodes (11): @pragma, ../firebase_options.dart, backgroundLocationCallbackDispatcher, backgroundLocationTaskName, cancelBackgroundLocation, scheduleBackgroundLocation, pushBackgroundHandler, package:cloud_firestore/cloud_firestore.dart (+3 more)
+Cohesion: 0.22
+Nodes (8): ../firebase_options.dart, backgroundLocationTaskName, cancelBackgroundLocation, scheduleBackgroundLocation, package:cloud_firestore/cloud_firestore.dart, package:firebase_auth/firebase_auth.dart, package:geolocator/geolocator.dart, package:workmanager/workmanager.dart
 
 ### Community 49 - "_OrderSuccessScreenState"
 Cohesion: 0.29
 Nodes (6): android, DefaultFirebaseOptions, web, package:firebase_core/firebase_core.dart, package:flutter/foundation.dart, static const FirebaseOptions
 
 ## Knowledge Gaps
-- **470 isolated node(s):** `DefaultFirebaseOptions`, `android`, `web`, `hiStrings`, `isHindi` (+465 more)
+- **472 isolated node(s):** `DefaultFirebaseOptions`, `android`, `web`, `hiStrings`, `isHindi` (+467 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AppState` connect `StatelessWidget` to `app_state.dart`, `theme.dart`, `order_screens.dart`, `main.dart`, `rewards_screens.dart`, `profile_screens.dart`, `onboarding_screens.dart`, `build`, `speech_service.dart`, `AppState`, `_OrderHistoryScreenState`, `_UploadOrderScreenState`?**
-  _High betweenness centrality (0.170) - this node is a cross-community bridge._
+- **Why does `AppState` connect `StatelessWidget` to `app_state.dart`, `theme.dart`, `order_screens.dart`, `main.dart`, `rewards_screens.dart`, `profile_screens.dart`, `onboarding_screens.dart`, `build`, `speech_service.dart`, `update_service.dart`, `AppState`, `_OrderHistoryScreenState`, `_UploadOrderScreenState`, `_ManualOrderScreenState`, `_OffersScreenState`, `_OrderHistoryScreenState`, `_OrderSuccessScreenState`, `_UploadOrderScreenState`, `_VoiceNotePlayerState`, `_VoiceOrderScreenState`, `_LeadsScreenState`?**
+  _High betweenness centrality (0.168) - this node is a cross-community bridge._
 - **Why does `CarpenterOrder` connect `models.dart` to `order_screens.dart`?**
   _High betweenness centrality (0.017) - this node is a cross-community bridge._
 - **Why does `FirebaseService` connect `firebase_service.dart` to `app_state.dart`?**
   _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **What connects `DefaultFirebaseOptions`, `android`, `web` to the rest of the system?**
-  _470 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _472 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `app_state.dart` be split into smaller, more focused modules?**
   _Cohesion score 0.021505376344086023 - nodes in this community are weakly interconnected._
 - **Should `Win32Window` be split into smaller, more focused modules?**
