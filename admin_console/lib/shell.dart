@@ -46,8 +46,8 @@ class AdminShell extends StatelessWidget {
           },
         );
 
-    // The order-creator role has a single flat destination (Dashboard), so
-    // it skips the grouped Operations/Engagement layout the admin uses.
+    // The order-creator role has a flat sidebar (Dashboard + Carpenters)
+    // -- it skips the grouped Operations/Engagement layout the admin uses.
     final navItems = app.isCreator
         ? [for (int i = 0; i < sections.length; i++) item(i)]
         : <Widget>[

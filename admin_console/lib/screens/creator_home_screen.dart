@@ -35,7 +35,7 @@ class _CreatorHomeScreenState extends State<CreatorHomeScreen> {
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () => showDialog(context: context, builder: (_) => const _PartyOrderDialog()),
+            onTap: () => showDialog(context: context, builder: (_) => const PartyOrderDialog()),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: kBorderSubtle)),
@@ -96,9 +96,9 @@ class _CreatorOrderCard extends StatelessWidget {
     final progress = o.collectableAmount > 0 ? o.paid / o.collectableAmount : 0.0;
     return AppCard(
       onTap: o.editable
-          ? () => showDialog(context: context, builder: (_) => _PartyOrderDialog(existing: o))
+          ? () => showDialog(context: context, builder: (_) => PartyOrderDialog(existing: o))
           : collecting
-              ? () => showDialog(context: context, builder: (_) => _RecordPaymentDialog(order: o))
+              ? () => showDialog(context: context, builder: (_) => RecordPaymentDialog(order: o))
               : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,15 +145,15 @@ class _CreatorOrderCard extends StatelessWidget {
 
 /// Payment collection, done by the creator who logged the order. Each entry
 /// is stamped with the date it was recorded and shows in the history below.
-class _RecordPaymentDialog extends StatefulWidget {
-  const _RecordPaymentDialog({required this.order});
+class RecordPaymentDialog extends StatefulWidget {
+  const RecordPaymentDialog({super.key, required this.order});
   final PartyOrder order;
 
   @override
-  State<_RecordPaymentDialog> createState() => _RecordPaymentDialogState();
+  State<RecordPaymentDialog> createState() => _RecordPaymentDialogState();
 }
 
-class _RecordPaymentDialogState extends State<_RecordPaymentDialog> {
+class _RecordPaymentDialogState extends State<RecordPaymentDialog> {
   final amount = TextEditingController();
   bool saving = false;
   String? error;
@@ -322,15 +322,17 @@ class _PartyStatusChip extends StatelessWidget {
 /// Create/edit form for a party order. Used by the order-creator only.
 /// Editing is offered solely for orders still `pending` (the tile that opens
 /// this passes no [existing] once approved).
-class _PartyOrderDialog extends StatefulWidget {
-  const _PartyOrderDialog({this.existing});
+class PartyOrderDialog extends StatefulWidget {
+  const PartyOrderDialog({super.key, this.existing, this.initialCarpenterId, this.initialCarpenterName});
   final PartyOrder? existing;
+  final String? initialCarpenterId;
+  final String? initialCarpenterName;
 
   @override
-  State<_PartyOrderDialog> createState() => _PartyOrderDialogState();
+  State<PartyOrderDialog> createState() => _PartyOrderDialogState();
 }
 
-class _PartyOrderDialogState extends State<_PartyOrderDialog> {
+class _PartyOrderDialogState extends State<PartyOrderDialog> {
   final party = TextEditingController();
   final amount = TextEditingController();
   final rewardAmount = TextEditingController();
@@ -359,6 +361,10 @@ class _PartyOrderDialogState extends State<_PartyOrderDialog> {
       carpSearch.text = e.carpenterName;
       fileUrl = e.fileUrl;
       fileType = e.fileType;
+    } else if (widget.initialCarpenterId != null) {
+      carpenterId = widget.initialCarpenterId;
+      carpenterName = widget.initialCarpenterName ?? '';
+      carpSearch.text = carpenterName;
     }
   }
 

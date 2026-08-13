@@ -20,6 +20,7 @@ import 'screens/notifications_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/party_orders_screen.dart';
 import 'screens/creator_home_screen.dart';
+import 'screens/creator_carpenters_screen.dart';
 
 /// Every top-level sidebar destination, in the same order the sidebar
 /// renders them -- path, title, and icon together so AdminShell doesn't
@@ -38,10 +39,11 @@ const List<(String, String, IconData)> adminSections = [
   ('/settings', 'Settings', Icons.settings_outlined),
 ];
 
-/// The order-creator role sees only its own dashboard -- everything else is
-/// hidden from the sidebar and blocked by the router redirect below.
+/// The order-creator role sees the dashboard and the carpenters list, where
+/// they can view carpenter details (party orders only) and create new ones.
 const List<(String, String, IconData)> creatorSections = [
   ('/', 'Dashboard', Icons.dashboard_outlined),
+  ('/carpenters', 'Carpenters', Icons.people_outline),
 ];
 
 /// Sidebar destinations for the currently signed-in role.
@@ -63,10 +65,9 @@ GoRouter buildAdminRouter(AdminState app) {
       final onLogin = state.matchedLocation == '/login';
       if (!loggedIn && !onLogin) return '/login';
       if (loggedIn && onLogin) return '/';
-      // Order-creators can only ever be on the dashboard -- any deep link
-      // or manual URL into an admin section bounces back to '/'. Defense in
-      // depth on top of the Firestore rules, which block the data anyway.
-      if (loggedIn && app.isCreator && state.matchedLocation != '/') return '/';
+      // Order-creators can access the dashboard and carpenters -- any deep
+      // link into other admin sections bounces back to '/'.
+      if (loggedIn && app.isCreator && state.matchedLocation != '/' && !state.matchedLocation.startsWith('/carpenters')) return '/';
       return null;
     },
     routes: [
@@ -78,9 +79,9 @@ GoRouter buildAdminRouter(AdminState app) {
           GoRoute(path: '/', builder: (context, state) => context.read<AdminState>().isCreator ? const CreatorHomeScreen() : const DashboardScreen()),
           GoRoute(
             path: '/carpenters',
-            builder: (context, state) => const CarpentersScreen(),
+            builder: (context, state) => context.read<AdminState>().isCreator ? const CreatorCarpentersScreen() : const CarpentersScreen(),
             routes: [
-              GoRoute(path: ':id', builder: (context, state) => CarpenterDetailScreen(carpenterId: state.pathParameters['id']!)),
+              GoRoute(path: ':id', builder: (context, state) => context.read<AdminState>().isCreator ? CreatorCarpenterDetailScreen(carpenterId: state.pathParameters['id']!) : CarpenterDetailScreen(carpenterId: state.pathParameters['id']!)),
             ],
           ),
           GoRoute(path: '/locations', builder: (context, state) => const LocationsScreen()),
