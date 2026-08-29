@@ -61,6 +61,7 @@ class CarpenterHubApp extends StatelessWidget {
         ),
         home: const AuthGate(),
         routes: {
+          '/auth': (_) => const AuthGate(),
           '/splash': (_) => const SplashScreen(),
           '/login': (_) => const LoginScreen(),
           '/register': (_) => const RegisterScreen(),
@@ -108,12 +109,12 @@ class AuthGate extends StatefulWidget {
   State<AuthGate> createState() => _AuthGateState();
 }
 
-enum _AuthResult { loading, splash, biometric, returningUser }
+enum _AuthResult { loading, splash, returningUser, fallback }
 
 class _AuthGateState extends State<AuthGate> {
   _AuthResult _state = _AuthResult.loading;
-  bool _bioBusy = false;
-  String? _bioError;
+  bool _busy = false;
+  String? _error;
 
   @override
   void initState() {
@@ -145,52 +146,56 @@ class _AuthGateState extends State<AuthGate> {
       await _navigateAfterAuth(app);
     } else {
       await app.loadLastUser();
-      final bio = BiometricService.instance;
-      final hasCreds = await bio.hasSavedCredentials();
+      final hasCreds = await BiometricService.instance.hasSavedCredentials();
       if (!mounted) return;
-      if (app.lastUserName != null && app.lastUserPinSet && hasCreds) {
+      if (app.lastUserName != null && hasCreds) {
         setState(() => _state = _AuthResult.returningUser);
       } else {
-        final supported = hasCreds && await bio.isDeviceSupported();
-        if (!mounted) return;
-        if (supported) {
-          setState(() => _state = _AuthResult.biometric);
-          _attemptBiometric();
-        } else {
-          setState(() => _state = _AuthResult.splash);
-        }
+        setState(() => _state = _AuthResult.splash);
       }
     }
     _checkForUpdate();
   }
 
-  Future<void> _attemptBiometric() async {
-    setState(() { _bioBusy = true; _bioError = null; });
+  Future<void> _handleUseAccount() async {
+    setState(() { _busy = true; _error = null; });
     final app = context.read<AppState>();
     final bio = BiometricService.instance;
-    final ok = await bio.authenticate(app.tr('Verify your identity to log in'));
+    final supported = await bio.isDeviceSupported();
     if (!mounted) return;
-    if (!ok) {
-      setState(() { _bioBusy = false; _bioError = app.tr('Authentication cancelled'); });
-      return;
+    if (supported) {
+      final ok = await bio.authenticate(app.tr('Verify your identity to log in'));
+      if (!mounted) return;
+      if (ok) {
+        final creds = await bio.loadCredentials();
+        if (creds != null && mounted) {
+          final result = await app.login(creds.$1, creds.$2);
+          if (!mounted) return;
+          if (result == 'ok') {
+            await _navigateAfterAuth(app);
+            return;
+          }
+        }
+      }
     }
-    final creds = await bio.loadCredentials();
-    if (creds == null || !mounted) {
-      setState(() { _bioBusy = false; _state = _AuthResult.splash; });
-      return;
-    }
-    final result = await app.login(creds.$1, creds.$2);
-    if (!mounted) return;
-    if (result == 'ok') {
-      await _navigateAfterAuth(app);
-    } else {
-      await bio.clearCredentials();
-      if (mounted) setState(() { _bioBusy = false; _state = _AuthResult.splash; });
-    }
+    if (mounted) setState(() { _busy = false; _state = _AuthResult.fallback; });
   }
 
-  Future<void> _handleUseAccount() async {
+  void _handleOtherAccount() {
+    context.read<AppState>().clearLastUser();
+    Navigator.pushNamed(context, '/login');
+  }
+
+  Future<void> _handlePinFallback() async {
     final app = context.read<AppState>();
+    if (!app.lastUserPinSet) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(app.tr('PIN is not set up. Use password to log in.'))),
+        );
+      }
+      return;
+    }
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => const PinLoginScreen()),
     );
@@ -199,12 +204,7 @@ class _AuthGateState extends State<AuthGate> {
     }
   }
 
-  void _handleOtherAccount() {
-    context.read<AppState>().clearLastUser();
-    Navigator.pushNamed(context, '/login');
-  }
-
-  void _goToLogin() {
+  void _handlePasswordFallback() {
     Navigator.pushNamed(context, '/login');
   }
 
@@ -219,7 +219,7 @@ class _AuthGateState extends State<AuthGate> {
 
     final app = context.watch<AppState>();
 
-    if (_state == _AuthResult.returningUser) {
+    if (_state == _AuthResult.fallback) {
       return Scaffold(
         body: Container(
           color: kBg,
@@ -230,49 +230,49 @@ class _AuthGateState extends State<AuthGate> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 84,
-                    height: 84,
+                    width: 64, height: 64,
                     decoration: BoxDecoration(
-                      color: kPrimary,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [BoxShadow(color: kPrimary.withValues(alpha: 0.4), blurRadius: 24, offset: const Offset(0, 8))],
+                      color: kPrimary.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.person, color: kOnPrimary, size: 40),
-                  ),
-                  const SizedBox(height: 18),
-                  Text(app.tr('Welcome back'), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: kText)),
-                  const SizedBox(height: 20),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: kCard,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: kBorder),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          '${app.tr('Last logged in')} — ${app.lastUserName}',
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: kText),
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _handleUseAccount,
-                            child: Text(app.tr('Use this account')),
-                          ),
-                        ),
-                      ],
-                    ),
+                    child: const Icon(Icons.lock_outline, color: kPrimary, size: 28),
                   ),
                   const SizedBox(height: 16),
+                  Text(app.tr('Choose login method'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: kText)),
+                  const SizedBox(height: 6),
+                  Text(
+                    '${app.tr('Logging in as')} ${app.lastUserName}',
+                    style: const TextStyle(color: kMuted, fontSize: 13),
+                  ),
+                  const SizedBox(height: 28),
                   SizedBox(
                     width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: _handleOtherAccount,
-                      child: Text(app.tr('Log in with another account')),
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() => _state = _AuthResult.returningUser);
+                        _handleUseAccount();
+                      },
+                      icon: const Icon(Icons.fingerprint),
+                      label: Text(app.tr('Try biometric again')),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (app.lastUserPinSet)
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: _handlePinFallback,
+                        icon: const Icon(Icons.pin),
+                        label: Text(app.tr('Use PIN')),
+                      ),
+                    ),
+                  if (app.lastUserPinSet) const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _handlePasswordFallback,
+                      icon: const Icon(Icons.password),
+                      label: Text(app.tr('Use password')),
                     ),
                   ),
                 ],
@@ -283,6 +283,7 @@ class _AuthGateState extends State<AuthGate> {
       );
     }
 
+    // returningUser state
     return Scaffold(
       body: Container(
         color: kBg,
@@ -300,34 +301,51 @@ class _AuthGateState extends State<AuthGate> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [BoxShadow(color: kPrimary.withValues(alpha: 0.4), blurRadius: 24, offset: const Offset(0, 8))],
                   ),
-                  child: const Icon(Icons.fingerprint, color: kOnPrimary, size: 40),
+                  child: const Icon(Icons.person, color: kOnPrimary, size: 40),
                 ),
                 const SizedBox(height: 18),
-                Text(app.tr('Unlock to continue'), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: kText)),
-                const SizedBox(height: 6),
-                Text(app.tr('Use your fingerprint, face or PIN to log in'), style: const TextStyle(color: kMuted, fontSize: 13)),
-                if (_bioError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Text(_bioError!, style: const TextStyle(color: kDanger, fontSize: 12)),
-                  ),
-                const SizedBox(height: 32),
-                SizedBox(
+                Text(app.tr('Welcome back'), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: kText)),
+                const SizedBox(height: 20),
+                Container(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _bioBusy ? null : _attemptBiometric,
-                    icon: const Icon(Icons.fingerprint),
-                    label: Text(_bioBusy ? '...' : app.tr('Unlock')),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: kCard,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: kBorder),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        '${app.tr('Last logged in')} — ${app.lastUserName}',
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: kText),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _busy ? null : _handleUseAccount,
+                          child: _busy
+                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: kOnPrimary))
+                              : Text(app.tr('Use this account')),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: _goToLogin,
-                    child: Text(app.tr('Use password instead')),
+                    onPressed: _handleOtherAccount,
+                    child: Text(app.tr('Log in with another account')),
                   ),
                 ),
+                if (_error != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text(_error!, style: const TextStyle(color: kDanger, fontSize: 12)),
+                  ),
               ],
             ),
           ),

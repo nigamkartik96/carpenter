@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../services/biometric_service.dart';
 import '../services/cloudinary_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
@@ -323,6 +324,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     if (result != 'ok') {
                       setState(() => error = app.tr(result));
                       return;
+                    }
+                    if (!context.mounted) return;
+                    final loginId = typedEmail.isNotEmpty ? typedEmail : mobile.text.trim();
+                    final bio = BiometricService.instance;
+                    final bioSupported = await bio.isDeviceSupported();
+                    if (context.mounted && bioSupported) {
+                      final enable = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: Text(app.tr('Enable biometric login')),
+                          content: Text(app.tr('Use fingerprint or face to log in quickly next time?')),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(app.tr('Not now'))),
+                            ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: Text(app.tr('Enable'))),
+                          ],
+                        ),
+                      );
+                      if (enable == true) {
+                        await bio.saveCredentials(loginId, password.text);
+                      }
                     }
                     if (context.mounted) Navigator.pushReplacementNamed(context, '/pending');
                   },

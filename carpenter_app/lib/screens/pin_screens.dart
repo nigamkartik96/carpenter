@@ -475,8 +475,11 @@ class PinLoginScreen extends StatefulWidget {
 }
 
 class _PinLoginScreenState extends State<PinLoginScreen> {
+  static const _maxAttempts = 3;
   final _pinKey = GlobalKey<_PinEntryPageState>();
   bool _busy = false;
+  int _attempts = 0;
+  bool _locked = false;
 
   Future<void> _onPinEntered(String pin) async {
     setState(() => _busy = true);
@@ -486,8 +489,16 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
     if (result == 'ok') {
       Navigator.of(context).pop(true);
     } else {
-      setState(() => _busy = false);
-      _pinKey.currentState?.reset(app.tr(result));
+      _attempts++;
+      if (_attempts >= _maxAttempts) {
+        setState(() { _busy = false; _locked = true; });
+      } else {
+        final remaining = _maxAttempts - _attempts;
+        setState(() => _busy = false);
+        _pinKey.currentState?.reset(
+          '${app.tr(result)}. ${app.trf('{n} attempts remaining', remaining)}',
+        );
+      }
     }
   }
 
@@ -500,15 +511,37 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
       ),
       body: _busy
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: _PinEntryPage(
-                key: _pinKey,
-                title: app.tr('Enter your PIN'),
-                subtitle: app.tr('Enter your 4-digit PIN to continue'),
-                onCompleted: _onPinEntered,
-              ),
-            ),
+          : _locked
+              ? Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.lock, color: kDanger, size: 48),
+                      const SizedBox(height: 16),
+                      Text(app.tr('Too many failed attempts'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: kText)),
+                      const SizedBox(height: 8),
+                      Text(app.tr('Please use your password to log in.'), style: const TextStyle(color: kMuted, fontSize: 13), textAlign: TextAlign.center),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: Text(app.tr('Use password')),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: _PinEntryPage(
+                    key: _pinKey,
+                    title: app.tr('Enter your PIN'),
+                    subtitle: app.tr('Enter your 4-digit PIN to continue'),
+                    onCompleted: _onPinEntered,
+                  ),
+                ),
     );
   }
 }

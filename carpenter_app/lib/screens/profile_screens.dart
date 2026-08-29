@@ -135,7 +135,9 @@ class ProfileScreen extends StatelessWidget {
             );
             if (confirmed != true) return;
             await app.logout();
-            if (context.mounted) Navigator.pushNamedAndRemoveUntil(context, '/splash', (r) => false);
+            if (context.mounted) {
+              Navigator.of(context).pushNamedAndRemoveUntil('/auth', (r) => false);
+            }
           },
           child: Text(app.tr('Logout')),
         ),
