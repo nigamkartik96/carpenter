@@ -373,6 +373,15 @@ const Map<String, String> hiStrings = {
   'Password must be at least 6 characters': 'पासवर्ड कम से कम 6 अक्षर का होना चाहिए',
   'Passwords do not match': 'पासवर्ड मेल नहीं खाते',
   'Could not update password. Try again.': 'पासवर्ड अपडेट नहीं हो सका। फिर से कोशिश करें।',
+  'Forgot PIN?': 'PIN भूल गए?',
+  'Forgot PIN': 'PIN भूल गए',
+  'Enter your password to log in': 'लॉगिन के लिए पासवर्ड दर्ज करें',
+  'Enter your password': 'अपना पासवर्ड दर्ज करें',
+  'Could not verify. Try logging in manually.': 'सत्यापन नहीं हो सका। मैन्युअल लॉगिन करें।',
+  'Wrong password': 'गलत पासवर्ड',
+  'Verify your identity to continue': 'जारी रखने के लिए अपनी पहचान सत्यापित करें',
+  'Enter password': 'पासवर्ड दर्ज करें',
+  'Session expired': 'सत्र समाप्त हो गया',
 };
 
 class AppLocale {

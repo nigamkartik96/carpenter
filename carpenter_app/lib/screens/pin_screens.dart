@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../services/biometric_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 
@@ -535,13 +536,262 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                 )
               : Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: _PinEntryPage(
-                    key: _pinKey,
-                    title: app.tr('Enter your PIN'),
-                    subtitle: app.tr('Enter your 4-digit PIN to continue'),
-                    onCompleted: _onPinEntered,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: _PinEntryPage(
+                          key: _pinKey,
+                          title: app.tr('Enter your PIN'),
+                          subtitle: app.tr('Enter your 4-digit PIN to continue'),
+                          onCompleted: _onPinEntered,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: _forgotPin,
+                        child: Text(app.tr('Forgot PIN?'), style: const TextStyle(color: kMuted)),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
                   ),
                 ),
+    );
+  }
+
+  Future<void> _forgotPin() async {
+    final app = context.read<AppState>();
+    final passwordCtrl = TextEditingController();
+    String? dlgError;
+
+    final success = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDlg) => AlertDialog(
+          title: Text(app.tr('Forgot PIN')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(app.tr('Enter your password to log in'), style: const TextStyle(color: kMuted, fontSize: 13)),
+              const SizedBox(height: 12),
+              TextField(
+                controller: passwordCtrl,
+                obscureText: true,
+                decoration: InputDecoration(labelText: app.tr('Password')),
+              ),
+              if (dlgError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(dlgError!, style: const TextStyle(color: kDanger, fontSize: 12)),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: Text(app.tr('Cancel'))),
+            ElevatedButton(
+              onPressed: () async {
+                if (passwordCtrl.text.isEmpty) {
+                  setDlg(() => dlgError = app.tr('Enter your password'));
+                  return;
+                }
+                final creds = await BiometricService.instance.loadCredentials();
+                if (creds == null) {
+                  setDlg(() => dlgError = app.tr('Could not verify. Try logging in manually.'));
+                  return;
+                }
+                final result = await app.login(creds.$1, passwordCtrl.text);
+                if (result == 'ok') {
+                  if (ctx.mounted) Navigator.pop(ctx, true);
+                } else {
+                  setDlg(() => dlgError = app.tr('Wrong password'));
+                }
+              },
+              child: Text(app.tr('Verify')),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (success == true && mounted) {
+      Navigator.of(context).pop(true);
+    }
+  }
+}
+
+/// Lock screen shown when the app resumes after being backgrounded for too
+/// long. The user is already logged in — this only verifies identity.
+/// Pops with `true` on successful verification.
+class AppLockScreen extends StatefulWidget {
+  const AppLockScreen({super.key});
+
+  @override
+  State<AppLockScreen> createState() => _AppLockScreenState();
+}
+
+class _AppLockScreenState extends State<AppLockScreen> {
+  static const _maxAttempts = 3;
+  final _pinKey = GlobalKey<_PinEntryPageState>();
+  bool _showPin = false;
+  int _attempts = 0;
+  bool _locked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _tryBiometric());
+  }
+
+  Future<void> _tryBiometric() async {
+    final bio = BiometricService.instance;
+    final supported = await bio.isDeviceSupported();
+    if (!mounted) return;
+    if (supported) {
+      final app = context.read<AppState>();
+      final ok = await bio.authenticate(app.tr('Verify your identity to continue'));
+      if (!mounted) return;
+      if (ok) {
+        Navigator.of(context).pop(true);
+        return;
+      }
+    }
+    if (mounted) setState(() => _showPin = true);
+  }
+
+  void _onPinEntered(String pin) {
+    final app = context.read<AppState>();
+    if (hashPin(pin) == app.pinHash) {
+      Navigator.of(context).pop(true);
+    } else {
+      _attempts++;
+      if (_attempts >= _maxAttempts) {
+        setState(() => _locked = true);
+      } else {
+        _pinKey.currentState?.reset(
+          '${app.tr('Incorrect PIN')}. ${app.trf('{n} attempts remaining', _maxAttempts - _attempts)}',
+        );
+      }
+    }
+  }
+
+  Future<void> _verifyPassword() async {
+    final app = context.read<AppState>();
+    final passwordCtrl = TextEditingController();
+    String? dlgError;
+
+    final success = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDlg) => AlertDialog(
+          title: Text(app.tr('Enter password')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: passwordCtrl,
+                obscureText: true,
+                decoration: InputDecoration(labelText: app.tr('Password')),
+              ),
+              if (dlgError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(dlgError!, style: const TextStyle(color: kDanger, fontSize: 12)),
+                ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () async {
+                if (passwordCtrl.text.isEmpty) {
+                  setDlg(() => dlgError = app.tr('Enter your password'));
+                  return;
+                }
+                final ok = await app.verifyPassword(passwordCtrl.text);
+                if (ok) {
+                  if (ctx.mounted) Navigator.pop(ctx, true);
+                } else {
+                  setDlg(() => dlgError = app.tr('Wrong password'));
+                }
+              },
+              child: Text(app.tr('Verify')),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (success == true && mounted) {
+      Navigator.of(context).pop(true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final app = context.watch<AppState>();
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: SafeArea(
+          child: _locked
+              ? Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.lock, color: kDanger, size: 48),
+                      const SizedBox(height: 16),
+                      Text(app.tr('Too many failed attempts'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: kText)),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _verifyPassword,
+                          child: Text(app.tr('Use password')),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : _showPin
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: app.pinSet
+                                ? _PinEntryPage(
+                                    key: _pinKey,
+                                    title: app.tr('Enter your PIN'),
+                                    subtitle: app.tr('Verify your identity to continue'),
+                                    onCompleted: _onPinEntered,
+                                  )
+                                : Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.lock_outline, color: kPrimary, size: 48),
+                                      const SizedBox(height: 16),
+                                      Text(app.tr('Session expired'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                                      const SizedBox(height: 24),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton(
+                                          onPressed: _verifyPassword,
+                                          child: Text(app.tr('Enter password')),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                          TextButton.icon(
+                            onPressed: _tryBiometric,
+                            icon: const Icon(Icons.fingerprint, size: 18),
+                            label: Text(app.tr('Try biometric again')),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    )
+                  : const Center(child: CircularProgressIndicator()),
+        ),
+      ),
     );
   }
 }

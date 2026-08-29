@@ -209,6 +209,18 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     return login(creds.$1, creds.$2);
   }
 
+  Future<bool> verifyPassword(String password) async {
+    final user = _fb.currentUser;
+    if (user == null || user.email == null) return false;
+    try {
+      final cred = EmailAuthProvider.credential(email: user.email!, password: password);
+      await user.reauthenticateWithCredential(cred);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _reportAnalytics() async {
     if (uid == null) return;
     try {

@@ -19,8 +19,10 @@ class HomeShell extends StatefulWidget {
   State<HomeShell> createState() => _HomeShellState();
 }
 
-class _HomeShellState extends State<HomeShell> {
+class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   int _index = 0;
+  DateTime? _pausedAt;
+  static const _lockAfter = Duration(minutes: 5);
 
   // Carpenters who signed up before always-on location was asked for
   // never see ConsentScreen again, so their background reporting stays
@@ -31,11 +33,38 @@ class _HomeShellState extends State<HomeShell> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       UpdateService.promptIfAvailable();
       _checkLocationPermission();
       _promptPinSetup();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      _pausedAt = DateTime.now();
+    } else if (state == AppLifecycleState.resumed) {
+      if (_pausedAt != null && DateTime.now().difference(_pausedAt!) > _lockAfter) {
+        _pausedAt = null;
+        _showLockScreen();
+      } else {
+        _pausedAt = null;
+      }
+    }
+  }
+
+  Future<void> _showLockScreen() async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const AppLockScreen()),
+    );
   }
 
   Future<void> _checkLocationPermission() async {
