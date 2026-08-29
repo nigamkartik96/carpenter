@@ -10,6 +10,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'firebase_options.dart';
 import 'services/background_location.dart';
+import 'services/biometric_service.dart';
 import 'services/navigation.dart';
 import 'services/push_service.dart';
 import 'services/update_service.dart';
@@ -19,6 +20,7 @@ import 'screens/feedback_screen.dart';
 import 'screens/onboarding_screens.dart';
 import 'screens/home_shell.dart';
 import 'screens/order_screens.dart';
+import 'screens/pin_screens.dart';
 import 'screens/rewards_screens.dart';
 import 'screens/profile_screens.dart';
 
@@ -87,6 +89,8 @@ class CarpenterHubApp extends StatelessWidget {
           '/profile': (_) => const ProfileScreen(),
           '/account': (_) => const AccountScreen(),
           '/editProfile': (_) => const EditProfileScreen(),
+          '/setupPin': (_) => const SetupPinScreen(),
+          '/changePin': (_) => const ChangePinScreen(),
         },
         ),
       ),
@@ -96,7 +100,7 @@ class CarpenterHubApp extends StatelessWidget {
 
 /// Resumes an existing Firebase session on app start instead of always
 /// showing the login screen. Shows the splash screen briefly while it
-/// checks, then routes to dashboard / pending / login as appropriate.
+/// checks, then routes to dashboard / pending / biometric / login.
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
 
@@ -104,13 +108,32 @@ class AuthGate extends StatefulWidget {
   State<AuthGate> createState() => _AuthGateState();
 }
 
+enum _AuthResult { loading, splash, biometric }
+
 class _AuthGateState extends State<AuthGate> {
-  bool _checked = false;
+  _AuthResult _state = _AuthResult.loading;
+  bool _bioBusy = false;
+  String? _bioError;
 
   @override
   void initState() {
     super.initState();
     _check();
+  }
+
+  Future<void> _navigateAfterAuth(AppState app) async {
+    if (!app.isApproved) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/pending', (r) => false);
+      return;
+    }
+    if (app.needsForceReset) {
+      await Navigator.of(context).push<bool>(MaterialPageRoute(
+        builder: (_) => ForceResetScreen(resetPin: app.resetPin, resetPassword: app.resetPassword),
+      ));
+    }
+    if (mounted) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (r) => false);
+    }
   }
 
   Future<void> _check() async {
@@ -119,21 +142,111 @@ class _AuthGateState extends State<AuthGate> {
     final hasSession = await app.tryResumeSession();
     if (!mounted) return;
     if (hasSession) {
-      final target = app.isApproved ? '/dashboard' : '/pending';
-      Navigator.of(context).pushNamedAndRemoveUntil(target, (r) => false);
+      await _navigateAfterAuth(app);
     } else {
-      setState(() => _checked = true);
+      final bio = BiometricService.instance;
+      final hasCreds = await bio.hasSavedCredentials();
+      final supported = hasCreds && await bio.isDeviceSupported();
+      if (!mounted) return;
+      if (supported) {
+        setState(() => _state = _AuthResult.biometric);
+        _attemptBiometric();
+      } else {
+        setState(() => _state = _AuthResult.splash);
+      }
     }
     _checkForUpdate();
+  }
+
+  Future<void> _attemptBiometric() async {
+    setState(() { _bioBusy = true; _bioError = null; });
+    final app = context.read<AppState>();
+    final bio = BiometricService.instance;
+    final ok = await bio.authenticate(app.tr('Verify your identity to log in'));
+    if (!mounted) return;
+    if (!ok) {
+      setState(() { _bioBusy = false; _bioError = app.tr('Authentication cancelled'); });
+      return;
+    }
+    final creds = await bio.loadCredentials();
+    if (creds == null || !mounted) {
+      setState(() { _bioBusy = false; _state = _AuthResult.splash; });
+      return;
+    }
+    final result = await app.login(creds.$1, creds.$2);
+    if (!mounted) return;
+    if (result == 'ok') {
+      await _navigateAfterAuth(app);
+    } else {
+      await bio.clearCredentials();
+      if (mounted) setState(() { _bioBusy = false; _state = _AuthResult.splash; });
+    }
+  }
+
+  void _goToLogin() {
+    Navigator.pushNamed(context, '/login');
   }
 
   Future<void> _checkForUpdate() => UpdateService.promptIfAvailable();
 
   @override
   Widget build(BuildContext context) {
-    if (!_checked) {
+    if (_state == _AuthResult.loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    return const SplashScreen();
+    if (_state == _AuthResult.splash) return const SplashScreen();
+
+    final app = context.watch<AppState>();
+    return Scaffold(
+      body: Container(
+        color: kBg,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 84,
+                  height: 84,
+                  decoration: BoxDecoration(
+                    color: kPrimary,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [BoxShadow(color: kPrimary.withValues(alpha: 0.4), blurRadius: 24, offset: const Offset(0, 8))],
+                  ),
+                  child: const Icon(Icons.fingerprint, color: kOnPrimary, size: 40),
+                ),
+                const SizedBox(height: 18),
+                Text(app.tr('Unlock to continue'), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: kText)),
+                const SizedBox(height: 6),
+                Text(app.tr('Use your fingerprint, face or PIN to log in'), style: const TextStyle(color: kMuted, fontSize: 13)),
+                if (_bioError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text(_bioError!, style: const TextStyle(color: kDanger, fontSize: 12)),
+                  ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _bioBusy ? null : _attemptBiometric,
+                    icon: const Icon(Icons.fingerprint),
+                    label: Text(_bioBusy ? '...' : app.tr('Unlock')),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: _goToLogin,
+                    child: Text(app.tr('Use password instead')),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -51,11 +51,12 @@ class AdminShell extends StatelessWidget {
     final navItems = app.isCreator
         ? [for (int i = 0; i < sections.length; i++) item(i)]
         : <Widget>[
-            item(0),
+            item(0), // Dashboard
+            item(1), // Analytics
             groupLabel('Operations'),
-            for (final i in const [1, 2, 3]) item(i), // Carpenters, Orders, Party orders
+            for (final i in const [2, 3, 4]) item(i), // Carpenters, Orders, Party orders
             groupLabel('Engagement'),
-            for (final i in const [4, 5, 6, 7, 8, 9]) item(i), // Offers, Gifts, Redemptions, Leads, Feedback, Notifications
+            for (final i in const [5, 6, 7, 8, 9, 10]) item(i), // Offers, Gifts, Redemptions, Leads, Feedback, Notifications
           ];
 
     return Column(

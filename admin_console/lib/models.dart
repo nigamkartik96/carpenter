@@ -17,26 +17,36 @@ class Carpenter {
     this.upiId = '',
     this.bankName = '',
     this.qrUrl,
+    this.lastLogin,
+    this.appVersion,
+    this.appBuildNumber,
+    this.isOnline = false,
+    this.loginCount = 0,
+    this.createdAt,
   });
 
   final String id;
   final String name;
   final String shop;
   final String mobile;
-  String status; // Pending, Approved, Rejected
+  String status;
   int points;
   String lastSeen;
   String area;
-  String tier; // Bronze, Silver, Gold, Platinum -- admin-assigned, used to target notifications
-  // Reported by the carpenter app while it's open (see AppState.reportLocationOnce
-  // on that side) -- null until the carpenter has opened the app at least
-  // once after accepting location sharing.
+  String tier;
   final double? lat;
   final double? lng;
   final String? photoUrl;
   final String upiId;
   final String bankName;
   final String? qrUrl;
+
+  final DateTime? lastLogin;
+  final String? appVersion;
+  final int? appBuildNumber;
+  final bool isOnline;
+  final int loginCount;
+  final DateTime? createdAt;
 
   bool get hasPaymentInfo => upiId.isNotEmpty || bankName.isNotEmpty || qrUrl != null;
 }

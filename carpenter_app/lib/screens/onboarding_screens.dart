@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/cloudinary_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
+import 'pin_screens.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -104,6 +105,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     }
                     if (!context.mounted) return;
                     if (app.isApproved) {
+                      if (app.needsForceReset) {
+                        await Navigator.of(context).push<bool>(MaterialPageRoute(
+                          builder: (_) => ForceResetScreen(resetPin: app.resetPin, resetPassword: app.resetPassword),
+                        ));
+                        if (!context.mounted) return;
+                      }
                       Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (r) => false);
                     } else {
                       Navigator.pushNamedAndRemoveUntil(context, '/pending', (r) => false);
@@ -134,6 +141,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final mobile = TextEditingController();
   final email = TextEditingController();
   final password = TextEditingController();
+  final pin = TextEditingController();
   final shop = TextEditingController();
   final address = TextEditingController();
   String? error;
@@ -188,6 +196,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
           const SizedBox(height: 12),
           TextField(controller: password, decoration: InputDecoration(labelText: app.tr('Password')), obscureText: true),
           const SizedBox(height: 12),
+          TextField(
+            controller: pin,
+            keyboardType: TextInputType.number,
+            maxLength: 4,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: app.tr('4-digit PIN (optional)'),
+              hintText: '••••',
+              helperText: app.tr('For quick access to your account'),
+              counterText: '',
+            ),
+          ),
+          const SizedBox(height: 12),
           TextField(controller: shop, decoration: InputDecoration(labelText: app.tr('Shop name'), hintText: 'Kumar Furniture')),
           const SizedBox(height: 12),
           TextField(controller: address, decoration: InputDecoration(labelText: app.tr('Address'), hintText: 'Sector 12, Pune')),
@@ -227,6 +248,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       setState(() => error = app.tr('Enter a valid email address'));
                       return;
                     }
+                    final pinText = pin.text.trim();
+                    if (pinText.isNotEmpty && pinText.length != 4) {
+                      setState(() => error = app.tr('PIN must be exactly 4 digits'));
+                      return;
+                    }
                     setState(() {
                       busy = true;
                       error = null;
@@ -239,6 +265,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       shop: shop.text,
                       addr: address.text,
                       photoUrl: photoUrl,
+                      pin: pinText.isEmpty ? null : pinText,
                     );
                     setState(() => busy = false);
                     if (result != 'ok') {

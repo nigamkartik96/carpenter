@@ -155,7 +155,9 @@ class AdminFirebaseService {
     required int collectableAmount,
   }) async {
     final orderRef = db.collection('partyOrders').doc(orderId);
+    var pushPoints = 0;
     await db.runTransaction((tx) async {
+      pushPoints = 0;
       final snap = await tx.get(orderRef);
       final data = snap.data() ?? {};
       final existing = (data['payments'] as List?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? [];
@@ -178,8 +180,23 @@ class AdminFirebaseService {
           'points': points,
           'createdAt': FieldValue.serverTimestamp(),
         });
+        tx.set(db.collection('notifications').doc(), {
+          'carpenterId': carpenterId,
+          'title': 'Points credited',
+          'body': '+$points points added',
+          'read': false,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+        pushPoints = points;
       }
     });
+    if (pushPoints > 0) {
+      await AdminPushService.instance.notify(
+        carpenterIds: [carpenterId],
+        title: 'Points credited',
+        body: '+$pushPoints points added',
+      );
+    }
   }
 
   Future<void> saveConfig({required int pointRuleAmount, required int pointRulePoints, required int minRedeemPoints}) {
@@ -208,6 +225,12 @@ class AdminFirebaseService {
 
   Future<void> setCarpenterTier(String id, String tier) =>
       db.collection('carpenters').doc(id).update({'tier': tier});
+
+  Future<void> triggerPinReset(String id) =>
+      db.collection('carpenters').doc(id).update({'resetPin': true, 'pinSet': false, 'pinHash': FieldValue.delete()});
+
+  Future<void> triggerPasswordReset(String id) =>
+      db.collection('carpenters').doc(id).update({'resetPassword': true});
 
   Stream<QuerySnapshot<Map<String, dynamic>>> watchOrders() => db
       .collection('orders')

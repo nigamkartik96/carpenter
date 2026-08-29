@@ -1,11 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/update_service.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/speaker_button.dart';
 import 'order_screens.dart';
+import 'pin_screens.dart';
 import 'rewards_screens.dart';
 import 'profile_screens.dart';
 
@@ -30,11 +32,9 @@ class _HomeShellState extends State<HomeShell> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // A carpenter who logs in fresh never passes through AuthGate's
-      // resumed-session branch, so the update check has to happen here
-      // too. UpdateService only ever prompts once per launch.
       UpdateService.promptIfAvailable();
       _checkLocationPermission();
+      _promptPinSetup();
     });
   }
 
@@ -64,6 +64,39 @@ class _HomeShellState extends State<HomeShell> {
         ],
       ),
     );
+  }
+
+  Future<void> _promptPinSetup() async {
+    final app = context.read<AppState>();
+    if (!app.isApproved || app.pinSet) return;
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('pinSetupSkipped') == true) return;
+    if (!mounted) return;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(app.tr('Set up a PIN')),
+        content: Text(app.tr('Add a 4-digit PIN for quick and secure access to your account.')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(app.tr('Later')),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(app.tr('Set up PIN')),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (result == true) {
+      await Navigator.of(context).push<bool>(
+        MaterialPageRoute(builder: (_) => const SetupPinScreen()),
+      );
+    } else {
+      await prefs.setBool('pinSetupSkipped', true);
+    }
   }
 
   @override

@@ -58,6 +58,23 @@ class ProfileScreen extends StatelessWidget {
             children: [Text(app.tr('Bank and UPI details'), style: const TextStyle(fontSize: 13)), const Icon(Icons.chevron_right, color: kMuted)],
           ),
         ),
+        SectionCard(
+          onTap: () => Navigator.pushNamed(context, app.pinSet ? '/changePin' : '/setupPin'),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.pin, size: 16, color: kMuted),
+                  const SizedBox(width: 8),
+                  Text(app.pinSet ? app.tr('Change PIN') : app.tr('Set up PIN'), style: const TextStyle(fontSize: 13)),
+                ],
+              ),
+              const Icon(Icons.chevron_right, color: kMuted),
+            ],
+          ),
+        ),
         const SizedBox(height: 8),
         Text(app.tr('Language'), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
         const SizedBox(height: 8),

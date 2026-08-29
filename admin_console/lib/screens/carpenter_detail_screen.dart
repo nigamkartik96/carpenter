@@ -116,6 +116,28 @@ class _CarpenterDetailScreenState extends State<CarpenterDetailScreen> {
                               child: const Text('Reject'),
                             ),
                           ],
+                          if (!app.isCreator && c.status == 'Approved') ...[
+                            OutlinedButton.icon(
+                              onPressed: () async {
+                                final confirmed = await confirmDialog(context, title: 'Reset PIN?', message: '${c.name} will be required to set a new PIN on their next app launch.');
+                                if (!confirmed) return;
+                                await app.triggerPinReset(c);
+                                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('PIN reset triggered for ${c.name}')));
+                              },
+                              icon: const Icon(Icons.pin, size: 16),
+                              label: const Text('Reset PIN'),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: () async {
+                                final confirmed = await confirmDialog(context, title: 'Reset password?', message: '${c.name} will be required to set a new password on their next app launch.', danger: true);
+                                if (!confirmed) return;
+                                await app.triggerPasswordReset(c);
+                                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Password reset triggered for ${c.name}')));
+                              },
+                              icon: const Icon(Icons.password, size: 16),
+                              label: const Text('Reset password'),
+                            ),
+                          ],
                         ],
                       ),
                     ],

@@ -323,6 +323,8 @@ class AdminState extends ChangeNotifier {
             final d = doc.data();
             final location = d['location'] as Map<String, dynamic>?;
             final payout = d['payout'] as Map<String, dynamic>?;
+            final lastLoginTs = d['lastLogin'];
+            final createdAtTs = d['createdAt'];
             return Carpenter(
               id: doc.id,
               name: d['name'] ?? '',
@@ -339,6 +341,12 @@ class AdminState extends ChangeNotifier {
               upiId: payout?['upiId'] ?? '',
               bankName: payout?['bankName'] ?? '',
               qrUrl: payout?['qrUrl'],
+              lastLogin: lastLoginTs is Timestamp ? lastLoginTs.toDate() : null,
+              appVersion: d['appVersion'] as String?,
+              appBuildNumber: d['appBuildNumber'] != null ? _int(d['appBuildNumber']) : null,
+              isOnline: d['isOnline'] == true,
+              loginCount: _int(d['loginCount']),
+              createdAt: createdAtTs is Timestamp ? createdAtTs.toDate() : null,
             );
           }));
         _rebuildCarpenterMap();
@@ -573,9 +581,158 @@ class AdminState extends ChangeNotifier {
     return dates.reduce((a, b) => a.isAfter(b) ? a : b);
   }
 
+  // ---------------------------------------------------------------------------
+  // Analytics helpers — computed from the already-cached lists, no extra reads
+  // ---------------------------------------------------------------------------
+
+  List<Carpenter> get approvedCarpenters => carpenters.where((c) => c.status == 'Approved').toList();
+
+  int get onlineCount => approvedCarpenters.where((c) => c.isOnline).length;
+
+  /// Carpenters who logged in within the last N days.
+  int _activeIn(int days) {
+    final cutoff = DateTime.now().subtract(Duration(days: days));
+    return approvedCarpenters.where((c) => c.lastLogin != null && c.lastLogin!.isAfter(cutoff)).length;
+  }
+
+  int get dauCount => _activeIn(1);
+  int get wauCount => _activeIn(7);
+  int get mauCount => _activeIn(30);
+
+  /// Carpenters who haven't logged in for 7+ days (churned/at-risk).
+  List<Carpenter> get inactiveCarpenters {
+    final cutoff = DateTime.now().subtract(const Duration(days: 7));
+    return approvedCarpenters.where((c) => c.lastLogin == null || c.lastLogin!.isBefore(cutoff)).toList();
+  }
+
+  /// App version distribution: {version: count}.
+  Map<String, int> get versionDistribution {
+    final map = <String, int>{};
+    for (final c in approvedCarpenters) {
+      final v = c.appVersion ?? 'Unknown';
+      map[v] = (map[v] ?? 0) + 1;
+    }
+    return map;
+  }
+
+  /// Tier distribution: {tier: count}.
+  Map<String, int> get tierDistribution {
+    final map = <String, int>{};
+    for (final c in approvedCarpenters) {
+      map[c.tier] = (map[c.tier] ?? 0) + 1;
+    }
+    return map;
+  }
+
+  /// Orders per day for the last N days (for line chart).
+  Map<String, int> ordersPerDay(int days) {
+    final now = DateTime.now();
+    final map = <String, int>{};
+    for (var i = days - 1; i >= 0; i--) {
+      final d = now.subtract(Duration(days: i));
+      final key = '${d.month.toString().padLeft(2, '0')}/${d.day.toString().padLeft(2, '0')}';
+      map[key] = 0;
+    }
+    for (final o in orders) {
+      if (o.createdAt == null) continue;
+      final diff = now.difference(o.createdAt!).inDays;
+      if (diff >= days) continue;
+      final key = '${o.createdAt!.month.toString().padLeft(2, '0')}/${o.createdAt!.day.toString().padLeft(2, '0')}';
+      map[key] = (map[key] ?? 0) + 1;
+    }
+    return map;
+  }
+
+  /// Revenue per day for the last N days (regular + party orders).
+  Map<String, int> revenuePerDay(int days) {
+    final now = DateTime.now();
+    final map = <String, int>{};
+    for (var i = days - 1; i >= 0; i--) {
+      final d = now.subtract(Duration(days: i));
+      final key = '${d.month.toString().padLeft(2, '0')}/${d.day.toString().padLeft(2, '0')}';
+      map[key] = 0;
+    }
+    for (final o in orders) {
+      if (o.createdAt == null) continue;
+      final diff = now.difference(o.createdAt!).inDays;
+      if (diff >= days) continue;
+      final key = '${o.createdAt!.month.toString().padLeft(2, '0')}/${o.createdAt!.day.toString().padLeft(2, '0')}';
+      map[key] = (map[key] ?? 0) + o.amount;
+    }
+    for (final o in partyOrders) {
+      if (o.createdAt == null) continue;
+      final diff = now.difference(o.createdAt!).inDays;
+      if (diff >= days) continue;
+      final key = '${o.createdAt!.month.toString().padLeft(2, '0')}/${o.createdAt!.day.toString().padLeft(2, '0')}';
+      map[key] = (map[key] ?? 0) + (o.approvedAmount > 0 ? o.approvedAmount : o.amount);
+    }
+    return map;
+  }
+
+  /// Total revenue across all orders.
+  int get totalRevenue {
+    final regular = orders.fold(0, (s, o) => s + o.amount);
+    final party = partyOrders.fold(0, (s, o) => s + (o.approvedAmount > 0 ? o.approvedAmount : o.amount));
+    return regular + party;
+  }
+
+  /// Total collected from party order payments.
+  int get totalCollected => partyOrders.fold(0, (s, o) => s + o.paid);
+
+  /// Total points awarded across all party order payments.
+  int get totalPointsAwarded => partyOrders.fold(0, (s, o) => s + o.pointsAwarded);
+
+  /// Total points redeemed (from redemption records).
+  int get totalPointsRedeemed => redemptions.fold(0, (s, r) => s + r.points);
+
+  /// Top carpenters by total order value.
+  List<(Carpenter, int)> get topCarpentersByRevenue {
+    final list = approvedCarpenters.map((c) => (c, totalOrderAmount(c.id))).toList()
+      ..sort((a, b) => b.$2.compareTo(a.$2));
+    return list.take(10).toList();
+  }
+
+  /// Order type distribution: {Manual: n, Photo: n, Voice: n}.
+  Map<String, int> get orderTypeDistribution {
+    final map = <String, int>{};
+    for (final o in orders) {
+      map[o.type] = (map[o.type] ?? 0) + 1;
+    }
+    return map;
+  }
+
+  /// Order status distribution.
+  Map<String, int> get orderStatusDistribution {
+    final map = <String, int>{};
+    for (final o in orders) {
+      map[o.status] = (map[o.status] ?? 0) + 1;
+    }
+    return map;
+  }
+
+  /// Lead status distribution.
+  Map<String, int> get leadStatusDistribution {
+    final map = <String, int>{};
+    for (final l in leads) {
+      map[l.status] = (map[l.status] ?? 0) + 1;
+    }
+    return map;
+  }
+
+  /// Feedback status distribution.
+  Map<String, int> get feedbackStatusDistribution {
+    final map = <String, int>{};
+    for (final f in feedback) {
+      map[f.status] = (map[f.status] ?? 0) + 1;
+    }
+    return map;
+  }
+
   Future<void> approve(Carpenter c) => _fb.approveCarpenter(c.id);
   Future<void> reject(Carpenter c) => _fb.rejectCarpenter(c.id);
   Future<void> setTier(Carpenter c, String tier) => _fb.setCarpenterTier(c.id, tier);
+  Future<void> triggerPinReset(Carpenter c) => _fb.triggerPinReset(c.id);
+  Future<void> triggerPasswordReset(Carpenter c) => _fb.triggerPasswordReset(c.id);
 
   Future<void> setOrderAmount(AdminOrder o, int amount) => _fb.setOrderAmount(o.id, amount);
 

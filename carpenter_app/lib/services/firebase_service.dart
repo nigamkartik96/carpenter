@@ -30,6 +30,7 @@ class FirebaseService {
     required String address,
     String email = '',
     String? photoUrl,
+    String? pinHash,
   }) async {
     final cred = await auth.createUserWithEmailAndPassword(email: authEmail, password: password);
     await db.collection('carpenters').doc(cred.user!.uid).set({
@@ -43,6 +44,8 @@ class FirebaseService {
       'lifetimePoints': 0,
       'redeemedPoints': 0,
       if (photoUrl != null) 'photoUrl': photoUrl,
+      if (pinHash != null) 'pinHash': pinHash,
+      'pinSet': pinHash != null,
       'createdAt': FieldValue.serverTimestamp(),
     });
     return cred;
@@ -249,6 +252,38 @@ class FirebaseService {
 
   Future<void> updateProfile(String carpenterId, Map<String, dynamic> data) {
     return carpenterDoc(carpenterId).set(data, SetOptions(merge: true));
+  }
+
+  Future<void> reportAnalytics(String carpenterId, {required String appVersion, required int buildNumber}) {
+    return carpenterDoc(carpenterId).set({
+      'lastLogin': FieldValue.serverTimestamp(),
+      'appVersion': appVersion,
+      'appBuildNumber': buildNumber,
+      'isOnline': true,
+      'platform': 'android',
+      'loginCount': FieldValue.increment(1),
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> setOnlineStatus(String carpenterId, bool online) {
+    return carpenterDoc(carpenterId).set({
+      'isOnline': online,
+      if (!online) 'lastSeen': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> setPin(String carpenterId, String pinHash) {
+    return carpenterDoc(carpenterId).set({
+      'pinHash': pinHash,
+      'pinSet': true,
+      'resetPin': false,
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> clearResetPassword(String carpenterId) {
+    return carpenterDoc(carpenterId).set({
+      'resetPassword': false,
+    }, SetOptions(merge: true));
   }
 
   /// Admin-editable rules (points-per-rupee, minimum cash redemption).

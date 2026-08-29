@@ -56,8 +56,9 @@ export default {
 
       const accessToken = await getAccessToken(env);
 
-      if (!(await docExists(`admins/${uid}`, accessToken))) {
-        return json({ error: 'not an admin' }, 403, cors);
+      if (!(await docExists(`admins/${uid}`, accessToken)) &&
+          !(await docExists(`orderCreators/${uid}`, accessToken))) {
+        return json({ error: 'not authorized' }, 403, cors);
       }
 
       // One carpenter can have the app on several handsets, so this is a

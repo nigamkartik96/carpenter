@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/strings.dart';
 import '../models/models.dart';
 import '../services/background_location.dart';
+import '../services/biometric_service.dart';
 import '../services/firebase_service.dart';
 import '../services/push_service.dart';
 
@@ -61,7 +65,7 @@ int _int(dynamic v, [int fallback = 0]) {
 /// "nothing happens". Sorting is done client-side instead, after each
 /// snapshot arrives. If you add a new where+orderBy query, either build
 /// the composite index in the Firestore console or sort client-side too.
-class AppState extends ChangeNotifier {
+class AppState extends ChangeNotifier with WidgetsBindingObserver {
   final AppLocale locale = AppLocale(false);
   final FirebaseService _fb = FirebaseService.instance;
 
@@ -80,6 +84,11 @@ class AppState extends ChangeNotifier {
   int points = 0;
   int lifetimePoints = 0;
   int redeemedPoints = 0;
+
+  bool pinSet = false;
+  String? pinHash;
+  bool resetPin = false;
+  bool resetPassword = false;
 
   int pointRuleAmount = 100;
   int pointRulePoints = 1;
@@ -129,6 +138,30 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  Future<void> _reportAnalytics() async {
+    if (uid == null) return;
+    try {
+      final info = await PackageInfo.fromPlatform();
+      await _fb.reportAnalytics(
+        uid!,
+        appVersion: info.version,
+        buildNumber: int.tryParse(info.buildNumber) ?? 0,
+      );
+    } catch (e) {
+      debugPrint('analytics: $e');
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (uid == null) return;
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      _fb.setOnlineStatus(uid!, false).catchError((_) {});
+    } else if (state == AppLifecycleState.resumed) {
+      _fb.setOnlineStatus(uid!, true).catchError((_) {});
+    }
+  }
+
   void setLanguage(bool hindi) {
     locale.isHindi = hindi;
     notifyListeners();
@@ -147,8 +180,6 @@ class AppState extends ChangeNotifier {
   bool get isLoggedIn => uid != null;
   bool get isApproved => status == 'Approved';
 
-  /// Called once at app startup to resume an existing Firebase session
-  /// instead of always showing the login screen.
   Future<bool> tryResumeSession() async {
     final user = _fb.currentUser;
     if (user == null) return false;
@@ -156,6 +187,8 @@ class AppState extends ChangeNotifier {
     if (approved) {
       _startListening();
       startLocationReporting();
+      WidgetsBinding.instance.addObserver(this);
+      _reportAnalytics();
     }
     return true;
   }
@@ -171,6 +204,7 @@ class AppState extends ChangeNotifier {
     required String addr,
     String email = '',
     String? photoUrl,
+    String? pin,
   }) async {
     final realEmail = email.trim();
     try {
@@ -183,6 +217,7 @@ class AppState extends ChangeNotifier {
         shop: shop,
         address: addr,
         photoUrl: photoUrl,
+        pinHash: pin != null ? sha256.convert(utf8.encode(pin)).toString() : null,
       );
       return 'ok';
     } on FirebaseAuthException catch (e) {
@@ -204,14 +239,14 @@ class AppState extends ChangeNotifier {
     try {
       final cred = await _fb.login(email, password);
       uid = cred.user!.uid;
-      // Fetch status inline so we know which screen to route to, but
-      // start listeners and location in the background so the user isn't
-      // blocked on Firestore round-trips after a successful auth.
       await _refreshStatusOnce();
       if (isApproved) {
         _startListening();
         startLocationReporting();
+        WidgetsBinding.instance.addObserver(this);
+        _reportAnalytics();
       }
+      BiometricService.instance.saveCredentials(id, password).catchError((_) {});
       return 'ok';
     } on FirebaseAuthException catch (e) {
       // Firebase's own wording talks about email addresses, which is
@@ -250,6 +285,10 @@ class AppState extends ChangeNotifier {
     accountNumber = payout?['accountNumber'] ?? '';
     ifsc = payout?['ifsc'] ?? '';
     qrUrl = payout?['qrUrl'];
+    pinSet = d['pinSet'] == true;
+    pinHash = d['pinHash'] as String?;
+    resetPin = d['resetPin'] == true;
+    resetPassword = d['resetPassword'] == true;
     points = _int(d['points']);
     lifetimePoints = _int(d['lifetimePoints']);
     redeemedPoints = _int(d['redeemedPoints']);
@@ -266,9 +305,11 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    // Before _fb.logout(), while the carpenter still has permission to
-    // write their own doc.
-    if (uid != null) await PushService.instance.unregisterToken(uid!);
+    if (uid != null) {
+      await _fb.setOnlineStatus(uid!, false).catchError((_) {});
+      await PushService.instance.unregisterToken(uid!);
+    }
+    WidgetsBinding.instance.removeObserver(this);
     for (final s in _subs) {
       s.cancel();
     }
@@ -437,6 +478,10 @@ class AppState extends ChangeNotifier {
         accountNumber = payout?['accountNumber'] ?? '';
         ifsc = payout?['ifsc'] ?? '';
         qrUrl = payout?['qrUrl'];
+        pinSet = d['pinSet'] == true;
+        pinHash = d['pinHash'] as String?;
+        resetPin = d['resetPin'] == true;
+        resetPassword = d['resetPassword'] == true;
         points = _int(d['points']);
         lifetimePoints = _int(d['lifetimePoints']);
         redeemedPoints = _int(d['redeemedPoints']);
@@ -653,6 +698,19 @@ class AppState extends ChangeNotifier {
       return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
     }
     return 'Today';
+  }
+
+  bool get needsForceReset => resetPin || resetPassword;
+
+  Future<void> setPin(String pin) async {
+    final hash = sha256.convert(utf8.encode(pin)).toString();
+    await _fb.setPin(uid!, hash);
+  }
+
+  Future<void> resetPasswordTo(String newPassword) async {
+    await _fb.auth.currentUser!.updatePassword(newPassword);
+    await _fb.clearResetPassword(uid!);
+    BiometricService.instance.saveCredentials(mobile, newPassword).catchError((_) {});
   }
 
   Future<void> addOrder(CarpenterOrder order, {String? imageUrl, String? audioUrl}) async {

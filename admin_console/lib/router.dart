@@ -21,12 +21,14 @@ import 'screens/settings_screen.dart';
 import 'screens/party_orders_screen.dart';
 import 'screens/creator_home_screen.dart';
 import 'screens/creator_carpenters_screen.dart';
+import 'screens/analytics_dashboard_screen.dart';
 
 /// Every top-level sidebar destination, in the same order the sidebar
 /// renders them -- path, title, and icon together so AdminShell doesn't
 /// need a separate index to look any of that up.
 const List<(String, String, IconData)> adminSections = [
   ('/', 'Dashboard', Icons.dashboard_outlined),
+  ('/analytics', 'Analytics', Icons.bar_chart_outlined),
   ('/carpenters', 'Carpenters', Icons.people_outline),
   ('/orders', 'Orders', Icons.inventory_2_outlined),
   ('/party-orders', 'Party orders', Icons.receipt_long_outlined),
@@ -77,6 +79,7 @@ GoRouter buildAdminRouter(AdminState app) {
         builder: (context, state, child) => AdminShell(location: state.matchedLocation, child: child),
         routes: [
           GoRoute(path: '/', builder: (context, state) => context.read<AdminState>().isCreator ? const CreatorHomeScreen() : const DashboardScreen()),
+          GoRoute(path: '/analytics', builder: (context, state) => const AnalyticsDashboardScreen()),
           GoRoute(
             path: '/carpenters',
             builder: (context, state) => context.read<AdminState>().isCreator ? const CreatorCarpentersScreen() : const CarpentersScreen(),
