@@ -71,7 +71,7 @@ class _PinKeypad extends StatelessWidget {
 
 /// Full-screen PIN entry used by SetupPinScreen and ChangePinScreen.
 class _PinEntryPage extends StatefulWidget {
-  const _PinEntryPage({required this.title, required this.subtitle, this.onCompleted});
+  const _PinEntryPage({super.key, required this.title, required this.subtitle, this.onCompleted});
   final String title;
   final String subtitle;
   final ValueChanged<String>? onCompleted;
