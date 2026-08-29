@@ -90,6 +90,11 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   bool resetPin = false;
   bool resetPassword = false;
 
+  String? lastUserName;
+  String? lastUserIdentifier;
+  bool lastUserPinSet = false;
+  String? lastUserPinHash;
+
   int pointRuleAmount = 100;
   int pointRulePoints = 1;
   int minRedeemPoints = 500;
@@ -136,6 +141,72 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     } catch (_) {
       // Best-effort -- fall back to defaults if prefs aren't available.
     }
+  }
+
+  Future<void> loadLastUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      lastUserName = prefs.getString('lastUserName');
+      lastUserIdentifier = prefs.getString('lastUserIdentifier');
+      lastUserPinSet = prefs.getBool('lastUserPinSet') ?? false;
+      lastUserPinHash = prefs.getString('lastUserPinHash');
+    } catch (_) {}
+  }
+
+  Future<void> _saveLastUser(String identifier) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('lastUserName', carpenterName);
+      await prefs.setString('lastUserIdentifier', identifier);
+      await prefs.setBool('lastUserPinSet', pinSet);
+      if (pinHash != null) {
+        await prefs.setString('lastUserPinHash', pinHash!);
+      } else {
+        await prefs.remove('lastUserPinHash');
+      }
+      lastUserName = carpenterName;
+      lastUserIdentifier = identifier;
+      lastUserPinSet = pinSet;
+      lastUserPinHash = pinHash;
+    } catch (_) {}
+  }
+
+  Future<void> _refreshCachedLastUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getString('lastUserIdentifier') == null) return;
+      await prefs.setString('lastUserName', carpenterName);
+      await prefs.setBool('lastUserPinSet', pinSet);
+      if (pinHash != null) {
+        await prefs.setString('lastUserPinHash', pinHash!);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> clearLastUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('lastUserName');
+      await prefs.remove('lastUserIdentifier');
+      await prefs.remove('lastUserPinSet');
+      await prefs.remove('lastUserPinHash');
+    } catch (_) {}
+    lastUserName = null;
+    lastUserIdentifier = null;
+    lastUserPinSet = false;
+    lastUserPinHash = null;
+  }
+
+  Future<String> loginWithPin(String pin) async {
+    final enteredHash = sha256.convert(utf8.encode(pin)).toString();
+    if (lastUserPinHash == null || enteredHash != lastUserPinHash) {
+      return 'Incorrect PIN';
+    }
+    final creds = await BiometricService.instance.loadCredentials();
+    if (creds == null) {
+      return 'Saved credentials not found. Please use password.';
+    }
+    return login(creds.$1, creds.$2);
   }
 
   Future<void> _reportAnalytics() async {
@@ -189,6 +260,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       startLocationReporting();
       WidgetsBinding.instance.addObserver(this);
       _reportAnalytics();
+      _refreshCachedLastUser();
     }
     return true;
   }
@@ -247,6 +319,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         _reportAnalytics();
       }
       BiometricService.instance.saveCredentials(id, password).catchError((_) {});
+      _saveLastUser(id);
       return 'ok';
     } on FirebaseAuthException catch (e) {
       // Firebase's own wording talks about email addresses, which is

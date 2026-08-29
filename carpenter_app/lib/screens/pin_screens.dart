@@ -463,3 +463,52 @@ class _ForceResetScreenState extends State<ForceResetScreen> {
     }
   }
 }
+
+/// PIN-based login screen for returning users. Verifies the entered PIN
+/// against the locally cached hash, then logs in using saved credentials.
+/// Pops with `true` on success.
+class PinLoginScreen extends StatefulWidget {
+  const PinLoginScreen({super.key});
+
+  @override
+  State<PinLoginScreen> createState() => _PinLoginScreenState();
+}
+
+class _PinLoginScreenState extends State<PinLoginScreen> {
+  final _pinKey = GlobalKey<_PinEntryPageState>();
+  bool _busy = false;
+
+  Future<void> _onPinEntered(String pin) async {
+    setState(() => _busy = true);
+    final app = context.read<AppState>();
+    final result = await app.loginWithPin(pin);
+    if (!mounted) return;
+    if (result == 'ok') {
+      Navigator.of(context).pop(true);
+    } else {
+      setState(() => _busy = false);
+      _pinKey.currentState?.reset(app.tr(result));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final app = context.watch<AppState>();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(app.tr('Enter PIN')),
+      ),
+      body: _busy
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: _PinEntryPage(
+                key: _pinKey,
+                title: app.tr('Enter your PIN'),
+                subtitle: app.tr('Enter your 4-digit PIN to continue'),
+                onCompleted: _onPinEntered,
+              ),
+            ),
+    );
+  }
+}

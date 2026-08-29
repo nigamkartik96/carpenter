@@ -108,7 +108,7 @@ class AuthGate extends StatefulWidget {
   State<AuthGate> createState() => _AuthGateState();
 }
 
-enum _AuthResult { loading, splash, biometric }
+enum _AuthResult { loading, splash, biometric, returningUser }
 
 class _AuthGateState extends State<AuthGate> {
   _AuthResult _state = _AuthResult.loading;
@@ -144,15 +144,21 @@ class _AuthGateState extends State<AuthGate> {
     if (hasSession) {
       await _navigateAfterAuth(app);
     } else {
+      await app.loadLastUser();
       final bio = BiometricService.instance;
       final hasCreds = await bio.hasSavedCredentials();
-      final supported = hasCreds && await bio.isDeviceSupported();
       if (!mounted) return;
-      if (supported) {
-        setState(() => _state = _AuthResult.biometric);
-        _attemptBiometric();
+      if (app.lastUserName != null && app.lastUserPinSet && hasCreds) {
+        setState(() => _state = _AuthResult.returningUser);
       } else {
-        setState(() => _state = _AuthResult.splash);
+        final supported = hasCreds && await bio.isDeviceSupported();
+        if (!mounted) return;
+        if (supported) {
+          setState(() => _state = _AuthResult.biometric);
+          _attemptBiometric();
+        } else {
+          setState(() => _state = _AuthResult.splash);
+        }
       }
     }
     _checkForUpdate();
@@ -183,6 +189,21 @@ class _AuthGateState extends State<AuthGate> {
     }
   }
 
+  Future<void> _handleUseAccount() async {
+    final app = context.read<AppState>();
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const PinLoginScreen()),
+    );
+    if (result == true && mounted) {
+      await _navigateAfterAuth(app);
+    }
+  }
+
+  void _handleOtherAccount() {
+    context.read<AppState>().clearLastUser();
+    Navigator.pushNamed(context, '/login');
+  }
+
   void _goToLogin() {
     Navigator.pushNamed(context, '/login');
   }
@@ -197,6 +218,71 @@ class _AuthGateState extends State<AuthGate> {
     if (_state == _AuthResult.splash) return const SplashScreen();
 
     final app = context.watch<AppState>();
+
+    if (_state == _AuthResult.returningUser) {
+      return Scaffold(
+        body: Container(
+          color: kBg,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 84,
+                    height: 84,
+                    decoration: BoxDecoration(
+                      color: kPrimary,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [BoxShadow(color: kPrimary.withValues(alpha: 0.4), blurRadius: 24, offset: const Offset(0, 8))],
+                    ),
+                    child: const Icon(Icons.person, color: kOnPrimary, size: 40),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(app.tr('Welcome back'), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: kText)),
+                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: kCard,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: kBorder),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '${app.tr('Last logged in')} — ${app.lastUserName}',
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: kText),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _handleUseAccount,
+                            child: Text(app.tr('Use this account')),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: _handleOtherAccount,
+                      child: Text(app.tr('Log in with another account')),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: Container(
         color: kBg,

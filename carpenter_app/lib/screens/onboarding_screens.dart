@@ -65,12 +65,70 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Either a mobile number or an email address -- carpenters who
-  // registered without an email sign in with their number.
   final identifier = TextEditingController();
   final password = TextEditingController();
+  final pin = TextEditingController();
   String? error;
   bool busy = false;
+  bool pinMode = false;
+
+  Future<void> _navigateAfterLogin(BuildContext context, AppState app) async {
+    if (!context.mounted) return;
+    if (app.isApproved) {
+      if (app.needsForceReset) {
+        await Navigator.of(context).push<bool>(MaterialPageRoute(
+          builder: (_) => ForceResetScreen(resetPin: app.resetPin, resetPassword: app.resetPassword),
+        ));
+        if (!context.mounted) return;
+      }
+      Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (r) => false);
+    } else {
+      Navigator.pushNamedAndRemoveUntil(context, '/pending', (r) => false);
+    }
+  }
+
+  Future<void> _loginWithPassword(AppState app) async {
+    setState(() { busy = true; error = null; });
+    final result = await app.login(identifier.text.trim(), password.text);
+    setState(() => busy = false);
+    if (result != 'ok') {
+      setState(() => error = app.tr(result));
+      return;
+    }
+    await _navigateAfterLogin(context, app);
+  }
+
+  Future<void> _loginWithPin(AppState app) async {
+    final id = identifier.text.trim();
+    if (id.isEmpty) {
+      setState(() => error = app.tr('Enter your mobile number or email'));
+      return;
+    }
+    if (pin.text.length != 4) {
+      setState(() => error = app.tr('Enter a valid 4-digit PIN'));
+      return;
+    }
+    final lastId = app.lastUserIdentifier;
+    if (lastId == null || !_identifiersMatch(id, lastId)) {
+      setState(() => error = app.tr('PIN login is not available for this account'));
+      return;
+    }
+    setState(() { busy = true; error = null; });
+    final result = await app.loginWithPin(pin.text);
+    setState(() => busy = false);
+    if (result != 'ok') {
+      setState(() => error = app.tr(result));
+      return;
+    }
+    await _navigateAfterLogin(context, app);
+  }
+
+  bool _identifiersMatch(String a, String b) {
+    final normA = normalizeMobile(a);
+    final normB = normalizeMobile(b);
+    if (normA.length >= 10 && normB.length >= 10) return normA == normB;
+    return a.trim().toLowerCase() == b.trim().toLowerCase();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,39 +144,33 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 20),
           TextField(controller: identifier, decoration: InputDecoration(labelText: app.tr('Mobile number or email'))),
           const SizedBox(height: 12),
-          TextField(controller: password, decoration: InputDecoration(labelText: app.tr('Password')), obscureText: true),
+          if (pinMode)
+            TextField(
+              controller: pin,
+              keyboardType: TextInputType.number,
+              maxLength: 4,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: app.tr('4-digit PIN'),
+                counterText: '',
+              ),
+            )
+          else
+            TextField(controller: password, decoration: InputDecoration(labelText: app.tr('Password')), obscureText: true),
           if (error != null) Padding(padding: const EdgeInsets.only(top: 10), child: Text(error!, style: const TextStyle(color: kDanger, fontSize: 12))),
           const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: busy
-                ? null
-                : () async {
-                    setState(() {
-                      busy = true;
-                      error = null;
-                    });
-                    final result = await app.login(identifier.text.trim(), password.text);
-                    setState(() => busy = false);
-                    if (result != 'ok') {
-                      setState(() => error = app.tr(result));
-                      return;
-                    }
-                    if (!context.mounted) return;
-                    if (app.isApproved) {
-                      if (app.needsForceReset) {
-                        await Navigator.of(context).push<bool>(MaterialPageRoute(
-                          builder: (_) => ForceResetScreen(resetPin: app.resetPin, resetPassword: app.resetPassword),
-                        ));
-                        if (!context.mounted) return;
-                      }
-                      Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (r) => false);
-                    } else {
-                      Navigator.pushNamedAndRemoveUntil(context, '/pending', (r) => false);
-                    }
-                  },
+            onPressed: busy ? null : () => pinMode ? _loginWithPin(app) : _loginWithPassword(app),
             child: Text(busy ? app.tr('Logging in...') : app.tr('Login')),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
+          Center(
+            child: TextButton(
+              onPressed: () => setState(() { pinMode = !pinMode; error = null; }),
+              child: Text(pinMode ? app.tr('Use password instead') : app.tr('Use PIN instead')),
+            ),
+          ),
+          const SizedBox(height: 4),
           OutlinedButton(
             onPressed: () => Navigator.pushNamed(context, '/register'),
             child: Text(app.tr('Create new account')),
